@@ -27,7 +27,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $Files =
-    "Connection"
+    "Connection",
+    "Invoke"
 
 $Files `
     | % { "$PSScriptRoot\PSql.$_.ps1" } `
