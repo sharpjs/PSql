@@ -1,5 +1,7 @@
 <#
-    PSql - Simple PowerShell Cmdlets for SQL Server
+    Utility Cmdlets
+
+    Part of: PSql - Simple PowerShell Cmdlets for SQL Server
     Copyright (C) 2016 Jeffrey Sharp
     https://github.com/sharpjs/PSql
 
@@ -22,16 +24,22 @@
     SOFTWARE.
 #>
 
-#Requires -Version 4.0
-$ErrorActionPreference = "Stop"
-Set-StrictMode -Version Latest
-
-$Files =
-    "Connection",
-    "Invoke",
-    "Utilities"
-
-$Files `
-    | % { "$PSScriptRoot\PSql.$_.ps1" } `
-	| Resolve-Path `
-	| % { . $_.Path }
+function Get-SqlDirectories {
+    <#
+    .SYNOPSIS
+        Gets important directory paths for the SQL server instance.
+    #>
+    Invoke-Sql "
+        DECLARE @BackupDirectory nvarchar(4000);
+        EXEC master.dbo.xp_instance_regread
+            N'HKEY_LOCAL_MACHINE'
+          , N'Software\Microsoft\MSSQLServer\MSSQLServer'
+          , N'BackupDirectory'
+          , @BackupDirectory OUTPUT;
+        SELECT
+            BackupDirectory = @BackupDirectory
+          , DataDirectory   = SERVERPROPERTY('InstanceDefaultDataPath')
+          , LogDirectory    = SERVERPROPERTY('InstanceDefaultLogPath')
+        ;
+    "
+}
