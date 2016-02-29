@@ -43,3 +43,38 @@ function Get-SqlDirectories {
         ;
     "
 }
+
+function Invoke-Robocopy {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position=1)]
+        [object] $SourceDirectory,
+
+        [Parameter(Mandatory, Position=2)]
+        [object] $TargetDirectory,
+
+        [Parameter(ValueFromPipeline, ValueFromRemainingArguments)]
+        [string[]] $Files
+    )
+    process {
+        & "robocopy" (
+            $SourceDirectory, $TargetDirectory + $Files +
+            "/z",    # Copy files in restartable mode
+            "/j",    # Use unbuffered I/O (recommended for large files)
+            "/xo",   # Don't copy older file over a newer file
+            "/xx",   # Don't list other files already in target directory
+            "/r:2",  # Retry 2 times
+            "/w:5",  # Wait 5 seconds before retry
+            "/njh"   # Don't display header
+        )
+
+        if ($LASTEXITCODE -ge 4) {
+            # Robocopy exit codes below 4 are successful
+            # http://ss64.com/nt/robocopy-exit.html
+            throw "An error occurred while copying the file(s)."
+        }
+
+        # Prevent false positives when callers check the last exit code
+        $global:LastExitCode = $null
+    }
+}
