@@ -144,7 +144,7 @@ function Disconnect-Sql {
         Disconnects the given connection(s).
     #>
     param(
-        # The connections to disconnect.  These must be objects returned by the PSql\Connect-Sql cmdlet.  If none are given, the default connection is disconnected.
+        # The connections to disconnect.  These must be objects returned by the PSql\Connect-Sql -PassThru cmdlet.  If none are given, the default connection is disconnected.
         [Parameter(ValueFromPipeline, ValueFromRemainingArguments)]
         [PSCustomObject[]] $Connections = (,$DefaultContext)
     )
