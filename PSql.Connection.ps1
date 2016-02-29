@@ -24,21 +24,34 @@
     SOFTWARE.
 #>
 
-function New-ConnectionInfo {
+<#
+    A 'connection context' holds a SqlConnection plus a few bits of extra state.
+    The 'connection' returned from Connect-Sql -PassThru is actually one of these.
+#>
+function New-ConnectionContext {
     param(
         [Parameter(ValueFromPipeline)]
         [System.Data.SqlClient.SqlConnection] $Connection
     )
     process {
         Write-Output ([PSCustomObject] @{
-            Connection      = $Connection
-            IsDisconnecting = $false
-            HasErrors       = $false
+            Connection      = $Connection   # The SqlConnection itself
+            IsDisconnecting = $false        # Whether the script has requested to disconnect this connection
+            HasErrors       = $false        # Whether the connection has reported an error message
         })
     }
 }
 
-$DefaultConnection = New-ConnectionInfo $null
+<#
+    All live connection contexts are tracked here.
+#>
+$Contexts = [hashtable]::Synchronized(@{})
+
+<#
+    For convenience, there is a default connection context for the script.
+    Cmdlets use the default context when one is not specified via arguments.
+#>
+$DefaultContext = $null
 
 function Connect-Sql {
     <#
@@ -65,19 +78,17 @@ function Connect-Sql {
         [switch] $PassThru
     )
 
-    # Disconnect if using default connection and it is already connected
+    # Disconnect if using default context
     if (!$PassThru) {
-        Disconnect-Sql
+        Disconnect-Sql -Connections $DefaultContext
     }
 
     # Build connection string
     $Builder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder
     $Builder.PSBase.DataSource = $Server
-
     if ($Database) {
         $Builder.PSBase.InitialCatalog = $Database
     }
-
     $Builder.PSBase.ApplicationName = "PowerShell"
     $Builder.PSBase.ConnectTimeout  = 30 # seconds
     $Builder.PSBase.Pooling         = $false;
@@ -96,31 +107,34 @@ function Connect-Sql {
     $Connection = New-Object System.Data.SqlClient.SqlConnection
     $Connection.ConnectionString = $Builder.ConnectionString
 
-    $Info = New-ConnectionInfo $Connection
-
     # Set up to print messages received from the server
     $Connection.FireInfoMessageEventOnUserErrors = $true;
     $Connection.add_InfoMessage({
         param($Sender, $Data)
-        Write-SqlErrors $Data.Errors
+        Write-SqlErrors $Data.Errors $Contexts[$Sender]
     }); 
 
     # Set up to catch unexpected disconnection
     $Connection.add_StateChange({
         param($Sender, $Data)
         if ($Data.CurrentState -eq [System.Data.ConnectionState]::Open) { return }
-        if ($Info.IsDisconnecting) { return }
+        Write-Output $Contexts
+        if ($Contexts[$Sender].IsDisconnecting) { return }
         throw "The connection to the database server was closed unexpectedly."
     })
+
+    # Track contextual state for the connection
+    $Context = New-ConnectionContext $Connection
+    $Contexts[$Connection] = $Context
 
     # Open the connection
     $Connection.Open()
 
-    # Return connection
+    # Return connection context
     if ($PassThru) {
-        Write-Output $Info
+        Write-Output $Context
     } else {
-        $Script:DefaultConnection = $Info
+        $script:DefaultContext = $Context
     }
 }
 
@@ -132,15 +146,36 @@ function Disconnect-Sql {
     param(
         # The connections to disconnect.  These must be objects returned by the PSql\Connect-Sql cmdlet.  If none are given, the default connection is disconnected.
         [Parameter(ValueFromPipeline, ValueFromRemainingArguments)]
-        [PSCustomObject[]] $Connections = (,$DefaultConnection)
+        [PSCustomObject[]] $Connections = (,$DefaultContext)
     )
     process {
-        $Connections | % {
-            if ($_ -and $_.Connection) {
-                $_.IsDisconnecting = $true
-                $_.Connection.Dispose()
-                $_.Connection = $NULL
-            }
+        $Connections | ? { $_ } | % {
+            $_.IsDisconnecting = $true
+            $_.Connection.Dispose()
+            $Contexts.Remove($_.Connection)
+            $_.Connection = $null
+        }
+    }
+}
+
+function Write-SqlErrors {
+    param (
+        [System.Data.SqlClient.SqlErrorCollection] $Errors,
+        [PSCustomObject] $Context
+    )
+
+    foreach ($e in $Errors) {
+        if ($e.Class -le 10 <# max informational severity #>) {
+            # Informational message
+            Write-Host $e.Message -ForegroundColor Gray
+        } else {
+            # Warning or error message
+            $Message = ($e.Procedure, "(batch)" -ne "")[0]
+            $Message = "$($Message):$($e.LineNumber): E$($e.Class): $($e.Message)"
+            Write-Host $Message -ForegroundColor Yellow
+
+            # Mark current command as failed
+            $Context.HasErrors = $true
         }
     }
 }
