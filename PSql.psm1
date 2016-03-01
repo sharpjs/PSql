@@ -29,7 +29,9 @@ Set-StrictMode -Version Latest
 $Files =
     "Connection",
     "Invoke",
-    "Utilities"
+    "Utilities",
+    "Text",
+    "Backup"
 
 $Files `
     | % { "$PSScriptRoot\PSql.$_.ps1" } `

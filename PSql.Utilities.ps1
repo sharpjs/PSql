@@ -29,7 +29,12 @@ function Get-SqlDirectories {
     .SYNOPSIS
         Gets important directory paths for the SQL server instance.
     #>
-    Invoke-Sql "
+    [CmdletBinding()]
+    param(
+        # The connection to use.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
+        [PSCustomObject] $Connection = $DefaultContext
+    )
+    Invoke-Sql -Connection $Connection "
         DECLARE @BackupDirectory nvarchar(4000);
         EXEC master.dbo.xp_instance_regread
             N'HKEY_LOCAL_MACHINE'
