@@ -31,7 +31,8 @@ $Files =
     "Invoke",
     "Utilities",
     "Text",
-    "Backup"
+    "Backup",
+    "Make"
 
 $Files `
     | % { "$PSScriptRoot\PSql.$_.ps1" } `
