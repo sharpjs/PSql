@@ -140,8 +140,30 @@ function Merge-SqlModules {
     }
 }
 
-function Invoke-SqlModulesParallel {
-    param ($ModuleSet)
+function Invoke-SqlModules {
+    [CmdletBinding()]
+    param (
+        # The set of modules to execute.
+        [Parameter(Position = 1, Mandatory)]
+        $ModuleSet,
+
+        # Name of the server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.
+        [Parameter(Position = 2, ValueFromPipelineByPropertyName)]
+        [string] $Server = ".",
+
+        # Name of the initial database.  If not given, the initial database is the SQL Server default database.
+        [Parameter(Position = 3, ValueFromPipelineByPropertyName)]
+        [string] $Database,
+
+        # Use SQL credentials instead of Windows authentication.  Must be used with -Password.
+        [string] $Login,
+
+        # Use SQL credentials instead of Windows authentication.  Must be used with -Login.
+        [string] $Password,
+
+        # Command timeout, in seconds.  0 disables timeout.  The default is 0.
+        [int] $Timeout = 0
+    )
 
     $OldInformationPreference = $InformationPreference
     $InformationPreference = "Continue"
@@ -150,13 +172,20 @@ function Invoke-SqlModulesParallel {
         Write-Information "[Thread $Id]: Starting."
 
         # Create worker thread to run modules asynchronously
-        $p = [powershell]::Create()
-        $p.Runspace.SessionStateProxy.SetVariable('ModuleSet', $ModuleSet)
-        $p.AddScript($ThreadMain) | Out-Null
+        $Shell = [powershell]::Create()
+        $State = $Shell.Runspace.SessionStateProxy
+        $State.SetVariable('ModuleSet', $ModuleSet   )
+        $State.SetVariable('Server'  ,  $Server      )
+        $State.SetVariable('Database',  $Database    )
+        $State.SetVariable('Login'   ,  $Login       )
+        $State.SetVariable('Password',  $Password    )
+        $State.SetVariable('Timeout' ,  $Timeout     )
+        $State.SetVariable('PSqlDir' ,  $PSScriptRoot)
+        $Shell.AddScript($ThreadMain) | Out-Null
 
         # Pipe worker output streams to main output streams
         foreach ($Kind in 'Debug', 'Verbose', 'Information', 'Warning' ,'Error') {
-            Register-ObjectEvent $p.Streams.$Kind DataAdded -SupportEvent `
+            Register-ObjectEvent $Shell.Streams.$Kind DataAdded -SupportEvent `
                 -MessageData @{ Id = $Id; Kind = $Kind } `
                 -Action {
                     $Id   = $Event.MessageData.Id
@@ -173,15 +202,15 @@ function Invoke-SqlModulesParallel {
         }
 
         # Start worker
-        $r = $p.BeginInvoke()
-        @{ Id = $Id; Shell = $p; Invocation = $r }
+        $Invocation = $Shell.BeginInvoke()
+        @{ Id = $Id; Shell = $Shell; Invocation = $Invocation }
     }
 
     # Wait for workers to finish
     $Failed = $false
     foreach ($Worker in $Workers) {
         try {
-            $Worker.Shell.EndInvoke($Worker.Invocation)
+            $Worker.Shell.EndInvoke($Worker.Invocation) | Out-Null
             Write-Information "[Thread $($Worker.Id)]: Ended."
         }
         catch {
@@ -199,52 +228,61 @@ function Invoke-SqlModulesParallel {
 }
 
 $ThreadMain = {
+    $ErrorActionPreference = "Stop"
+    Import-Module $PSqlDir\PSql.psm1 -Force
+
     function Invoke-SqlModules {
         param ($ModuleSet)
 
         $Queue      = $ModuleSet.Queue
         $Subjects   = $ModuleSet.Subjects
         $Module     = @{ Value = $null }
-        $Connection = $null
 
-        while ($true) {
-            # Advance to next module
-            Use-Lock $Queue {
-                # Mark prior module completed
-                if ($Module["Value"]) {
-                    Complete-SqlModule $Module["Value"] $ModuleSet
-                }
+        $Connection = Connect-Sql $Server $Database `
+            -Login $Login -Password $Password -PassThru
 
-                # Dequeue next module
-                while ($true) {
-                    if ($Queue.Count) {
-                        # Take next queued module
-                        $Module["Value"] = $Queue.Dequeue()
-                        break
-                    } elseif (!$Subjects.Count) {
-                        # No modules queued, none in progress; done
-                        $Module["Value"] = $null
-                        break
-                    } else {
-                        # Wait for other modules to finish
-                        [System.Threading.Monitor]::Wait($Queue)
+        try {
+            while ($true) {
+                # Advance to next module
+                Use-Lock $Queue {
+                    # Mark prior module completed
+                    if ($Module["Value"]) {
+                        Complete-SqlModule $Module["Value"] $ModuleSet
+                    }
+
+                    # Dequeue next module
+                    while ($true) {
+                        if ($Queue.Count) {
+                            # Take next queued module
+                            $Module["Value"] = $Queue.Dequeue()
+                            break
+                        } elseif (!$Subjects.Count) {
+                            # No modules queued, none in progress; done
+                            $Module["Value"] = $null
+                            break
+                        } else {
+                            # Wait for other modules to finish
+                            [System.Threading.Monitor]::Wait($Queue)
+                        }
                     }
                 }
+
+                # Check if done
+                if (!$Module["Value"]) { return }
+
+                # Run module
+                Write-Host "Running $($Module["Value"].Name)" -ForegroundColor Yellow
+                Invoke-Sql -Query $Module["Value"].Script -Connection $Connection -Timeout $Timeout
             }
-
-            # Check if done
-            if (!$Module["Value"]) { return }
-
-            # Run module
-            Write-Host "Invoking $($Module["Value"].Name)" -ForegroundColor Yellow
         }
-
-        #Disconnect-Sql $Connection
+        finally {
+            Disconnect-Sql $Connection
+        }
     }
 
     function Complete-SqlModule($Module, $ModuleSet) {
-        $Queue        = $ModuleSet.Queue
-        $Subjects     = $ModuleSet.Subjects
+        $Queue       = $ModuleSet.Queue
+        $Subjects    = $ModuleSet.Subjects
         $WorkChanged = $false
 
         # Update each subject provided by this module
