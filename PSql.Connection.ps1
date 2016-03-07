@@ -118,7 +118,6 @@ function Connect-Sql {
     $Connection.add_StateChange({
         param($Sender, $Data)
         if ($Data.CurrentState -eq [System.Data.ConnectionState]::Open) { return }
-        Write-Output $Contexts
         if ($Contexts[$Sender].IsDisconnecting) { return }
         throw "The connection to the database server was closed unexpectedly."
     })
