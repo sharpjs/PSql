@@ -32,7 +32,7 @@
 
 #>
 
-$LinesRe     = [regex] '\n'
+$LinesRe     = [regex] '\r?\n'
 $SpacesRe    = [regex] '\s+'
 $DirectiveRe = [regex] '(?x)
     ^ --\# \s+ (?<dir>MODULE|PROVIDES|REQUIRES): \s+ (?<args>.*) $
