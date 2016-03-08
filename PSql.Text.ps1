@@ -24,6 +24,8 @@
     SOFTWARE.
 #>
 
+$BatchSeparatorRe = [regex] '(?m)^GO\r?\n'
+
 function Split-SqlBatches {
     <#
     .SYNOPSIS
@@ -33,10 +35,10 @@ function Split-SqlBatches {
     [OutputType([string[]])]
     param (
         [Parameter(ValueFromPipeline)]
-        [string] $Input
+        [string] $Sql
     )
     process {
-        $Input -split "(?m)^GO(?:\r)?\n"
+        $Sql -split $BatchSeparatorRe
     }
 }
 
