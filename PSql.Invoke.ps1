@@ -31,7 +31,7 @@ function Invoke-Sql {
     #>
     param (
         # The command to invoke.
-        [Parameter(Mandatory, Position=1, ValueFromPipeline)]
+        [Parameter(Position=1, ValueFromPipeline)]
         [string] $Query,
 
         # The connection on which to invoke the command.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
@@ -48,6 +48,7 @@ function Invoke-Sql {
         $Connection.HasErrors = $false
     }
     process {
+        if (!$Query) {return}
         $Command = $NULL
         $Reader  = $NULL
         try {
