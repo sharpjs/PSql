@@ -39,12 +39,23 @@ $DirectiveRe = [regex] '(?x)
 '
 
 function New-SqlModule {
-    Write-Output ([PSCustomObject]@{
-        Name       = $null
-        Provides   = New-Object System.Collections.ArrayList
-        Requires   = New-Object System.Collections.ArrayList
-        Script     = New-Object System.Text.StringBuilder 4096
-    })
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param(
+        [Parameter(Position=1, Mandatory, ValueFromPipeline)]
+        [string] $Name
+    )
+    process {
+        $Module = [PSCustomObject]@{
+            Name       = $Name
+            Provides   = New-Object System.Collections.ArrayList
+            Requires   = New-Object System.Collections.ArrayList
+            Script     = New-Object System.Text.StringBuilder 4096
+        }
+        $List = if ($Name -eq 'init') {"Provides"} else {"Requires"}
+        $Module.$List.Add('init') | Out-Null
+        $Module
+    }
 }
 
 function Out-SqlModule($Module) {
@@ -62,7 +73,7 @@ function Read-SqlModules {
         [string] $Text
     )
     process {
-        $Module = New-SqlModule
+        $Module = New-SqlModule init
 
         $Text -split $LinesRe | % {
             if ($_ -match $DirectiveRe) {
@@ -71,8 +82,7 @@ function Read-SqlModules {
                 switch ($Directive) {
                     'MODULE' {
                         Out-SqlModule $Module
-                        $Module = New-SqlModule
-                        $Module.Name = $Arguments | Select-Object -First 1
+                        $Module = $Arguments | Select-Object -First 1 | New-SqlModule
                         $Module.Provides.AddRange($Arguments)
                     }
                     'PROVIDES' {
