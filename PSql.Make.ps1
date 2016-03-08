@@ -288,8 +288,11 @@ $ThreadMain = {
                 if (!$Module["Value"]) { return }
 
                 # Run module
-                Write-Host "Running $($Module["Value"].Name)" -ForegroundColor Yellow
-                Invoke-Sql -Query $Module["Value"].Script -Connection $Connection -Timeout $Timeout
+                Write-Verbose "Running $($Module["Value"].Name)"
+
+                $Module["Value"].Script `
+                    | Split-SqlBatches `
+                    | Invoke-Sql -Connection $Connection -Timeout $Timeout
             }
         }
         finally {
