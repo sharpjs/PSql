@@ -179,7 +179,7 @@ function Invoke-SqlModules {
     $InformationPreference = "Continue"
 
     $Workers = foreach ($Id in 1..$env:NUMBER_OF_PROCESSORS) {
-        Write-Information "[Thread $Id]: Starting."
+        Write-Information "[Thread $Id]: Starting"
 
         # Create worker thread to run modules asynchronously
         $Shell = [powershell]::Create()
@@ -220,19 +220,26 @@ function Invoke-SqlModules {
     $Failed = $false
     foreach ($Worker in $Workers) {
         try {
-            $Worker.Shell.EndInvoke($Worker.Invocation) | Out-Null
-            Write-Information "[Thread $($Worker.Id)]: Ended."
+            if ($Failed) {
+                $Worker.Shell.Stop()
+                Write-Information "[Thread $($Worker.Id)]: Ended"
+            } else {
+                $Worker.Shell.EndInvoke($Worker.Invocation) | Out-Null
+                Write-Information "[Thread $($Worker.Id)]: Ended"
+            }
         }
         catch {
             $Failed = $true
             $Host.UI.WriteErrorLine("[Thread $($Worker.Id)]: $($_.Exception.Message)")
-            $Host.UI.WriteErrorLine("[Thread $($Worker.Id)]: Terminated due to exception.")
+            $Host.UI.WriteErrorLine("[Thread $($Worker.Id)]: Terminated due to error")
+            throw 'One or more threads ended with an error.'
         }
     }
 
-    if ($Failed) {
-        throw 'One or more threads ended with an error.'
-    }
+    # Trying to stop all threads is too difficult right now.
+    #if ($Failed) {
+    #    throw 'One or more threads ended with an error.'
+    #}
 
     $InformationPreference = $OldInformationPreference 
 }
