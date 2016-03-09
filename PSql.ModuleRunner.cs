@@ -86,6 +86,7 @@ namespace PSql
             _parameters;
 
         private Module _module;
+        private bool _ending;
 
         public ModuleRunner(ModuleRunnerParameters parameters)
         {
@@ -194,11 +195,17 @@ namespace PSql
         {
             for (;;)
             {
-                if (_queue.Any())
+                if (_ending)
+                    // Alredy ending; don't bother checking queue
+                    return null;
+                else if (_queue.Any())
+                    // Queue has next module to do
                     return _queue.Dequeue();
                 else if (!_subjects.Any())
-                    return null; // nothing left to do
+                    // Queue empty, no modules in progress
+                    return null;
                 else
+                    // Wait for modules in progress
                     Monitor.Wait(_lock, 1000);
             }
         }
@@ -245,6 +252,15 @@ namespace PSql
                 Monitor.PulseAll(_lock);
         }
 
+        private void SetEnding()
+        {
+            lock (_lock)
+            {
+                _ending = true;
+                Monitor.PulseAll(_lock);
+            }
+        }
+
         public class ModuleDispenser
         {
             private readonly ModuleRunner _runner;
@@ -269,29 +285,40 @@ namespace PSql
 
         private void ThreadMain(int id)
         {
-            Echo(id, "Starting");
-            var shell = PowerShell.Create();
+            try
+            {
+                Echo(id, "Starting");
+                var shell = PowerShell.Create();
 
-            var state = shell.Runspace.SessionStateProxy;
-            state.SetVariable("Modules" ,  new ModuleDispenser(this));
-            state.SetVariable("Server"  ,  _parameters.Server  );
-            state.SetVariable("Database",  _parameters.Database);
-            state.SetVariable("Login"   ,  _parameters.Login   );
-            state.SetVariable("Password",  _parameters.Password);
-            state.SetVariable("Timeout" ,  _parameters.Timeout );
-            state.SetVariable("PSqlPath",  _parameters.PSqlPath );
+                var state = shell.Runspace.SessionStateProxy;
+                state.SetVariable("Modules" ,  new ModuleDispenser(this));
+                state.SetVariable("Server"  ,  _parameters.Server  );
+                state.SetVariable("Database",  _parameters.Database);
+                state.SetVariable("Login"   ,  _parameters.Login   );
+                state.SetVariable("Password",  _parameters.Password);
+                state.SetVariable("Timeout" ,  _parameters.Timeout );
+                state.SetVariable("PSqlPath",  _parameters.PSqlPath );
 
-            shell.AddScript(_parameters.ScriptBlock);
+                shell.AddScript(_parameters.ScriptBlock);
 
-            var streams = shell.Streams;
-            streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);
-            streams.Verbose     .DataAdded += HandleData<VerboseRecord    >(id);
-            streams.Information .DataAdded += HandleData<InformationRecord>(id);
-            streams.Warning     .DataAdded += HandleData<WarningRecord    >(id);
-            streams.Error       .DataAdded += HandleData<ErrorRecord      >(id);
+                var streams = shell.Streams;
+                streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);
+                streams.Verbose     .DataAdded += HandleData<VerboseRecord    >(id);
+                streams.Information .DataAdded += HandleData<InformationRecord>(id);
+                streams.Warning     .DataAdded += HandleData<WarningRecord    >(id);
+                streams.Error       .DataAdded += HandleData<ErrorRecord      >(id);
 
-            shell.Invoke();
-            Echo(id, "Ending");
+                shell.Invoke();
+            }
+            catch (Exception e)
+            {
+                Echo(id, e.Message);
+            }
+            finally
+            {
+                Echo(id, "Ending");
+                SetEnding();
+            }
         }
 
         private EventHandler<DataAddedEventArgs> HandleData<TRecord>(int id)

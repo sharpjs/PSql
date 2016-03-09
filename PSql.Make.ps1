@@ -117,24 +117,22 @@ function Invoke-SqlModules {
 }
 
 $ThreadMain = {
-    #$ErrorActionPreference = "Stop"
+    $ErrorActionPreference = "Stop"
     Import-Module $PSqlPath\PSql.psm1 -Force
-
-    #throw 'this is an error'
 
     $Connection = Connect-Sql $Server $Database `
         -Login $Login -Password $Password -PassThru
 
-    #$Connection | fl -Force | Write-Host
+    try {
+        while ($true) {
+            $Module = $Modules.Next()
+            if (!$Module) { break }
 
-    while ($true) {
-        $Module = $Modules.Next()
-        if (!$Module) { break }
-
-        $Module.Script `
-            | Split-SqlBatches `
-            | Invoke-Sql -Connection $Connection -Timeout $Timeout
+            $Module.Script `
+                | Split-SqlBatches `
+                | Invoke-Sql -Connection $Connection -Timeout $Timeout
+        }
+    } finally {
+        Disconnect-Sql $Connection
     }
-
-    Disconnect-Sql $Connection
 }
