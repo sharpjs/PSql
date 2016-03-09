@@ -101,6 +101,7 @@ namespace PSql
         {
             AcceptModule();
             _module = new Module(name);
+            _module.Requires.Add("init");
         }
 
         public void AddProvides(IEnumerable<string> names)
