@@ -178,6 +178,7 @@ namespace PSql
         public void Run()
         {
             Parallel.For(1, Environment.ProcessorCount + 1, ThreadMain);
+            Console.CancelKeyPress += HandleCancel;
         }
 
         // Thread-safe
@@ -333,6 +334,11 @@ namespace PSql
                         Echo(id, record.ToString());
                 }
             );
+        }
+
+        private static void HandleCancel(object sender, ConsoleCancelEventArgs e)
+        {
+            Environment.Exit(1);
         }
     }
 
