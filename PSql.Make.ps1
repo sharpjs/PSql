@@ -126,6 +126,12 @@ $RunLoop = {
     $Connection = Connect-Sql $Server $Database `
         -Login $Login -Password $Password -PassThru
 
+    # Pass run id in context, so that threads can share data via a table.
+    Invoke-Sql -Connection $Connection "
+        DECLARE @id uniqueidentifier = '$RunId';
+        SET CONTEXT_INFO @id;
+    "
+
     try {
         while ($true) {
             $Module = $Modules.Next()

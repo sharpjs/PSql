@@ -113,6 +113,9 @@ namespace PSql
             RegexOptions.IgnorePatternWhitespace
         );
 
+        private readonly Guid
+            _runId = Guid.NewGuid();
+
         private readonly object
             _lock = new object();
 
@@ -368,6 +371,7 @@ namespace PSql
 
                 foreach (DictionaryEntry entry in _parameters)
                     state.SetVariable(entry.Key.ToString(), entry.Value);
+                state.SetVariable("RunId",   _runId);
                 state.SetVariable("Modules", new ModuleDispenser(id, this));
 
                 shell.AddScript(_script);
