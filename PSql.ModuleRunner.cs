@@ -58,6 +58,15 @@ namespace PSql
             return WorkerId == Worker.Any
                 || WorkerId == workerId;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} (WorkerId: {1}, Provides: {2}, Requires: {3})",
+                Name, WorkerId,
+                string.Join(", ", Provides),
+                string.Join(", ", Requires)
+            );
+        }
     }
 
     public class Subject
@@ -72,6 +81,15 @@ namespace PSql
         public string       Name       { get; private set; }
         public List<Module> ProvidedBy { get; private set; }
         public List<Module> RequiredBy { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0} (ProvidedBy: {1}, RequiredBy: {2})",
+                Name,
+                string.Join(", ", ProvidedBy.Select(m => m.Name)),
+                string.Join(", ", RequiredBy.Select(m => m.Name))
+            );
+        }
     }
 
     public class ModuleRunner
