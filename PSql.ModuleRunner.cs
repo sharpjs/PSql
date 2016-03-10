@@ -1,6 +1,7 @@
 namespace PSql
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
@@ -9,16 +10,9 @@ namespace PSql
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class ModuleRunnerParameters
+    internal static class Worker
     {
-        public string Server   { get; set; }
-        public string Database { get; set; }
-        public string Login    { get; set; }
-        public string Password { get; set; }
-        public int    Timeout  { get; set; }
-        public string PSqlPath { get; set; }
-
-        public string ScriptBlock { get; set; }
+        internal const int All = -1, Any = 0;
     }
 
     public class Module
@@ -42,7 +36,7 @@ namespace PSql
     {
         public Subject(string name)
         {
-            Name = Helpers.RequireName(name);
+            Name       = Helpers.RequireName(name);
             ProvidedBy = new List<Module>();
             RequiredBy = new List<Module>();
         }
@@ -82,19 +76,31 @@ namespace PSql
         private readonly Dictionary<string, Subject>
             _subjects = new Dictionary<string, Subject>();
 
-        private readonly ModuleRunnerParameters
+        private readonly string
+            _script;
+
+        private readonly Hashtable
             _parameters;
 
-        private Module _module;
-        private bool _ending;
+        private readonly int
+            _parallelism;
 
-        public ModuleRunner(ModuleRunnerParameters parameters)
+        private Module _module;
+        private bool   _ending;
+
+        public ModuleRunner(string script, Hashtable parameters, int parallelism)
         {
+            if (script == null)
+                throw new ArgumentNullException("script");
             if (parameters == null)
                 throw new ArgumentNullException("parameters");
+            if (parallelism < 0)
+                parallelism = Environment.ProcessorCount;
 
-            _parameters = parameters;
-            _module = new Module("init");
+            _script      = script;
+            _parameters  = parameters;
+            _parallelism = parallelism;
+            _module      = new Module(Module.InitModuleName);
         }
 
         public void StartModule(string name)
@@ -177,8 +183,8 @@ namespace PSql
 
         public void Run()
         {
-            Parallel.For(1, Environment.ProcessorCount + 1, ThreadMain);
             Console.CancelKeyPress += HandleCancel;
+            Parallel.For(1, _parallelism + 1, WorkerMain);
         }
 
         // Thread-safe
@@ -291,17 +297,13 @@ namespace PSql
             {
                 Echo(id, "Starting");
                 var shell = PowerShell.Create();
-
                 var state = shell.Runspace.SessionStateProxy;
                 state.SetVariable("Modules" ,  new ModuleDispenser(this));
-                state.SetVariable("Server"  ,  _parameters.Server  );
-                state.SetVariable("Database",  _parameters.Database);
-                state.SetVariable("Login"   ,  _parameters.Login   );
-                state.SetVariable("Password",  _parameters.Password);
-                state.SetVariable("Timeout" ,  _parameters.Timeout );
-                state.SetVariable("PSqlPath",  _parameters.PSqlPath );
 
-                shell.AddScript(_parameters.ScriptBlock);
+                foreach (DictionaryEntry entry in _parameters)
+                    state.SetVariable(entry.Key.ToString(), entry.Value);
+
+                shell.AddScript(_script);
 
                 var streams = shell.Streams;
                 streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);

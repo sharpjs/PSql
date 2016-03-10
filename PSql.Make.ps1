@@ -100,23 +100,23 @@ function Invoke-SqlModules {
         [int] $Timeout = 0
     )
     process {
-        $Params = New-Object PSql.ModuleRunnerParameters
-        $Params.Server      = $Server
-        $Params.Database    = $Database
-        $Params.Login       = $Login
-        $Params.Password    = $Password
-        $Params.Timeout     = $Timeout
-        $Params.PSqlPath    = $PSScriptRoot
-        $Params.ScriptBlock = $ThreadMain
+        $Params = @{
+            Server      = $Server
+            Database    = $Database
+            Login       = $Login
+            Password    = $Password
+            Timeout     = $Timeout
+            PSqlPath    = $PSScriptRoot
+        }
 
-        $Runner = New-Object PSql.ModuleRunner $Params
+        $Runner = New-Object PSql.ModuleRunner $RunLoop, $Params, -1
         Read-SqlModules $Text $Runner
         $Runner.Complete()
         $Runner.Run()
     }
 }
 
-$ThreadMain = {
+$RunLoop = {
     $ErrorActionPreference = "Stop"
     Import-Module $PSqlPath\PSql.psm1 -Force
 
