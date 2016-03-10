@@ -36,7 +36,7 @@ Get-Content $PSScriptRoot\PSql.ModuleRunner.cs -Raw `
 $LinesRe     = [regex] '\r?\n'
 $SpacesRe    = [regex] '\s+'
 $DirectiveRe = [regex] '(?x)
-    ^ --\# \s+ (?<dir>MODULE|PROVIDES|REQUIRES): \s+ (?<args>.*) $
+    ^ --\# \s+ (?<dir>MODULE|PROVIDES|REQUIRES|WORKER): \s+ (?<args>.*) $
 '
 
 function Read-SqlModules {
@@ -66,6 +66,9 @@ function Read-SqlModules {
                     }
                     'REQUIRES' {
                         $Runner.AddRequires($Arguments)
+                    }
+                    'WORKER' {
+                        $Runner.SetRunOnAllWorkers()
                     }
                 }
             } else {

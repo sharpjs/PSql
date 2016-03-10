@@ -17,19 +17,47 @@ namespace PSql
 
     public class Module
     {
+        public const string InitModuleName = "init";
+
         public Module(string name)
         {
             Name     = Helpers.RequireName(name);
             Provides = new SortedSet<string>();
             Requires = new SortedSet<string>();
             Script   = new StringBuilder();    
+            WorkerId = Worker.Any;
+
             Provides.Add(name);
+
+            if (name != InitModuleName)
+                Requires.Add(InitModuleName);
+        }
+
+        public Module(Module other, int workerId)
+        {
+            Name     = other.Name;
+            Provides = other.Provides;
+            Requires = other.Requires;
+            Script   = other.Script;
+            WorkerId = workerId;
         }
 
         public string            Name     { get; private set; }
         public SortedSet<string> Provides { get; private set; }
         public SortedSet<string> Requires { get; private set; }
         public StringBuilder     Script   { get; private set; }
+
+        // Worker affinity:
+        //   Worker.All => run on all workers
+        //   Worker.Any => run on any worker
+        //   some n > 0 => run on a specific worker
+        public int WorkerId { get; set; }
+
+        public bool CanRunOnWorker(int workerId)
+        {
+            return WorkerId == Worker.Any
+                || WorkerId == workerId;
+        }
     }
 
     public class Subject
@@ -107,17 +135,18 @@ namespace PSql
         {
             AcceptModule();
             _module = new Module(name);
-            _module.Requires.Add("init");
         }
 
         public void AddProvides(IEnumerable<string> names)
         {
-            RequireModule().Provides.UnionWith(names);
+            RequireModule().Provides. UnionWith(names);
+            RequireModule().Requires.ExceptWith(names);
         }
 
         public void AddRequires(IEnumerable<string> names)
         {
-            RequireModule().Requires.UnionWith(names);
+            RequireModule().Requires. UnionWith(names);
+            RequireModule().Provides.ExceptWith(names);
         }
 
         public void AddScriptLine(string text)
@@ -125,10 +154,26 @@ namespace PSql
             RequireModule().Script.AppendLine(text);
         }
 
+        public void SetRunOnAllWorkers()
+        {
+            RequireModule().WorkerId = Worker.All;
+        }
+
         private void AcceptModule()
         {
             var module = RequireModule();
 
+            if (module.WorkerId == Worker.All)
+                for (var id = 1; id <= _parallelism; id++)
+                    AddModule(new Module(module, id));
+            else
+                AddModule(module);
+
+            _module = null;
+        }
+
+        private void AddModule(Module module)
+        {
             foreach (var name in module.Provides)
                 GetOrAddSubject(name).ProvidedBy.Add(module);
 
@@ -137,8 +182,6 @@ namespace PSql
 
             if (!module.Requires.Any())
                 _queue.Enqueue(module);
-
-            _module = null;
         }
 
         private Module RequireModule()
@@ -188,18 +231,18 @@ namespace PSql
         }
 
         // Thread-safe
-        private Module GetNextModule(Module priorModule)
+        private Module GetNextModule(int workerId, Module priorModule)
         {
             lock (_lock)
             {
                 if (priorModule != null)
                     CompleteModule(priorModule);
 
-                return DequeueModule();
+                return DequeueModule(workerId);
             }
         }
 
-        private Module DequeueModule()
+        private Module DequeueModule(int workerId)
         {
             for (;;)
             {
@@ -207,8 +250,12 @@ namespace PSql
                     // Alredy ending; don't bother checking queue
                     return null;
                 else if (_queue.Any())
-                    // Queue has next module to do
-                    return _queue.Dequeue();
+                    if (_queue.Peek().CanRunOnWorker(workerId))
+                        // Queue has next module to do
+                        return _queue.Dequeue();
+                    else
+                        // Next module can't run on this worker.
+                        Monitor.Wait(_lock, 1000);
                 else if (!_subjects.Any())
                     // Queue empty, no modules in progress
                     return null;
@@ -271,37 +318,39 @@ namespace PSql
 
         public class ModuleDispenser
         {
+            private readonly int          _workerId;
             private readonly ModuleRunner _runner;
             private          Module       _module;
 
-            internal ModuleDispenser(ModuleRunner runner)
+            internal ModuleDispenser(int workerId, ModuleRunner runner)
             {
-                _runner = runner;
+                _workerId = workerId;
+                _runner   = runner;
             }
 
             // Thread-safe
             public Module Next()
             {
-                return _module = _runner.GetNextModule(_module);
+                return _module = _runner.GetNextModule(_workerId, _module);
             }
         }
 
-        private static void Echo(int id, string text)
+        private static void Echo(int workerId, string text)
         {
-            Console.WriteLine("[Worker {0}]: {1}", id, text);
+            Console.WriteLine("[Worker {0}]: {1}", workerId, text);
         }
 
-        private void ThreadMain(int id)
+        private void WorkerMain(int id)
         {
             try
             {
                 Echo(id, "Starting");
                 var shell = PowerShell.Create();
                 var state = shell.Runspace.SessionStateProxy;
-                state.SetVariable("Modules" ,  new ModuleDispenser(this));
 
                 foreach (DictionaryEntry entry in _parameters)
                     state.SetVariable(entry.Key.ToString(), entry.Value);
+                state.SetVariable("Modules", new ModuleDispenser(id, this));
 
                 shell.AddScript(_script);
 
@@ -325,7 +374,7 @@ namespace PSql
             }
         }
 
-        private EventHandler<DataAddedEventArgs> HandleData<TRecord>(int id)
+        private EventHandler<DataAddedEventArgs> HandleData<TRecord>(int workerId)
         {
             return new EventHandler<DataAddedEventArgs>
             (
@@ -333,7 +382,7 @@ namespace PSql
                 {
                     var records = (PSDataCollection<TRecord>) sender;
                     foreach (var record in records.ReadAll())
-                        Echo(id, record.ToString());
+                        Echo(workerId, record.ToString());
                 }
             );
         }
