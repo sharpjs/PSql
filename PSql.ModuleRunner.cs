@@ -379,7 +379,7 @@ namespace PSql
                 var streams = shell.Streams;
                 streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);
                 streams.Verbose     .DataAdded += HandleData<VerboseRecord    >(id);
-                streams.Information .DataAdded += HandleData<InformationRecord>(id);
+              //streams.Information .DataAdded += HandleData<InformationRecord>(id); // PS v5 only?
                 streams.Warning     .DataAdded += HandleData<WarningRecord    >(id);
                 streams.Error       .DataAdded += HandleData<ErrorRecord      >(id);
 
