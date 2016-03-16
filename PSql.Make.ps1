@@ -30,8 +30,18 @@
 --# REQUIRES: E F G H I
 #>
 
-Get-Content $PSScriptRoot\PSql.ModuleRunner.cs -Raw `
-    | % { Add-Type $_ -Language CSharp }
+try {
+    Get-Content $PSScriptRoot\PSql.ModuleRunner.cs -Raw -Encoding UTF8 `
+        | % { Add-Type $_ -Language CSharp }
+}
+catch {
+    if ($_.Exception.Message -match "Cannot add type\. The type name '[^']+' already exists\.") {
+        throw "Cannot add PSql helper types, because a different version is already loaded. " +
+              "Please start a new PowerShell session and try again."
+    } else {
+        throw
+    }
+}
 
 $LinesRe     = [regex] '\r?\n'
 $SpacesRe    = [regex] '\s+'
