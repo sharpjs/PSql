@@ -123,6 +123,8 @@ $RunLoop = {
     $ErrorActionPreference = "Stop"
     Import-Module $PSqlPath\PSql.psm1 -Force
 
+    $VerbosePreference = "Continue"
+
     $Connection = Connect-Sql $Server $Database `
         -Login $Login -Password $Password -PassThru
 

@@ -376,19 +376,13 @@ namespace PSql
 
                 shell.AddScript(_script);
 
-                var input   = null as PSDataCollection<PSObject>;
-                var output  = new     PSDataCollection<PSObject>();
                 var streams = shell.Streams;
-                output          .DataAdded += HandleData<PSObject     >(id);
-                streams.Debug   .DataAdded += HandleData<DebugRecord  >(id);
-                streams.Verbose .DataAdded += HandleData<VerboseRecord>(id);
-                streams.Warning .DataAdded += HandleData<WarningRecord>(id);
-                streams.Error   .DataAdded += HandleData<ErrorRecord  >(id);
+                streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);
+                streams.Verbose     .DataAdded += HandleData<VerboseRecord    >(id);
+                streams.Warning     .DataAdded += HandleData<WarningRecord    >(id);
+                streams.Error       .DataAdded += HandleData<ErrorRecord      >(id);
 
-                var settings = new PSInvocationSettings();
-                settings.ErrorActionPreference = ActionPreference.Stop;
-
-                shell.Invoke(input, output, settings);
+                shell.Invoke();
             }
             catch (Exception e)
             {

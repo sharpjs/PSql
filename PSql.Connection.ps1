@@ -166,12 +166,12 @@ function Write-SqlErrors {
     foreach ($e in $Errors) {
         if ($e.Class -le 10 <# max informational severity #>) {
             # Informational message
-            Write-Host $e.Message -ForegroundColor Gray
+            Write-Verbose $e.Message
         } else {
             # Warning or error message
             $Message = ($e.Procedure, "(batch)" -ne "")[0]
             $Message = "$($Message):$($e.LineNumber): E$($e.Class): $($e.Message)"
-            Write-Host $Message -ForegroundColor Yellow
+            Write-Warning $Message
 
             # Mark current command as failed
             $Context.HasErrors = $true
