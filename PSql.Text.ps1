@@ -79,7 +79,7 @@ function Expand-SqlCmdDirectives {
             # Interpret directives
             if ($_ -imatch '^:r\s+(.*?)\s*$') {
                 # Include directive
-                Get-Content $Matches[1] -Encoding UTF8 -Raw `
+                Get-Content -LiteralPath $Matches[1] -Encoding UTF8 -Raw `
                     | Expand-SqlCmdDirectives -Define $Define
             } elseif ($_ -imatch '^:setvar\s+(\w+)\s+("?)(.*)\2\s*$') {
                 # Define directive
