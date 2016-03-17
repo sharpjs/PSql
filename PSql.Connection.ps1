@@ -190,7 +190,7 @@ function Write-SqlErrors {
     foreach ($e in $Errors) {
         if ($e.Class -le 10 <# max informational severity #>) {
             # Informational message
-            Write-Verbose $e.Message
+            Write-Host $e.Message
         } else {
             # Warning or error message
             $Message = ($e.Procedure, "(batch)" -ne "")[0]

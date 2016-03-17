@@ -1,15 +1,19 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using System.Management.Automation;
+using System.Management.Automation.Host;
+using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace PSql
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Management.Automation;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     internal static class Worker
     {
         internal const int All = -1, Any = 0;
@@ -125,19 +129,15 @@ namespace PSql
         private readonly Dictionary<string, Subject>
             _subjects = new Dictionary<string, Subject>();
 
-        private readonly string
-            _script;
-
-        private readonly Hashtable
-            _parameters;
-
-        private readonly int
-            _parallelism;
+        private readonly string    _script;
+        private readonly Hashtable _parameters;
+        private readonly int       _parallelism;
+        private readonly PSHost    _host;
 
         private Module _module;
         private bool   _ending;
 
-        public ModuleRunner(string script, Hashtable parameters, int parallelism)
+        public ModuleRunner(string script, Hashtable parameters, int parallelism, PSHost host)
         {
             if (script == null)
                 throw new ArgumentNullException("script");
@@ -145,10 +145,13 @@ namespace PSql
                 throw new ArgumentNullException("parameters");
             if (parallelism < 0)
                 parallelism = Environment.ProcessorCount;
+            if (host == null)
+                throw new ArgumentNullException("host");
 
             _script      = script;
             _parameters  = parameters;
             _parallelism = parallelism;
+            _host        = host;
             _module      = new Module(Module.InitModuleName);
         }
 
@@ -356,16 +359,12 @@ namespace PSql
             }
         }
 
-        private static void Echo(int workerId, string text)
-        {
-            Console.WriteLine("[Worker {0}]: {1}", workerId, text);
-        }
-
         private void WorkerMain(int id)
         {
+            var host = new WorkerHost(_host, id);
             try
             {
-                Echo(id, "Starting");
+                host.UI.WriteLine("Starting");
                 var shell = PowerShell.Create();
                 var state = shell.Runspace.SessionStateProxy;
 
@@ -374,38 +373,23 @@ namespace PSql
                 state.SetVariable("RunId",   _runId);
                 state.SetVariable("Modules", new ModuleDispenser(id, this));
 
-                shell.AddScript(_script);
+                var settings = new PSInvocationSettings
+                {
+                    Host = host,
+                    ErrorActionPreference = ActionPreference.Stop
+                };
 
-                var streams = shell.Streams;
-                streams.Debug       .DataAdded += HandleData<DebugRecord      >(id);
-                streams.Verbose     .DataAdded += HandleData<VerboseRecord    >(id);
-                streams.Warning     .DataAdded += HandleData<WarningRecord    >(id);
-                streams.Error       .DataAdded += HandleData<ErrorRecord      >(id);
-
-                shell.Invoke();
+                shell.AddScript(_script).Invoke(null, settings);
             }
             catch (Exception e)
             {
-                Echo(id, e.Message);
+                host.UI.WriteErrorLine(e.Message);
             }
             finally
             {
-                Echo(id, "Ending");
+                host.UI.WriteLine("Ended");
                 SetEnding();
             }
-        }
-
-        private EventHandler<DataAddedEventArgs> HandleData<TRecord>(int workerId)
-        {
-            return new EventHandler<DataAddedEventArgs>
-            (
-                (sender, args) =>
-                {
-                    var records = (PSDataCollection<TRecord>) sender;
-                    foreach (var record in records.ReadAll())
-                        Echo(workerId, record.ToString());
-                }
-            );
         }
 
         private static void HandleCancel(object sender, ConsoleCancelEventArgs e)
@@ -423,6 +407,183 @@ namespace PSql
             if (name.Length == 0)
                 throw new ArgumentOutOfRangeException("name");
             return name;
+        }
+    }
+
+    internal class WorkerHost : PSHost
+    {
+        private readonly PSHost _host;
+        private readonly WorkerHostUI _ui;
+
+        public WorkerHost(PSHost host, int workerId)
+        {
+            if (host == null)
+                throw new ArgumentNullException("host");
+
+            _host = host;
+            _ui   = new WorkerHostUI(_host.UI, workerId);
+        }
+
+        public override Guid InstanceId
+        {
+            get { return _host.InstanceId; }
+        }
+
+        public override string Name
+        {
+            get { return _host.Name; }
+        }
+
+        public override Version Version
+        {
+            get { return _host.Version; }
+        }
+
+        public override PSHostUserInterface UI
+        {
+            get { return _ui; }
+        }
+
+        public override CultureInfo CurrentCulture
+        {
+            get { return _host.CurrentCulture; }
+        }
+
+        public override CultureInfo CurrentUICulture
+        {
+            get { return _host.CurrentUICulture; }
+        }
+
+        public override void EnterNestedPrompt()
+        {
+            _host.EnterNestedPrompt();
+        }
+
+        public override void ExitNestedPrompt()
+        {
+            _host.ExitNestedPrompt();
+        }
+
+        public override void NotifyBeginApplication()
+        {
+            _host.NotifyBeginApplication();
+        }
+        public override void NotifyEndApplication()
+        {
+            _host.NotifyEndApplication();
+        }
+        public override void SetShouldExit(int exitCode)
+        {
+            _host.SetShouldExit(exitCode);
+        }
+    }
+
+    internal class WorkerHostUI : PSHostUserInterface
+    {
+        private readonly PSHostUserInterface _ui;
+        private readonly int _workerId;
+        private bool _bol;
+
+        public WorkerHostUI(PSHostUserInterface ui, int workerId)
+        {
+            if (ui == null)
+                throw new ArgumentNullException("ui");
+
+            _ui       = ui;
+            _workerId = workerId;
+            _bol      = true;
+        }
+
+        public override PSHostRawUserInterface RawUI
+        {
+            get { return _ui.RawUI; }
+        }
+
+        private string Format(string value)
+        {
+            return _bol
+                ? string.Format("[Worker {0}]: {1}", _workerId, value)
+                : value;
+        }
+
+        public override void Write(string value)
+        {
+            _ui.Write(Format(value));
+            _bol = value.EndsWith("\n");
+        }
+
+        public override void Write(ConsoleColor foregroundColor, ConsoleColor backgroundColor, string value)
+        {
+            _ui.Write(foregroundColor, backgroundColor, Format(value));
+            _bol = value.EndsWith("\n");
+        }
+
+        public override void WriteLine(string value)
+        {
+            _ui.WriteLine(Format(value));
+            _bol = true;
+        }
+
+        public override void WriteDebugLine(string message)
+        {
+            _ui.WriteDebugLine(Format(message));
+            _bol = true;
+        }
+
+        public override void WriteVerboseLine(string message)
+        {
+            _ui.WriteVerboseLine(Format(message));
+            _bol = true;
+        }
+
+        public override void WriteWarningLine(string message)
+        {
+            _ui.WriteWarningLine(Format(message));
+            _bol = true;
+        }
+
+        public override void WriteErrorLine(string value)
+        {
+            _ui.WriteErrorLine(Format(value));
+            _bol = true;
+        }
+
+        public override void WriteProgress(long sourceId, ProgressRecord record)
+        {
+            record.StatusDescription = Format(record.StatusDescription);
+            _ui.WriteProgress(sourceId, record);
+        }
+
+        public override string ReadLine()
+        {
+            _bol = true;
+            return _ui.ReadLine();
+        }
+
+        public override SecureString ReadLineAsSecureString()
+        {
+            _bol = true;
+            return _ui.ReadLineAsSecureString();
+        }
+
+        public override Dictionary<string, PSObject> Prompt(string caption, string message, Collection<FieldDescription> descriptions)
+        {
+            return _ui.Prompt(caption, message, descriptions);
+        }
+
+        public override int PromptForChoice(string caption, string message, Collection<ChoiceDescription> choices, int defaultChoice)
+        {
+            return _ui.PromptForChoice(caption, message, choices, defaultChoice);
+        }
+
+        public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName)
+        {
+            return _ui.PromptForCredential(caption, message, userName, targetName);
+        }
+
+        public override PSCredential PromptForCredential(string caption, string message, string userName, string targetName, PSCredentialTypes allowedCredentialTypes, PSCredentialUIOptions options)
+        {
+            return _ui.PromptForCredential(caption, message, userName, targetName, allowedCredentialTypes, options);
         }
     }
 }

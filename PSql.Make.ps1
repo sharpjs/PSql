@@ -122,7 +122,7 @@ function Invoke-SqlModules {
             PSqlPath    = $PSScriptRoot
         }
 
-        $Runner = New-Object PSql.ModuleRunner $RunLoop, $Params, -1
+        $Runner = New-Object PSql.ModuleRunner $RunLoop, $Params, -1, $Host
         Read-SqlModules $Text $Runner
         $Runner.Complete()
         $Runner.Run()
