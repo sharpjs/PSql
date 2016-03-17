@@ -1,0 +1,28 @@
+# Visual Studio User Files
+.vs/
+*.suo
+*.user
+*.cache
+
+# Build Folders
+obj/
+bin/
+
+# Nuget Packages
+/packages/
+
+# Temporary Files
+*.log
+*.tmp
+
+# Git-Related Files
+*.orig
+*.patch
+*.rej
+
+# Windows Junk
+Thumbs.db
+Desktop.ini
+
+# OS X Junk
+.DS_Store
