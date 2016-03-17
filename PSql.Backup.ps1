@@ -39,11 +39,15 @@ function Backup-SqlDatabase {
         [string] $BackupDirectory,
 
         # The connection to use.  Must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the default connection is used.
-        [PSCustomObject] $Connection = $DefaultContext,
+        [PSCustomObject] $Connection,
 
         # Output a FileInfo object for the backup file.  By default, this cmdlet does not output an object.
         [switch] $PassThru
     )
+    begin {
+        # Open a connection if one is not already open
+        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+    }
     process {
         # Get backup file info
         $FileName        = Split-Path $Path -Leaf
@@ -74,6 +78,12 @@ function Backup-SqlDatabase {
             Join-Path $TargetDirectory $FileName | Get-Item | Write-Output
         }
     }
+    end {
+        # Close a connection if we implicitly opened one
+        if ($OwnsConnection) {
+            Disconnect-Sql $Connection
+        }
+    }
 }
 
 function Restore-SqlDatabase {
@@ -100,8 +110,12 @@ function Restore-SqlDatabase {
         [string] $LogDirectory,
 
         # The connection to use.  Must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the default connection is used.
-        [PSCustomObject] $Connection = $DefaultContext
+        [PSCustomObject] $Connection
     )
+    begin {
+        # Open a connection if one is not already open
+        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+    }
     process {
         # Get backup file info
         $File            = Get-Item $Path
@@ -152,6 +166,12 @@ function Restore-SqlDatabase {
             ;
         "
     } 
+    end {
+        # Close a connection if we implicitly opened one
+        if ($OwnsConnection) {
+            Disconnect-Sql $Connection
+        }
+    }
 }
 
 function Resolve-BackupDirectory($Path, $Connection, $SqlDirectories) {

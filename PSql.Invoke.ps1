@@ -35,7 +35,7 @@ function Invoke-Sql {
         [string] $Query,
 
         # The connection on which to invoke the command.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
-        [PSCustomObject] $Connection = $DefaultContext,
+        [PSCustomObject] $Connection,
 
         # Do not throw an exception if an error message is received from the server.
         [switch] $CanFail,
@@ -44,6 +44,9 @@ function Invoke-Sql {
         [int] $Timeout = 0
     )
     begin {
+        # Open a connection if one is not already open
+        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+
         # Clear any failures from prior command
         $Connection.HasErrors = $false
     }
@@ -86,6 +89,12 @@ function Invoke-Sql {
         # Terminate script on error
         if ($Connection.HasErrors -and !$CanFail) {
             throw "An error occurred while executing the SQL batch."
+        }
+    }
+    end {
+        # Close connection if we implicitly opened it
+        if ($OwnsConnection) {
+            Disconnect-Sql $Connection
         }
     }
 }

@@ -150,10 +150,34 @@ function Disconnect-Sql {
     process {
         $Connections | ? { $_ } | % {
             $_.IsDisconnecting = $true
-            $_.Connection.Dispose()
-            $Contexts.Remove($_.Connection)
-            $_.Connection = $null
+            if ($_.Connection) {
+                $_.Connection.Dispose()
+                $Contexts.Remove($_.Connection)
+            }
+            if ($_ -eq $DefaultContext) {
+                $script:DefaultContext = $null
+            }
         }
+    }
+}
+
+function Test-SqlConnection([ref] $Connection) {
+    # Get specified or ambient connection
+    if (!$Connection.Value) {
+        $Connection.Value = $DefaultContext
+    }
+
+    # Ensure caller has a connection
+    if ($Connection.Value) {
+        # Use existing connection
+        # Caller should NOT disconnect when done
+        $false
+    } else {
+        # No existing connection; create one now
+        # Caller should disconnect when done
+        Connect-Sql
+        $Connection.Value = $DefaultContext
+        $true
     }
 }
 
