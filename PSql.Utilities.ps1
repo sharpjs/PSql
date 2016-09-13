@@ -65,12 +65,10 @@ function Invoke-Robocopy {
         & "robocopy" (
             $SourceDirectory, $TargetDirectory + $Files +
             "/z",    # Copy files in restartable mode
-            "/j",    # Use unbuffered I/O (recommended for large files)
             "/xo",   # Don't copy older file over a newer file
             "/xx",   # Don't list other files already in target directory
             "/r:2",  # Retry 2 times
-            "/w:5",  # Wait 5 seconds before retry
-            "/njh"   # Don't display header
+            "/w:5"   # Wait 5 seconds before retry
         )
 
         if ($LASTEXITCODE -ge 4) {
