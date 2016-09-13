@@ -384,6 +384,7 @@ namespace PSql
             catch (Exception e)
             {
                 host.UI.WriteErrorLine(e.Message);
+                throw;
             }
             finally
             {
