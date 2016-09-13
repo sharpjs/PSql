@@ -51,9 +51,64 @@ function Invoke-Sql {
         $Connection.HasErrors = $false
     }
     process {
-        if (!$Query) {return}
+        if (!$Query) { return }
         $Command = $NULL
         $Reader  = $NULL
+
+        $Query = @"
+BEGIN TRY
+    DECLARE @sql nvarchar(max);
+
+    -- Batch 0
+    SET @sql = '$($Query -replace "'", "''")';
+    EXEC sp_executesql @sql;
+END TRY
+BEGIN CATCH
+    PRINT ''
+    PRINT 'An error occurred while executing this batch:';
+
+    -- Print @sql in chunks of no more than 4000 characters to work around the
+    -- SQL Server limit of 4000 nvarchars per PRINT.  Break chunks at line
+    -- boundaries, if possible, but ensure that the whole batch gets printed.
+
+    DECLARE
+        @crlf  nvarchar(2) = CHAR(13) + CHAR(10),   -- end of line
+        @pos   bigint      =  1,                    -- a char pos
+        @start bigint      =  1,                    -- first char pos of chunk
+        @end   bigint      = -1,                    -- first char pos after chunk
+        @len   bigint      = LEN(@sql);             -- last  char pos of SQL
+
+    IF LEFT(@sql, 2) != @crlf
+        PRINT '';
+
+    WHILE @start <= @len
+    BEGIN
+        WHILE @end <= @len
+        BEGIN
+            SET @pos = CHARINDEX(@crlf, @sql, @end + 2);
+            IF @pos = 0
+                SET @pos = @len + 1;
+
+            IF @pos <= @start + 4000
+                SET @end = @pos; -- line fits in this chunk
+            ELSE IF @start = @end
+                SET @end = @start + 4000; -- line won't fit in any chunk
+            ELSE
+                BREAK; -- chunk full
+        END;
+
+        PRINT SUBSTRING(@sql, @start, @end - @start);
+
+        SET @start = @end + 2;
+        SET @end   = @start;
+    END;
+
+    IF RIGHT(@sql, 2) != @crlf
+        PRINT '';
+
+    THROW;
+END CATCH;
+"@
         try {
             # Execute the command
             $Command                = $Connection.Connection.CreateCommand()
