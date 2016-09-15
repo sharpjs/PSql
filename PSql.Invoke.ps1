@@ -37,6 +37,9 @@ function Invoke-Sql {
         # The connection on which to invoke the command.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
         [PSCustomObject] $Connection,
 
+        # Do not wrap the command with error-handling code.
+        [switch] $Raw,
+
         # Do not throw an exception if an error message is received from the server.
         [switch] $CanFail,
 
@@ -55,11 +58,10 @@ function Invoke-Sql {
         $Command = $NULL
         $Reader  = $NULL
 
-        $Query = @"
+        if (!$Raw) {
+            $Query = @"
+DECLARE @sql nvarchar(max);
 BEGIN TRY
-    DECLARE @sql nvarchar(max);
-
-    -- Batch 0
     SET @sql = '$($Query -replace "'", "''")';
     EXEC sp_executesql @sql;
 END TRY
@@ -109,6 +111,8 @@ BEGIN CATCH
     THROW;
 END CATCH;
 "@
+        }
+
         try {
             # Execute the command
             $Command                = $Connection.Connection.CreateCommand()
