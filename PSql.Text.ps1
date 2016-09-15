@@ -24,7 +24,15 @@
     SOFTWARE.
 #>
 
-$BatchSeparatorRe = [regex] '(?m)^GO\r?\n'
+$IgnoreCase = [System.StringComparison]::OrdinalIgnoreCase
+
+$SqlBatchTokens = [regex]'(?minx:
+    '' ([^''] |'''')* (''|\z) |
+    \[ ([^\]] |\]\])* (\]|\z) |
+    ^GO (\r?\n|\z)
+)'
+
+$Newline = [regex]'\r?\n'
 
 function Split-SqlBatches {
     <#
@@ -34,11 +42,21 @@ function Split-SqlBatches {
     [CmdletBinding()]
     [OutputType([string[]])]
     param (
+        # The SQL text to split.
         [Parameter(ValueFromPipeline)]
         [string] $Sql
     )
     process {
-        $Sql -split $BatchSeparatorRe
+        $Start = 0
+        $SqlBatchTokens.Matches($Sql) `
+            | ? { $_.Value.StartsWith("G", $IgnoreCase) } `
+            | % {
+                Write-Output $Sql.Substring($Start, $_.Index - $Start)
+                $Start = $_.Index + $_.Length
+            }
+        if ($Start -lt $Sql.Length) {
+            Write-Output $Sql.Substring($Start)
+        }
     }
 }
 
