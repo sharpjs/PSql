@@ -59,11 +59,80 @@ function Invoke-Sql {
         $Reader  = $NULL
 
         if (!$Raw) {
-            $Query = @"
+            $Query = Use-SqlErrorHandler $Query
+        }
+
+        try {
+            # Execute the command
+            $Command                = $Connection.Connection.CreateCommand()
+            $Command.CommandText    = $Query
+            $Command.CommandType    = [System.Data.CommandType]::Text
+            $Command.CommandTimeout = $Timeout
+            $Reader                 = $Command.ExecuteReader()
+
+            # Transform result rows into PowerShell objects
+            while ($true) {
+                while ($Reader.Read()) {
+                    $Row = @{}
+                    0..($Reader.FieldCount - 1) | % {
+                        $Name  = $Reader.GetName($_)
+                        $Value = $Reader.GetValue($_)
+                        if (!$Name) { $Name = "Col$_" } 
+                        if ($Value -is [System.DBNull]) { $Value = $NULL }
+                        $Row[$Name] = $Value
+                    }
+                    [PSCustomObject] $Row | Write-Output
+                }
+                if (!$Reader.NextResult()) { break }
+            }
+        }
+        catch [System.Data.SqlClient.SqlException] {
+            Write-SqlErrors $_.Exception.Errors $Connection
+        }
+        finally {
+            if ($Reader ) { $Reader. Dispose() }
+            if ($Command) { $Command.Dispose() }
+        }
+
+        # Terminate script on error
+        if ($Connection.HasErrors -and !$CanFail) {
+            throw "An error occurred while executing the SQL batch."
+        }
+    }
+    end {
+        # Close connection if we implicitly opened it
+        if ($OwnsConnection) {
+            Disconnect-Sql $Connection
+        }
+    }
+}
+
+function Use-SqlErrorHandler {
+    <#
+    .SYNOPSIS
+        Wraps SQL batches with an error handler that prints the offending batch and stops execution.
+    #>
+    param (
+        # The SQL batch.
+        [Parameter(Position=1, ValueFromPipeline)]
+        [string] $Sql
+    )
+    begin {
+        $Out = New-Object System.Text.StringBuilder
+        $Out.AppendLine(@"
 DECLARE @sql nvarchar(max);
 BEGIN TRY
-    SET @sql = '$($Query -replace "'", "''")';
+"@) | Out-Null
+    }
+    process {
+        $Sql = $Sql -replace "'", "''"
+        $Out.AppendLine(@"
+    SET @sql = '$Sql';
     EXEC sp_executesql @sql;
+"@) | Out-Null
+    }
+    end {
+        $Out.AppendLine(@"
 END TRY
 BEGIN CATCH
     PRINT ''
@@ -110,50 +179,7 @@ BEGIN CATCH
 
     THROW;
 END CATCH;
-"@
-        }
-
-        try {
-            # Execute the command
-            $Command                = $Connection.Connection.CreateCommand()
-            $Command.CommandText    = $Query
-            $Command.CommandType    = [System.Data.CommandType]::Text
-            $Command.CommandTimeout = $Timeout
-            $Reader                 = $Command.ExecuteReader()
-
-            # Transform result rows into PowerShell objects
-            while ($true) {
-                while ($Reader.Read()) {
-                    $Row = @{}
-                    0..($Reader.FieldCount - 1) | % {
-                        $Name  = $Reader.GetName($_)
-                        $Value = $Reader.GetValue($_)
-                        if (!$Name) { $Name = "Col$_" } 
-                        if ($Value -is [System.DBNull]) { $Value = $NULL }
-                        $Row[$Name] = $Value
-                    }
-                    [PSCustomObject] $Row | Write-Output
-                }
-                if (!$Reader.NextResult()) { break }
-            }
-        }
-        catch [System.Data.SqlClient.SqlException] {
-            Write-SqlErrors $_.Exception.Errors $Connection
-        }
-        finally {
-            if ($Reader ) { $Reader. Dispose() }
-            if ($Command) { $Command.Dispose() }
-        }
-
-        # Terminate script on error
-        if ($Connection.HasErrors -and !$CanFail) {
-            throw "An error occurred while executing the SQL batch."
-        }
-    }
-    end {
-        # Close connection if we implicitly opened it
-        if ($OwnsConnection) {
-            Disconnect-Sql $Connection
-        }
+"@) | Out-Null
+        Write-Output $Out.ToString()
     }
 }
