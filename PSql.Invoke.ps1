@@ -27,12 +27,12 @@
 function Invoke-Sql {
     <#
     .SYNOPSIS
-        Invokes the specified SQL command or query.
+        Invokes the specified SQL command. Outputs results, if any, as PSCustomObjects.
     #>
     param (
-        # The command to invoke.
+        # The SQL command to invoke.
         [Parameter(Position=1, ValueFromPipeline)]
-        [string] $Query,
+        [string] $Sql,
 
         # The connection on which to invoke the command.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
         [PSCustomObject] $Connection,
@@ -54,18 +54,18 @@ function Invoke-Sql {
         $Connection.HasErrors = $false
     }
     process {
-        if (!$Query) { return }
+        if (!$Sql) { return }
         $Command = $NULL
         $Reader  = $NULL
 
         if (!$Raw) {
-            $Query = Use-SqlErrorHandler $Query
+            $Sql = Use-SqlErrorHandler $Sql
         }
 
         try {
             # Execute the command
             $Command                = $Connection.Connection.CreateCommand()
-            $Command.CommandText    = $Query
+            $Command.CommandText    = $Sql
             $Command.CommandType    = [System.Data.CommandType]::Text
             $Command.CommandTimeout = $Timeout
             $Reader                 = $Command.ExecuteReader()
@@ -113,8 +113,8 @@ function Use-SqlErrorHandler {
         Wraps SQL batches with an error handler that prints the offending batch and stops execution.
     #>
     param (
-        # The SQL batch.
-        [Parameter(Position=1, ValueFromPipeline)]
+        # The SQL batch to wrap.
+        [Parameter(Position=1, ValueFromPipeline)] 
         [string] $Sql
     )
     begin {
