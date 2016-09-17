@@ -50,7 +50,7 @@ function assert([scriptblock] $Block) {
         if (& $Block) { return }
     }
     catch {
-        throw [System.ApplicationException] "Assertion failed: $("$Block".Trim()) [$_]"
+        throw "Assertion failed: $("$Block".Trim()) [$_]"
     }
     throw "Assertion failed: $("$Block".Trim())"
 }
