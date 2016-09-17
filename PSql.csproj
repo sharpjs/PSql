@@ -56,6 +56,7 @@
     <None Include="PSql.psm1" />
     <None Include="PSql.Text.ps1" />
     <None Include="PSql.Utilities.ps1" />
+    <None Include="Test-PSql.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
