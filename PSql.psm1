@@ -38,3 +38,12 @@ $Files `
     | % { "$PSScriptRoot\PSql.$_.ps1" } `
 	| Resolve-Path `
 	| % { . $_.Path }
+
+Export-ModuleMember -Function `
+    Connect-Sql,
+    Disconnect-Sql,
+    Invoke-Sql,
+    Backup-SqlDatabase,
+    Restore-SqlDatabase,
+    Split-SqlBatches,
+    Expand-SqlCmdDirectives
