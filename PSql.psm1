@@ -39,11 +39,18 @@ $Files `
 	| Resolve-Path `
 	| % { . $_.Path }
 
-Export-ModuleMember -Function `
-    Connect-Sql,
-    Disconnect-Sql,
-    Invoke-Sql,
-    Backup-SqlDatabase,
-    Restore-SqlDatabase,
-    Split-SqlBatches,
-    Expand-SqlCmdDirectives
+Set-Alias isql Invoke-Sql
+Set-Alias csql Connect-Sql
+Set-Alias dsql Disconnect-Sql
+
+Export-ModuleMember `
+    -Alias `
+        isql, csql, dsql `
+    -Function `
+        Connect-Sql,
+        Disconnect-Sql,
+        Invoke-Sql,
+        Backup-SqlDatabase,
+        Restore-SqlDatabase,
+        Split-SqlBatches,
+        Expand-SqlCmdDirectives
