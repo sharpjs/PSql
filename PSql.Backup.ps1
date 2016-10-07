@@ -38,15 +38,15 @@ function Backup-SqlDatabase {
         # Path on this computer of the database server's backup directory.  For a local server, the default is read from the instance configuration.  For a remote server, the default is the UNC path "\\<server>\Database Backups".
         [string] $BackupDirectory,
 
-        # The connection to use.  Must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the default connection is used.
-        [PSCustomObject] $Connection,
+        # The connection to use.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [System.Data.SqlClient.SqlConnection] $Connection,
 
         # Output a FileInfo object for the backup file.  By default, this cmdlet does not output an object.
         [switch] $PassThru
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
     }
     process {
         # Get backup file info
@@ -109,12 +109,12 @@ function Restore-SqlDatabase {
         # Path on the server of the directory where SQL log file(s) should be stored.
         [string] $LogDirectory,
 
-        # The connection to use.  Must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the default connection is used.
-        [PSCustomObject] $Connection
+        # The connection to use.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [System.Data.SqlClient.SqlConnection] $Connection
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
     }
     process {
         # Get backup file info
@@ -177,9 +177,9 @@ function Restore-SqlDatabase {
 function Resolve-BackupDirectory($Path, $Connection, $SqlDirectories) {
     if ($Path) {
         Resolve-Path $Path | % Path
-    } elseif ($Connection.Connection.DataSource -eq ".") {
+    } elseif ($Connection.DataSource -eq ".") {
         $SqlDirectories.BackupDirectory
     } else {
-        "\\$($Connection.Connection.DataSource)\Database Backups"
+        "\\$($Connection.DataSource)\Database Backups"
     }
 }

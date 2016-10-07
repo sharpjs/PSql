@@ -34,8 +34,8 @@ function Invoke-Sql {
         [Parameter(Position=1, ValueFromPipeline)]
         [string] $Sql,
 
-        # The connection on which to invoke the command.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
-        [PSCustomObject] $Connection,
+        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [System.Data.SqlClient.SqlConnection] $Connection,
 
         # Do not wrap the command with error-handling code.
         [switch] $Raw,
@@ -48,10 +48,11 @@ function Invoke-Sql {
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Test-SqlConnection([ref] $Connection)
+        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
 
         # Clear any failures from prior command
-        $Connection.HasErrors = $false
+        $Context = Get-ConnectionContext $Connection
+        $Context.HasErrors = $false
     }
     process {
         if (!$Sql) { return }
@@ -64,7 +65,7 @@ function Invoke-Sql {
 
         try {
             # Execute the command
-            $Command                = $Connection.Connection.CreateCommand()
+            $Command                = $Connection.CreateCommand()
             $Command.CommandText    = $Sql
             $Command.CommandType    = [System.Data.CommandType]::Text
             $Command.CommandTimeout = $Timeout
@@ -87,7 +88,7 @@ function Invoke-Sql {
             }
         }
         catch [System.Data.SqlClient.SqlException] {
-            Write-SqlErrors $_.Exception.Errors $Connection
+            Write-SqlErrors $_.Exception.Errors $Context
         }
         finally {
             if ($Reader ) { $Reader. Dispose() }
@@ -95,7 +96,7 @@ function Invoke-Sql {
         }
 
         # Terminate script on error
-        if ($Connection.HasErrors -and !$CanFail) {
+        if ($Context.HasErrors -and !$CanFail) {
             throw "An error occurred while executing the SQL batch."
         }
     }

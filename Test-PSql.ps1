@@ -60,8 +60,9 @@ test "Import-Module" {
 }
 
 test "Connect-Sql" {
-    $C = Connect-Sql -Server . -Database master -PassThru
+    $C = Connect-Sql -Server . -Database master
     assert { $C -ne $null }
+    assert {$C.GetType() -eq [System.Data.SqlClient.SqlConnection] }
     Disconnect-Sql $C
 }
 

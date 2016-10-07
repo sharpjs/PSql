@@ -31,8 +31,8 @@ function Get-SqlDirectories {
     #>
     [CmdletBinding()]
     param(
-        # The connection to use.  This must be an object returned by the PSql\Connect-Sql -PassThru cmdlet.  If not given, the command is executed on the default connection.
-        [PSCustomObject] $Connection = $DefaultContext
+        # The connection to use.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [System.Data.SqlClient.SqlConnection] $Connection
     )
     Invoke-Sql -Connection $Connection "
         DECLARE @BackupDirectory nvarchar(4000);

@@ -26,38 +26,16 @@
 
 <#
     A 'connection context' holds a SqlConnection plus a few bits of extra state.
-    The 'connection' returned from Connect-Sql -PassThru is actually one of these.
-#>
-function New-ConnectionContext {
-    param(
-        [Parameter(ValueFromPipeline)]
-        [System.Data.SqlClient.SqlConnection] $Connection
-    )
-    process {
-        Write-Output ([PSCustomObject] @{
-            Connection      = $Connection   # The SqlConnection itself
-            IsDisconnecting = $false        # Whether the script has requested to disconnect this connection
-            HasErrors       = $false        # Whether the connection has reported an error message
-        })
-    }
-}
-
-<#
     All live connection contexts are tracked here.
 #>
-$Contexts = [hashtable]::Synchronized(@{})
-
-<#
-    For convenience, there is a default connection context for the script.
-    Cmdlets use the default context when one is not specified via arguments.
-#>
-$DefaultContext = $null
+$Contexts = [hashtable] @{}
 
 function Connect-Sql {
     <#
     .SYNOPSIS
         Connects to the specified SQL Server instance.
     #>
+    [OutputType([System.Data.SqlClient.SqlConnection])]
     param (
         # Name of the server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.
         [Parameter(Position = 1, ValueFromPipelineByPropertyName)]
@@ -71,17 +49,8 @@ function Connect-Sql {
         [string] $Login,
 
         # Use SQL credentials instead of Windows authentication.  Must be used with -Login.
-        [string] $Password,
-
-        # Return the connection object; leave the default connection unchanged.
-        [Parameter()]
-        [switch] $PassThru
+        [string] $Password
     )
-
-    # Disconnect if using default context
-    if (!$PassThru) {
-        Disconnect-Sql -Connections $DefaultContext
-    }
 
     # Build connection string
     $Builder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder
@@ -111,30 +80,18 @@ function Connect-Sql {
     $Connection.FireInfoMessageEventOnUserErrors = $true;
     $Connection.add_InfoMessage({
         param($Sender, $Data)
-        Write-SqlErrors $Data.Errors $Contexts[$Sender]
+        $Context = Get-ConnectionContext $Sender
+        Write-SqlErrors $Data.Errors $Context
     }); 
 
-    # Set up to catch unexpected disconnection
-    $Connection.add_StateChange({
-        param($Sender, $Data)
-        if ($Data.CurrentState -eq [System.Data.ConnectionState]::Open) { return }
-        if ($Contexts[$Sender].IsDisconnecting) { return }
-        throw "The connection to the database server was closed unexpectedly."
-    })
-
     # Track contextual state for the connection
-    $Context = New-ConnectionContext $Connection
-    $Contexts[$Connection] = $Context
+    $Context = Get-ConnectionContext $Connection
 
     # Open the connection
     $Connection.Open()
 
-    # Return connection context
-    if ($PassThru) {
-        Write-Output $Context
-    } else {
-        $script:DefaultContext = $Context
-    }
+    # Return connection
+    $Connection
 }
 
 function Disconnect-Sql {
@@ -143,58 +100,112 @@ function Disconnect-Sql {
         Disconnects the given connection(s).
     #>
     param(
-        # The connections to disconnect.  These must be objects returned by the PSql\Connect-Sql -PassThru cmdlet.  If none are given, the default connection is disconnected.
+        # The connections to disconnect.
         [Parameter(ValueFromPipeline, ValueFromRemainingArguments)]
-        [PSCustomObject[]] $Connections = (,$DefaultContext)
+        [System.Data.SqlClient.SqlConnection[]] $Connections
     )
     process {
-        $Connections | ? { $_ } | % {
+        $Connections | Get-ConnectionContext | % {
             $_.IsDisconnecting = $true
-            if ($_.Connection) {
-                $_.Connection.Dispose()
-                $Contexts.Remove($_.Connection)
-            }
-            if ($_ -eq $DefaultContext) {
-                $script:DefaultContext = $null
-            }
+            $_.Connection.Dispose()
         }
     }
 }
 
-function Test-SqlConnection([ref] $Connection) {
-    # Get specified or ambient connection
-    if (!$Connection.Value) {
-        $Connection.Value = $DefaultContext
-    }
+# [Internal]
+function Get-ConnectionContext {
+    <#
+    .SYNOPSIS
+        Gets or creates the connection context for the given connection.
+    #>
+    param (
+        [Parameter(Mandatory, Position = 1, ValueFromPipeline)]
+        [System.Data.SqlClient.SqlConnection] $Connection
+    )
+    process {
+        Lock-Object $Contexts.SyncRoot {
+            # Get existing context, if any
+            $Context = $Contexts[$Connection]
 
-    # Ensure caller has a connection
-    if ($Connection.Value) {
-        # Use existing connection
-        # Caller should NOT disconnect when done
-        $false
-    } else {
-        # No existing connection; create one now
-        # Caller should disconnect when done
-        Connect-Sql
-        $Connection.Value = $DefaultContext
-        $true
+            if (!$Context) {
+                # Register context for connection
+                $Context = $Contexts[$Connection] = [PSCustomObject] @{
+                    Connection      = $Connection   # The SqlConnection itself
+                    IsDisconnecting = $false        # Whether the script has requested to disconnect this connection
+                    HasErrors       = $false        # Whether the connection has reported an error message
+                }
+
+                # Clean up when connection is disposed
+                $Connection.add_Disposed({
+                    param($Sender, $Data)
+                    Lock-Object $Contexts.SyncRoot {
+                        # Unregister context for connection
+                        $Context = $Contexts[$Sender]
+                        if (!$Context) { return }
+                        $Contexts.Remove($Sender)
+
+                        # Detect unexpected close
+                        if ($Context.IsDisconnecting) { return }
+                        throw "The connection to the database server was closed unexpectedly."
+                    }
+                }); 
+            }
+
+            # Return context
+            $Context
+        }
     }
 }
 
+# [Internal]
+function Ensure-SqlConnection {
+    <#
+    .SYNOPSIS
+        Ensures that the given variable holds an open connection.
+    #>
+    param (
+        [ref] [System.Data.SqlClient.SqlConnection] $Connection
+    )
+
+    # Ensure that there is a connection object
+    if ($Connection.Value) {
+        # Use existing connection
+        # Caller should NOT disconnect when done
+        $OwnsConnection = $false
+    } else {
+        # No existing connection; create one now
+        # Caller should disconnect when done
+        $Connection.Value = Connect-Sql
+        $OwnsConnection = $true
+    }
+
+    # Ensure the connection is open
+    if ($Connection.Value.State -ne [System.Data.ConnectionState]::Open) {
+        $Connection.Value.Open()
+    }
+
+    $OwnsConnection
+}
+
+# [Internal]
 function Write-SqlErrors {
+    <#
+    .SYNOPSIS
+        Prints messages received from the server.
+    #>
     param (
         [System.Data.SqlClient.SqlErrorCollection] $Errors,
         [PSCustomObject] $Context
     )
 
-    foreach ($e in $Errors) {
-        if ($e.Class -le 10 <# max informational severity #>) {
+    $Errors | % {
+        if ($_.Class -le 10 <# max informational severity #>) {
             # Informational message
-            Write-Host $e.Message
+            Write-Host $_.Message
         } else {
             # Warning or error message
-            $Message = ($e.Procedure, "(batch)" -ne "")[0]
-            $Message = "$($Message):$($e.LineNumber): E$($e.Class): $($e.Message)"
+            $Message = ($_.Procedure, "(batch)" -ne "")[0]
+            $Message = "$($Message):$($_.LineNumber): E$($_.Class): $($_.Message)"
             Write-Warning $Message
 
             # Mark current command as failed

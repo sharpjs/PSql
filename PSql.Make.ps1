@@ -136,7 +136,7 @@ $RunLoop = {
     $VerbosePreference = "Continue"
 
     $Connection = Connect-Sql $Server $Database `
-        -Login $Login -Password $Password -PassThru
+        -Login $Login -Password $Password
 
     # Pass run id in context, so that threads can share data via a table.
     Invoke-Sql -Connection $Connection "
