@@ -81,3 +81,26 @@ function Invoke-Robocopy {
         $global:LastExitCode = $null
     }
 }
+
+function Lock-Object {
+    param (
+        [Parameter(Mandatory, Position=1)]
+        [object] $Object,
+
+        [Parameter(Mandatory, Position=2)]
+        [scriptblock] $Block
+    )
+    process {
+        $Locked = $false
+        try {
+            [System.Threading.Monitor]::Enter($Object, [ref] $Locked)
+
+            . $Block
+        }
+        finally {
+            if ($Locked) {
+                [System.Threading.Monitor]::Exit($Object)
+            }
+        }
+    }
+}
