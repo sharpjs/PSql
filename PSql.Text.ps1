@@ -76,9 +76,9 @@ function Expand-SqlCmdDirectives {
     [CmdletBinding()]
     [OutputType([string])]
     param (
-        # The text to process.
+        # The SQL text to process.
         [Parameter(ValueFromPipeline)]
-        [string] $Input,
+        [string] $Sql,
 
         # SQLCMD variables that will be defined when processing begins.
         [hashtable] $Define
@@ -88,7 +88,7 @@ function Expand-SqlCmdDirectives {
         $Define = if ($Define) { $Define.Clone() } else { @{} }
 
         # Process each line individually
-        ($Input -split "(?:\r)?\n" | % {
+        ($Sql -split "(?:\r)?\n" | % {
             # Perform replacements
             foreach ($Name in $Define.Keys) {
                 $_ = $_ -replace "\$\($Name\)", $Define[$Name]
