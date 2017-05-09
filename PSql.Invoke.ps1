@@ -29,7 +29,12 @@ function Invoke-Sql {
     .SYNOPSIS
         Invokes the specified SQL command. Outputs results, if any, as PSCustomObjects.
     #>
+    [CmdletBinding(DefaultParameterSetName="Default")]
     param (
+        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [Parameter(Mandatory, ParameterSetName="Connection")]
+        [System.Data.SqlClient.SqlConnection] $Connection,
+
         # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
         [Parameter(Mandatory, ParameterSetName="Database")]
         [string] $Database,
@@ -39,9 +44,6 @@ function Invoke-Sql {
         [AllowNull()]
         [AllowEmptyString()]
         [string] $Sql,
-
-        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
-        [System.Data.SqlClient.SqlConnection] $Connection,
 
         # Do not wrap the command with error-handling code.
         [switch] $Raw,
