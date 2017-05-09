@@ -27,8 +27,10 @@
 $IgnoreCase = [System.StringComparison]::OrdinalIgnoreCase
 
 $SqlBatchTokens = [regex]'(?minx:
-    '' ([^''] |'''')* (''|\z) |
-    \[ ([^\]] |\]\])* (\]|\z) |
+    '' ([^''] |'''')* (''   |\z) |
+    \[ ([^\]] |\]\])* (\]   |\z) |
+    --  .*?           (\r?\n|\z) |
+    /\* (.|\n)*?      (\*/  |\z) |
     ^GO (\r?\n|\z)
 )'
 
