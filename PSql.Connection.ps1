@@ -109,7 +109,7 @@ function Disconnect-Sql {
         [System.Data.SqlClient.SqlConnection[]] $Connections
     )
     process {
-        $Connections | Get-ConnectionContext | % {
+        $Connections | ? { $_ } | Get-ConnectionContext | % {
             $_.IsDisconnecting = $true
             $_.Connection.Dispose()
         }
