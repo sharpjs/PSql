@@ -46,9 +46,13 @@ function Connect-Sql {
         [string] $Database,
 
         # Use SQL credentials instead of Windows authentication.  Must be used with -Password.
+        [AllowNull()]
+        [AllowEmptyString()]
         [string] $Login,
 
         # Use SQL credentials instead of Windows authentication.  Must be used with -Login.
+        [AllowNull()]
+        [AllowEmptyString()]
         [string] $Password
     )
 
