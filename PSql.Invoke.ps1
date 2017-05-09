@@ -36,6 +36,8 @@ function Invoke-Sql {
 
         # The SQL command to invoke.
         [Parameter(Position=1, ValueFromPipeline)]
+        [AllowNull()]
+        [AllowEmptyString()]
         [string] $Sql,
 
         # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
