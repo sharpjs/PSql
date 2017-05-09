@@ -24,6 +24,9 @@
     SOFTWARE.
 #>
 
+# Marker to opt out of wrapping statements in sp_executesql.
+$NowrapRe = [regex] '(?m)^--# NOWRAP\s*$';
+
 function Invoke-Sql {
     <#
     .SYNOPSIS
@@ -128,26 +131,39 @@ function Use-SqlErrorHandler {
     )
     begin {
         $Out = New-Object System.Text.StringBuilder
-        $Out.AppendLine(@"
-DECLARE @sql nvarchar(max);
+        $Out.AppendLine(
+@"
+DECLARE @__sql__ nvarchar(max);
 BEGIN TRY
-"@) | Out-Null
+"@
+        ) | Out-Null
     }
     process {
-        $Sql = $Sql -replace "'", "''"
-        $Out.AppendLine(@"
-    SET @sql = '$Sql';
-    EXEC sp_executesql @sql;
-"@) | Out-Null
+        $Out.AppendLine() | Out-Null
+
+        # Save SQL in a variable for error handler to use
+        $SqlEscaped = $Sql -replace "'", "''"
+        $Out.AppendLine("    SET @__sql__ = '$SqlEscaped';") | Out-Null
+
+        # Execute SQL
+        if ($Sql -match $NowrapRe) {
+            # SQL opted out of wrapping; use it verbatim
+            $Out.AppendLine($Sql) | Out-Null
+        } else {
+            # Wrap SQL in sp_executesql
+            $Out.AppendLine("    EXEC sp_executesql @__sql__;") | Out-Null
+        }
     }
     end {
-        $Out.AppendLine(@"
+        $Out.AppendLine(
+@"
+
 END TRY
 BEGIN CATCH
     PRINT ''
     PRINT 'An error occurred while executing this batch:';
 
-    -- Print @sql in chunks of no more than 4000 characters to work around the
+    -- Print SQL in chunks of no more than 4000 characters to work around the
     -- SQL Server limit of 4000 nvarchars per PRINT.  Break chunks at line
     -- boundaries, if possible, but ensure that the whole batch gets printed.
 
@@ -156,16 +172,16 @@ BEGIN CATCH
         @pos   bigint      =  1,                    -- a char pos
         @start bigint      =  1,                    -- first char pos of chunk
         @end   bigint      = -1,                    -- first char pos after chunk
-        @len   bigint      = LEN(@sql);             -- last  char pos of SQL
+        @len   bigint      = LEN(@__sql__);         -- last  char pos of SQL
 
-    IF LEFT(@sql, 2) != @crlf
+    IF LEFT(@__sql__, 2) != @crlf
         PRINT '';
 
     WHILE @start <= @len
     BEGIN
         WHILE @end <= @len
         BEGIN
-            SET @pos = CHARINDEX(@crlf, @sql, @end + 2);
+            SET @pos = CHARINDEX(@crlf, @__sql__, @end + 2);
             IF @pos = 0
                 SET @pos = @len + 1;
 
@@ -177,18 +193,18 @@ BEGIN CATCH
                 BREAK; -- chunk full
         END;
 
-        PRINT SUBSTRING(@sql, @start, @end - @start);
+        PRINT SUBSTRING(@__sql__, @start, @end - @start);
 
         SET @start = @end + 2;
         SET @end   = @start;
     END;
 
-    IF RIGHT(@sql, 2) != @crlf
+    IF RIGHT(@__sql__, 2) != @crlf
         PRINT '';
 
     THROW;
 END CATCH;
-"@) | Out-Null
-        Write-Output $Out.ToString()
+"@
+        ).ToString()
     }
 }
