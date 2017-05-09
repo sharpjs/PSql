@@ -168,7 +168,8 @@ function Ensure-SqlConnection {
         Ensures that the given variable holds an open connection.
     #>
     param (
-        [ref] [System.Data.SqlClient.SqlConnection] $Connection
+        [ref] [System.Data.SqlClient.SqlConnection] $Connection,
+        [string] $Database
     )
 
     # Ensure that there is a connection object
@@ -179,7 +180,7 @@ function Ensure-SqlConnection {
     } else {
         # No existing connection; create one now
         # Caller should disconnect when done
-        $Connection.Value = Connect-Sql
+        $Connection.Value = Connect-Sql . $Database
         $OwnsConnection = $true
     }
 

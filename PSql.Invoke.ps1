@@ -30,6 +30,10 @@ function Invoke-Sql {
         Invokes the specified SQL command. Outputs results, if any, as PSCustomObjects.
     #>
     param (
+        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
+        [Parameter(Mandatory, ParameterSetName="Database")]
+        [string] $Database,
+
         # The SQL command to invoke.
         [Parameter(Position=1, ValueFromPipeline)]
         [string] $Sql,
@@ -48,7 +52,7 @@ function Invoke-Sql {
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
+        $OwnsConnection = Ensure-SqlConnection ([ref] $Connection) $Database
 
         # Clear any failures from prior command
         $Context = Get-ConnectionContext $Connection
