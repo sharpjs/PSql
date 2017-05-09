@@ -53,4 +53,6 @@ Export-ModuleMember `
         Backup-SqlDatabase,
         Restore-SqlDatabase,
         Split-SqlBatches,
-        Expand-SqlCmdDirectives
+        Expand-SqlCmdDirectives,
+        Get-SqlDirectories,
+        Invoke-SqlModules
