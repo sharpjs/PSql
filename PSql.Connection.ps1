@@ -60,7 +60,23 @@ function Connect-Sql {
 
         # Use SQL credentials instead of Windows authentication.
         [Parameter(Mandatory, ParameterSetName = "Credential")]
-        [PSCredential] $Credential
+        [PSCredential] $Credential,
+
+        # Name of the connecting application.  Default: PowerShell
+        [Parameter()]
+        [string] $ApplicationName = "PowerShell",
+
+        # Time to wait for the connection to be established.  Default: 15 seconds.
+        [Parameter()]
+        [string] $TimeoutSeconds = 15,
+
+        # Encrypt data sent over the connection.  On by default; to use a dangerous, insecure, unencrypted connection instead, specify -Encrypt:$false.
+        [Parameter()]
+        [switch] $Encrypt = $true,
+
+        # Validate the server certificate when using an encrypted connection.
+        [Parameter()]
+        [switch] $ValidateServerCertificate
     )
 
     # Build connection string
@@ -69,9 +85,13 @@ function Connect-Sql {
     if ($Database) {
         $Builder.PSBase.InitialCatalog = $Database
     }
-    $Builder.PSBase.ApplicationName = "PowerShell"
-    $Builder.PSBase.ConnectTimeout  = 30 # seconds
-    $Builder.PSBase.Pooling         = $false;
+    $Builder.PSBase.ApplicationName        = $ApplicationName
+    $Builder.PSBase.ConnectTimeout         = $TimeoutSeconds
+    $Builder.PSBase.Pooling                = $false
+    if ($Encrypt) {
+        $Builder.PSBase.Encrypt                = $true
+        $Builder.PSBase.TrustServerCertificate = !$ValidateServerCertificate
+    }
    
     # Choose authentication method
     if ($Credential) {
