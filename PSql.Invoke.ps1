@@ -34,11 +34,11 @@ function Invoke-Sql {
     #>
     [CmdletBinding(DefaultParameterSetName="Default")]
     param (
-        # The connection on which to invoke the command.  If not given, a connection is opened to the local default instance using integrated authentication.
+        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
         [Parameter(Mandatory, ParameterSetName="Connection")]
         [System.Data.SqlClient.SqlConnection] $Connection,
 
-        # The database on the local default instance on which to invoke the command.  If not given, the command is invoked on the login's default database.
+        # The connection on which to invoke the command.  If not given, a connection is opened to the default database on the local host using integrated authentication.
         [Parameter(Mandatory, ParameterSetName="Database")]
         [string] $Database,
 
