@@ -35,6 +35,7 @@ function Connect-Sql {
     .SYNOPSIS
         Connects to the specified SQL Server instance.
     #>
+    [CmdletBinding(DefaultParameterSetName = "LoginPassword")]
     [OutputType([System.Data.SqlClient.SqlConnection])]
     param (
         # Name of the server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.
@@ -46,14 +47,20 @@ function Connect-Sql {
         [string] $Database,
 
         # Use SQL credentials instead of Windows authentication.  Must be used with -Password.
+        [Parameter(ParameterSetName = "LoginPassword")]
         [AllowNull()]
         [AllowEmptyString()]
         [string] $Login,
 
         # Use SQL credentials instead of Windows authentication.  Must be used with -Login.
+        [Parameter(ParameterSetName = "LoginPassword")]
         [AllowNull()]
         [AllowEmptyString()]
-        [string] $Password
+        [string] $Password,
+
+        # Use SQL credentials instead of Windows authentication.
+        [Parameter(Mandatory, ParameterSetName = "Credential")]
+        [PSCredential] $Credential
     )
 
     # Build connection string
@@ -67,7 +74,10 @@ function Connect-Sql {
     $Builder.PSBase.Pooling         = $false;
    
     # Choose authentication method
-    if ($Login -and $Password) {
+    if ($Credential) {
+        $Builder.PSBase.UserID   = $Credential.UserName
+        $Builder.PSBase.Password = $Credential.GetNetworkCredential().Password
+    } elseif ($Login -and $Password) {
         $Builder.PSBase.UserID   = $Login
         $Builder.PSBase.Password = $Password
     } elseif (!$Login -and !$Password) {
