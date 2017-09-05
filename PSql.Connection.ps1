@@ -68,7 +68,7 @@ function Connect-Sql {
 
         # Time to wait for the connection to be established.  Default: 15 seconds.
         [Parameter()]
-        [string] $TimeoutSeconds = 15,
+        [string] $TimeoutSeconds = 10,
 
         # Encrypt data sent over the connection.  On by default; to use a dangerous, insecure, unencrypted connection instead, specify -Encrypt:$false.
         [Parameter()]
