@@ -46,7 +46,7 @@ function Backup-SqlDatabase {
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
+        $OwnsConnection = Use-SqlConnection([ref] $Connection)
     }
     process {
         # Get backup file info
@@ -114,7 +114,7 @@ function Restore-SqlDatabase {
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Ensure-SqlConnection([ref] $Connection)
+        $OwnsConnection = Use-SqlConnection([ref] $Connection)
     }
     process {
         # Get backup file info

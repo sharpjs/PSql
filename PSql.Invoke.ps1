@@ -59,7 +59,7 @@ function Invoke-Sql {
     )
     begin {
         # Open a connection if one is not already open
-        $OwnsConnection = Ensure-SqlConnection ([ref] $Connection) $Database
+        $OwnsConnection = Use-SqlConnection ([ref] $Connection) $Database
 
         # Clear any failures from prior command
         $Context = Get-ConnectionContext $Connection

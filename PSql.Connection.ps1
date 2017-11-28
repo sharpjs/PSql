@@ -191,14 +191,15 @@ function Get-ConnectionContext {
     }
 }
 
-# [Internal]
-function Ensure-SqlConnection {
+function Use-SqlConnection {
     <#
     .SYNOPSIS
         Ensures that the given variable holds an open connection.
     #>
     param (
+        [Parameter(Mandatory)]
         [ref] [System.Data.SqlClient.SqlConnection] $Connection,
+
         [string] $Database
     )
 

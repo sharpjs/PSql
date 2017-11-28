@@ -49,6 +49,7 @@ Export-ModuleMember `
     -Function `
         Connect-Sql,
         Disconnect-Sql,
+        Use-SqlConnection,
         Invoke-Sql,
         Backup-SqlDatabase,
         Restore-SqlDatabase,
