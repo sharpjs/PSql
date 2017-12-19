@@ -38,45 +38,49 @@ function Connect-Sql {
     [CmdletBinding(DefaultParameterSetName = "LoginPassword")]
     [OutputType([System.Data.SqlClient.SqlConnection])]
     param (
-        # Name of the server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.
-        [Parameter(Position = 1, ValueFromPipelineByPropertyName)]
+        # Name of the database server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.  The default value is ".".
+        [Parameter(Position = 0, ValueFromPipelineByPropertyName)]
         [string] $Server = ".",
 
-        # Name of the initial database.  If not given, the initial database is the SQL Server default database.
-        [Parameter(Position = 2, ValueFromPipelineByPropertyName)]
+        # Name of the initial database.  If not given, the initial database is determined by the server.
+        [Parameter(Position = 1, ValueFromPipelineByPropertyName)]
+        [AllowNull()]
         [string] $Database,
 
-        # Use SQL credentials instead of Windows authentication.  Must be used with -Password.
-        [Parameter(ParameterSetName = "LoginPassword")]
+        # Login (username) to use when connecting to the server.  Must be used with -Password.  If not provided, integrated authentication is used.
+        [Parameter(ParameterSetName = "LoginPassword", ValueFromPipelineByPropertyName)]
         [AllowNull()]
         [AllowEmptyString()]
         [string] $Login,
 
-        # Use SQL credentials instead of Windows authentication.  Must be used with -Login.
-        [Parameter(ParameterSetName = "LoginPassword")]
+        # Password to use when connecting to the server.  Must be used with -Login.  If not provided, integrated authentication is used.
+        [Parameter(ParameterSetName = "LoginPassword", ValueFromPipelineByPropertyName)]
         [AllowNull()]
         [AllowEmptyString()]
         [string] $Password,
 
-        # Use SQL credentials instead of Windows authentication.
-        [Parameter(Mandatory, ParameterSetName = "Credential")]
-        [PSCredential] $Credential,
+        # Credential to use when connecting to the server.  If not provided, integrated authentication is used.
+        [Parameter(Mandatory, ParameterSetName = "Credential", ValueFromPipelineByPropertyName)]
+        [System.Management.Automation.Credential()]
+        [PSCredential] $Credential = [PSCredential]::Empty,
 
-        # Name of the connecting application.  Default: PowerShell
-        [Parameter()]
+        # Name of the connecting application.  The default value is "PowerShell".
+        [Parameter(ValueFromPipelineByPropertyName)]
         [string] $ApplicationName = "PowerShell",
 
-        # Time to wait for the connection to be established.  Default: 15 seconds.
-        [Parameter()]
-        [string] $TimeoutSeconds = 10,
+        # Time to wait for a connection to be established.  The default value is 15 seconds.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string] $TimeoutSeconds = 15,
 
-        # Encrypt data sent over the connection.  On by default; to use a dangerous, insecure, unencrypted connection instead, specify -Encrypt:$false.
-        [Parameter()]
-        [switch] $Encrypt = $true,
+        # Do not encrypt data sent over the network connectdion.
+        # WARNING: Using this option is a security risk.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [switch] $NoEncryption,
 
-        # Validate the server certificate when using an encrypted connection.
-        [Parameter()]
-        [switch] $ValidateServerCertificate
+        # Do not validate the server's identity when using an encrypted connection.
+        # WARNING: Using this option is a security risk.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [switch] $TrustServerCertificate = $true # TODO: $false
     )
 
     # Build connection string
@@ -88,13 +92,13 @@ function Connect-Sql {
     $Builder.PSBase.ApplicationName        = $ApplicationName
     $Builder.PSBase.ConnectTimeout         = $TimeoutSeconds
     $Builder.PSBase.Pooling                = $false
-    if ($Encrypt) {
+    if (!$NoEncryption) {
         $Builder.PSBase.Encrypt                = $true
-        $Builder.PSBase.TrustServerCertificate = !$ValidateServerCertificate
+        $Builder.PSBase.TrustServerCertificate = $TrustServerCertificate
     }
    
     # Choose authentication method
-    if ($Credential) {
+    if ($Credential -ne [PSCredential]::Empty) {
         $Builder.PSBase.UserID   = $Credential.UserName
         $Builder.PSBase.Password = $Credential.GetNetworkCredential().Password
     } elseif ($Login -and $Password) {
