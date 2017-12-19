@@ -2,7 +2,7 @@
     Connection Management
 
     Part of: PSql - Simple PowerShell Cmdlets for SQL Server
-    Copyright (C) 2016 Jeffrey Sharp
+    Copyright (C) 2017 Jeffrey Sharp
     https://github.com/sharpjs/PSql
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
