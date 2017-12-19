@@ -30,6 +30,57 @@
 #>
 $Contexts = [hashtable] @{}
 
+function New-SqlConnectionInfo {
+    <#
+    .SYNOPSIS
+        Creates an object that specifies how to connect to a SQL Server or Azure SQL instance.
+    #>
+    [OutputType([PSCustomObject])]
+    param (
+        # Name of the database server.  Must be a valid hostname or IP address, with an optional instance suffix (ex: "10.12.34.56\DEV").  A dot (".") may be used to specify a local server.  The default value is ".".
+        [Parameter(Position = 0, ValueFromPipelineByPropertyName)]
+        [string] $Server = ".",
+
+        # Name of the initial database.  If not given, the initial database is determined by the server.
+        [Parameter(Position = 1, ValueFromPipelineByPropertyName)]
+        [AllowNull()]
+        [string] $Database,
+
+        # Credential to use when connecting to the server.  If not provided, integrated authentication is used.
+        [Parameter(Position = 2, ValueFromPipelineByPropertyName)]
+        [System.Management.Automation.Credential()]
+        [PSCredential] $Credential = [PSCredential]::Empty,
+
+        # Name of the connecting application.  The default value is "PowerShell".
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string] $ApplicationName = "PowerShell",
+
+        # Time to wait for a connection to be established.  The default value is 15 seconds.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string] $TimeoutSeconds = 15,
+
+        # Do not encrypt data sent over the network connectdion.
+        # WARNING: Using this option is a security risk.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [switch] $NoEncryption,
+
+        # Do not validate the server's identity when using an encrypted connection.
+        # WARNING: Using this option is a security risk.
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [switch] $TrustServerCertificate = $true # TODO: $false
+    )
+
+    [PSCustomObject] @{
+        Server                 = $Server
+        Database               = $Database
+        Credential             = $Credential
+        ApplicationName        = $ApplicationName
+        TimeoutSeconds         = $TimeoutSeconds
+        NoEncryption           = $NoEncryption
+        TrustServerCertificate = $TrustServerCertificate
+    }
+}
+
 function Connect-Sql {
     <#
     .SYNOPSIS

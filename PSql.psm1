@@ -51,6 +51,7 @@ Export-ModuleMember `
         Disconnect-Sql,
         Use-SqlConnection,
         Invoke-Sql,
+        New-SqlConnectionInfo,
         Backup-SqlDatabase,
         Restore-SqlDatabase,
         Split-SqlBatches,
