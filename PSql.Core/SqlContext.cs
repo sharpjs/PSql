@@ -1,5 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using System.Management.Automation;
+using System.Net;
 
 namespace PSql
 {
@@ -9,6 +11,9 @@ namespace PSql
             LocalServerName    = ".",
             MasterDatabaseName = "master";
 
+        private static readonly StringComparer
+            ServerNameComparer = StringComparer.OrdinalIgnoreCase;
+ 
         public string ServerName { get; set; }
 
         public string DatabaseName { get; set; }
@@ -26,6 +31,13 @@ namespace PSql
         public string ApplicationName { get; set; }
 
         public ApplicationIntent ApplicationIntent { get; set; }
+
+        public bool IsLocal
+            => string.IsNullOrEmpty(ServerName)
+            || ServerNameComparer.Equals(ServerName, LocalServerName)
+            || ServerNameComparer.Equals(ServerName, "(local)")
+            || ServerNameComparer.Equals(ServerName, "localhost")
+            || ServerNameComparer.Equals(ServerName, Dns.GetHostName());
 
         internal SqlConnection CreateConnection()
         {
