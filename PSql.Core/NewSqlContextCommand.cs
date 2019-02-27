@@ -82,11 +82,15 @@ namespace PSql
                 ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
                 : new SqlContext();
 
+            var credential = Credential == null || Credential == PSCredential.Empty
+                ? null
+                : Credential;
+
             context.ServerName               = ServerName;
             context.DatabaseName             = DatabaseName;
-            context.Credential               = Credential;
             context.UseEncryption            = !NoEncryption;
             context.UseServerIdentityCheck   = !NoServerIdentityCheck;
+            context.Credential               = credential;
             context.ConnectionTimeoutSeconds = ConnectTimeoutSeconds;
             context.ClientName               = ClientName;
             context.ApplicationName          = ApplicationName;
