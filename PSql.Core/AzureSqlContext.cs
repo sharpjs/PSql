@@ -17,18 +17,17 @@ namespace PSql
             if (Credential == null || Credential == PSCredential.Empty)
                 throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
 
-            if (!UseEncryption)
-                throw new NotSupportedException("Encryption is required when connecting to Azure SQL Database.");
-
-            if (!UseServerIdentityCheck)
-                throw new NotSupportedException("Server identity check is required when connecting to Azure SQL Database.");
-
             base.BuildConnectionString(builder);
 
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
 
             if (string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = MasterDatabaseName;
+        }
+
+        protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
+        {
+            builder.Encrypt = true;
         }
 
         private string ResolveServerFullName()

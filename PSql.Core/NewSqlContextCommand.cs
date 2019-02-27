@@ -45,13 +45,9 @@ namespace PSql
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
-        // -NoEncryption
+        // -EncryptionMode
         [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter NoEncryption { get; set; }
-
-        // -NoServerIdentityCheck
-        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter NoServerIdentityCheck { get; set; }
+        public EncryptionMode EncryptionMode { get; set; }
 
         // -ReadOnlyIntent
         [Alias("ro")]
@@ -88,13 +84,12 @@ namespace PSql
 
             context.ServerName               = ServerName;
             context.DatabaseName             = DatabaseName;
-            context.UseEncryption            = !NoEncryption;
-            context.UseServerIdentityCheck   = !NoServerIdentityCheck;
             context.Credential               = credential;
+            context.EncryptionMode           = Azure ? EncryptionMode.Full : EncryptionMode;
             context.ConnectionTimeoutSeconds = ConnectTimeoutSeconds;
             context.ClientName               = ClientName;
             context.ApplicationName          = ApplicationName;
-            context.ApplicationIntent        = ReadOnlyIntent.IsPresent ? ReadOnly : ReadWrite;
+            context.ApplicationIntent        = ReadOnlyIntent ? ReadOnly : ReadWrite;
 
             WriteObject(context);
         }

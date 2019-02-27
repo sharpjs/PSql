@@ -10,9 +10,6 @@ namespace PSql
         protected const string
             LocalServerName    = ".",
             MasterDatabaseName = "master";
-
-        private static readonly StringComparer
-            ServerNameComparer = StringComparer.OrdinalIgnoreCase;
  
         public string ServerName { get; set; }
 
@@ -20,9 +17,7 @@ namespace PSql
 
         public PSCredential Credential { get; set; }
 
-        public bool UseEncryption { get; set; } = true;
-
-        public bool UseServerIdentityCheck { get; set; } = true;
+        public EncryptionMode EncryptionMode { get; set; }
 
         public int? ConnectionTimeoutSeconds { get; set; }
 
@@ -31,13 +26,6 @@ namespace PSql
         public string ApplicationName { get; set; }
 
         public ApplicationIntent ApplicationIntent { get; set; }
-
-        public bool IsLocal
-            => string.IsNullOrEmpty(ServerName)
-            || ServerNameComparer.Equals(ServerName, LocalServerName)
-            || ServerNameComparer.Equals(ServerName, "(local)")
-            || ServerNameComparer.Equals(ServerName, "localhost")
-            || ServerNameComparer.Equals(ServerName, Dns.GetHostName());
 
         internal SqlConnection CreateConnection()
         {
@@ -64,18 +52,17 @@ namespace PSql
             // Database
             if (!string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = DatabaseName;
+            //else
+            //  server determines database
 
             // Authentication
             if (Credential == null || Credential == PSCredential.Empty)
                 builder.IntegratedSecurity = true;
+            //else
+            //  will provide credential as a SqlCredential object
 
-            // Encryption
-            if (UseEncryption)
-                builder.Encrypt = true;
-
-            // Server Identity Check
-            if (UseEncryption && !UseServerIdentityCheck)
-                builder.TrustServerCertificate = true;
+            // Encryption & Server Identity Check
+            ConfigureEncryption(builder);
 
             // Timeout
             if (ConnectionTimeoutSeconds.HasValue)
@@ -95,6 +82,45 @@ namespace PSql
 
             // Other
             builder.Pooling = false;
+        }
+
+        protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)
+        {
+            var (useEncryption, useServerIdentityCheck)
+                = TranslateEncryptionMode(EncryptionMode);
+
+            if (useEncryption)
+                builder.Encrypt = true;
+
+            if (!useServerIdentityCheck)
+                builder.TrustServerCertificate = true;
+        }
+
+        private (bool, bool) TranslateEncryptionMode(EncryptionMode mode)
+        {
+            switch (mode)
+            {
+                case EncryptionMode.None:       return (false, false);
+                case EncryptionMode.Unverified: return (true,  false);
+                case EncryptionMode.Full:       return (true,  true );
+                case EncryptionMode.Default:
+                default:
+                    var isRemote = !GetIsLocal();
+                    return (isRemote, isRemote);
+            }
+        }
+
+        private bool GetIsLocal()
+        {
+            if (string.IsNullOrEmpty(ServerName))
+                return true;
+
+            var comparer = StringComparer.OrdinalIgnoreCase;
+
+            return comparer.Equals(ServerName, LocalServerName)
+                || comparer.Equals(ServerName, "(local)")
+                || comparer.Equals(ServerName, "localhost")
+                || comparer.Equals(ServerName, Dns.GetHostName());
         }
 
         private SqlCredential GetCredential()
