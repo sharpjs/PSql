@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<helpItems schema="maml"
+            xmlns="http://msh"
+       xmlns:maml="http://schemas.microsoft.com/maml/2004/10"
+    xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
+        xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+  <!-- 
+    Copyright (C) 2019 Jeffrey Sharp
+
+    Permission to use, copy, modify, and distribute this software for any
+    purpose with or without fee is hereby granted, provided that the above
+    copyright notice and this permission notice appear in all copies.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+    Documentation:
+    https://msdn.microsoft.com/en-us/library/bb525433(v=vs.85).aspx
+  -->
+
+  <command:command>
+    <command:details>
+      <command:name>New-SqlContext</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>SqlContext</command:noun>
+      <maml:description>
+        <maml:para>Creates a new SqlContext object.</maml:para>
+      </maml:description>
+      <maml:copyright>
+        <maml:para>Copyright (C) 2019 Jeffrey Sharp</maml:para>
+      </maml:copyright>
+    </command:details>
+
+    <!--
+
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-SqlContext</maml:name>
+        <command:parameter required="true" position="0" pipelineInput="true (ByValue, ByPropertyName)" globbing="false">
+          <maml:name>ScriptBlock</maml:name>
+          <command:parameterValue required="true">ScriptBlock[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+          <maml:name>MaxConcurrency</maml:name>
+          <command:parameterValue required="true">Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+          <maml:name>Variable</maml:name>
+          <command:parameterValue required="true">PSVariable[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+          <maml:name>Module</maml:name>
+          <command:parameterValue required="true">PSModuleInfo[]</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+
+    <command:parameters>
+      <command:parameter required="true" position="0" pipelineInput="true (ByValue, ByPropertyName)" globbing="false">
+        <maml:name>ScriptBlock</maml:name>
+        <maml:description>
+          <maml:para>The script block(s) to run concurrently.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">ScriptBlock[]</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>ScriptBlock[]</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>MaxConcurrency</maml:name>
+        <maml:description>
+          <maml:para>The maximum number of simultaneously running script blocks.  The default is the number of processor threads on the current computer.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">Int32</command:parameterValue>
+        <dev:defaultValue>[Environment]::ProcessorCount</dev:defaultValue>
+        <dev:type>Int32</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>Variable</maml:name>
+        <maml:description>
+          <maml:para>Variables to set for script blocks.  Use Get-Variable to obtain PSVariable objects.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSVariable[]</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>PSVariable[]</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>Module</maml:name>
+        <maml:description>
+          <maml:para>Modules to import for script blocks.  Use Get-Module to obtain PSModuleInfo objects.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSModuleInfo[]</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>PSModuleInfo[]</dev:type>
+      </command:parameter>
+    </command:parameters>
+
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>ScriptBlock[]</maml:name>
+          <maml:uri/>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
+          <maml:para>Script block(s) to run concurrently.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>PSConcurrent.TaskOutput[]</maml:name>
+          <maml:uri/>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
+          <maml:para>Output of the invoked ScriptBlocks.  Each output object is wrapped in TaskOutput object that identifies which scriptblock produced the output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>https://github.com/sharpjs/PSConcurrent</maml:linkText>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-Module</maml:linkText>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Get-Variable</maml:linkText>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+    -->
+
+  </command:command>
+</helpItems>
