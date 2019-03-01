@@ -26,31 +26,32 @@ namespace PSql
 
         // -ServerName
         [Alias("s", "Server")]
-        [Parameter(ParameterSetName = GenericName, Position = 0, Mandatory = false, ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true,  ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 0,                   ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string ServerName { get; set; } = LocalServerName;
+        public string ServerName { get; set; }
 
         // -DatabaseName
         [Alias("d", "Database")]
         [Parameter(ParameterSetName = GenericName, Position = 1, ValueFromPipelineByPropertyName = true)]
         [Parameter(ParameterSetName = AzureName,   Position = 3, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
-        public string DatabaseName { get; set; } = MasterDatabaseName;
+        public string DatabaseName { get; set; }
 
         // -Credential
         [Alias("c")]
-        [Parameter(ParameterSetName = GenericName, Position = 2, Mandatory = false, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 2,                    ValueFromPipelineByPropertyName = true)]
         [Parameter(ParameterSetName = AzureName,   Position = 4, Mandatory = true,  ValueFromPipelineByPropertyName = true)]
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
         // -EncryptionMode
+        [Alias("e", "em", "Encryption")]
         [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
         public EncryptionMode EncryptionMode { get; set; }
 
         // -ReadOnlyIntent
-        [Alias("ro")]
+        [Alias("ro", "ReadOnly")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public SwitchParameter ReadOnlyIntent { get; set; }
 
@@ -67,7 +68,7 @@ namespace PSql
         public string ApplicationName { get; set; }
 
         // -ConnectTimeoutSeconds
-        [Alias("to", "ConnectTimeout")]
+        [Alias("t", "to", "Timeout", "ConnectTimeout")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
         [ValidateRange(0, int.MaxValue)]
         public int? ConnectTimeoutSeconds { get; set; }
