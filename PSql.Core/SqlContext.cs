@@ -60,7 +60,7 @@ namespace PSql
             //  server determines database
 
             // Authentication
-            if (Credential == null || Credential == PSCredential.Empty)
+            if (Credential.IsNullOrEmpty())
                 builder.IntegratedSecurity = true;
             //else
             //  will provide credential as a SqlCredential object
@@ -129,7 +129,7 @@ namespace PSql
 
         private SqlCredential GetCredential()
         {
-            if (Credential == null || Credential == PSCredential.Empty)
+            if (Credential.IsNullOrEmpty())
                 return null; // using integrated security
 
             return new SqlCredential(Credential.UserName, Credential.Password);

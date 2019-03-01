@@ -14,7 +14,7 @@ namespace PSql
 
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
-            if (Credential == null || Credential == PSCredential.Empty)
+            if (Credential.IsNullOrEmpty())
                 throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
 
             base.BuildConnectionString(builder);

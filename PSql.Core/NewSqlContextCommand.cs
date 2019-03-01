@@ -78,7 +78,7 @@ namespace PSql
                 ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
                 : new SqlContext();
 
-            var credential = Credential == null || Credential == PSCredential.Empty
+            var credential = Credential.IsNullOrEmpty()
                 ? null
                 : Credential;
 
