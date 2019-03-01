@@ -5,6 +5,10 @@ using System.Net;
 
 namespace PSql
 {
+    /// <summary>
+    ///   Information necessary to connect to a SQL Server or compatible
+    ///   database.
+    /// </summary>
     public class SqlContext
     {
         protected const string
