@@ -66,7 +66,7 @@ namespace PSql
         [ValidateNotNullOrEmpty]
         public string ApplicationName { get; set; }
 
-        // -ConnectTimeoutSeconds
+        // -ConnectTimeout
         [Alias("t", "to", "Timeout")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
         [ValidateRange("0:00:00", "24855.03:14:07")]
