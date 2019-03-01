@@ -69,7 +69,7 @@ namespace PSql
             ConfigureEncryption(builder);
 
             // Timeout
-            if (ConnectTimeout.HasValue)
+            if (ConnectTimeout >= TimeSpan.Zero)
                 builder.ConnectTimeout = ConnectTimeout.Value.GetTotalSecondsSaturatingInt32();
 
             // Client Name

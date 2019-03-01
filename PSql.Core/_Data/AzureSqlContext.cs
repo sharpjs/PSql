@@ -6,6 +6,10 @@ using System.Management.Automation;
 
 namespace PSql
 {
+    /// <summary>
+    ///   Information necessary to connect to an Azyure SQL Database or
+    ///   compatible database.
+    /// </summary>
     public class AzureSqlContext : SqlContext
     {
         public string ResourceGroupName { get; set; }
