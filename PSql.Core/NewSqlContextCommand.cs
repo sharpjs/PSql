@@ -1,4 +1,5 @@
-﻿using System.Management.Automation;
+﻿using System;
+using System.Management.Automation;
 using static System.Data.SqlClient.ApplicationIntent;
 
 namespace PSql
@@ -66,10 +67,10 @@ namespace PSql
         public string ApplicationName { get; set; }
 
         // -ConnectTimeoutSeconds
-        [Alias("t", "to", "Timeout", "ConnectTimeout")]
+        [Alias("t", "to", "Timeout")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        [ValidateRange(0, int.MaxValue)]
-        public int? ConnectTimeoutSeconds { get; set; }
+        [ValidateRange("0:00:00", "24855.03:14:07")]
+        public TimeSpan? ConnectTimeout { get; set; }
 
         protected override void ProcessRecord()
         {
@@ -81,14 +82,14 @@ namespace PSql
                 ? null
                 : Credential;
 
-            context.ServerName               = ServerName;
-            context.DatabaseName             = DatabaseName;
-            context.Credential               = credential;
-            context.EncryptionMode           = Azure ? EncryptionMode.Full : EncryptionMode;
-            context.ConnectionTimeoutSeconds = ConnectTimeoutSeconds;
-            context.ClientName               = ClientName;
-            context.ApplicationName          = ApplicationName;
-            context.ApplicationIntent        = ReadOnlyIntent ? ReadOnly : ReadWrite;
+            context.ServerName        = ServerName;
+            context.DatabaseName      = DatabaseName;
+            context.Credential        = credential;
+            context.EncryptionMode    = Azure ? EncryptionMode.Full : EncryptionMode;
+            context.ConnectTimeout    = ConnectTimeout;
+            context.ClientName        = ClientName;
+            context.ApplicationName   = ApplicationName;
+            context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
 
             WriteObject(context);
         }

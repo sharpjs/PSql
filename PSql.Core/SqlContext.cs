@@ -23,7 +23,7 @@ namespace PSql
 
         public EncryptionMode EncryptionMode { get; set; }
 
-        public int? ConnectionTimeoutSeconds { get; set; }
+        public TimeSpan? ConnectTimeout { get; set; }
 
         public string ClientName { get; set; }
 
@@ -69,8 +69,8 @@ namespace PSql
             ConfigureEncryption(builder);
 
             // Timeout
-            if (ConnectionTimeoutSeconds.HasValue)
-                builder.ConnectTimeout = ConnectionTimeoutSeconds.Value;
+            if (ConnectTimeout.HasValue)
+                builder.ConnectTimeout = ConnectTimeout.Value.GetTotalSecondsSaturatingInt32();
 
             // Client Name
             if (!string.IsNullOrEmpty(ClientName))
