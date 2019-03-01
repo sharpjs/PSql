@@ -24,14 +24,14 @@ namespace PSql
         public string ResourceGroupName { get; set; }
 
         // -ServerName
-        [Alias("s", "Server")]
+        [Alias("s", "sn", "Server")]
         [Parameter(ParameterSetName = GenericName, Position = 0,                   ValueFromPipelineByPropertyName = true)]
         [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string ServerName { get; set; }
 
         // -DatabaseName
-        [Alias("d", "Database")]
+        [Alias("d", "dn", "Database")]
         [Parameter(ParameterSetName = GenericName, Position = 1, ValueFromPipelineByPropertyName = true)]
         [Parameter(ParameterSetName = AzureName,   Position = 3, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
