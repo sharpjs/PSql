@@ -8,10 +8,8 @@ namespace PSql
     public class NewSqlContextCommand : Cmdlet
     {
         private const string
-            GenericName        = "Generic",
-            AzureName          = "Azure",
-            LocalServerName    = ".",
-            MasterDatabaseName = "master";
+            GenericName = "Generic",
+            AzureName   = "Azure";
 
         // -Azure
         [Alias("a")]
