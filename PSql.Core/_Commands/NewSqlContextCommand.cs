@@ -39,8 +39,8 @@ namespace PSql
 
         // -Credential
         [Alias("c")]
-        [Parameter(ParameterSetName = GenericName, Position = 2,                    ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 4, Mandatory = true,  ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 2,                   ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 4, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
