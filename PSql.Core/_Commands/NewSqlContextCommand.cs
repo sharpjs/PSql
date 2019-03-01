@@ -76,7 +76,7 @@ namespace PSql
         {
             var context = Azure.IsPresent
                 ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
-                : new SqlContext();
+                : new SqlContext      { EncryptionMode    = EncryptionMode    };
 
             var credential = Credential.IsNullOrEmpty()
                 ? null
@@ -85,7 +85,6 @@ namespace PSql
             context.ServerName        = ServerName;
             context.DatabaseName      = DatabaseName;
             context.Credential        = credential;
-            context.EncryptionMode    = Azure ? EncryptionMode.Full : EncryptionMode;
             context.ConnectTimeout    = ConnectTimeout;
             context.ClientName        = ClientName;
             context.ApplicationName   = ApplicationName;

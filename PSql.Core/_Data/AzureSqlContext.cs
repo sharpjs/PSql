@@ -12,6 +12,11 @@ namespace PSql
     /// </summary>
     public class AzureSqlContext : SqlContext
     {
+        public AzureSqlContext()
+        {
+            EncryptionMode = EncryptionMode.Full;
+        }
+
         public string ResourceGroupName { get; set; }
 
         public string ServerFullName { get; private set; }
