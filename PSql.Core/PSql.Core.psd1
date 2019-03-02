@@ -34,7 +34,7 @@
     # Exports
     # NOTE: Use empty arrays to indicate no exports.
     FunctionsToExport    = @()
-    CmdletsToExport      = @("New-SqlContext", "Connect-Sql", "Test-Stuff")
+    CmdletsToExport      = @("New-SqlContext", "Connect-Sql", "Disconnect-Sql", "Test-Stuff")
     VariablesToExport    = @()
     AliasesToExport      = @()
     DscResourcesToExport = @()
