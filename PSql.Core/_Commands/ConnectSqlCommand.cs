@@ -18,13 +18,13 @@ namespace PSql
         public SqlContext Context { get; set; }
 
         // -ServerName
-        [Alias("s", "Server")]
-        [Parameter(ParameterSetName = BasicName, Position = 0, Mandatory = false)]
+        [Alias("s", "sn", "Server")]
+        [Parameter(ParameterSetName = BasicName, Position = 0)]
         [ValidateNotNullOrEmpty]
         public string ServerName { get; set; }
 
         // -DatabaseName
-        [Alias("d", "Database")]
+        [Alias("d", "dn", "Database")]
         [Parameter(Position = 1)]
         public string DatabaseName { get; set; }
 
