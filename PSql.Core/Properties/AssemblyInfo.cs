@@ -25,7 +25,7 @@ using System.Security;
 // http://msdn.microsoft.com/en-us/library/dd233102.aspx
 //
 [assembly: SecurityRules(SecurityRuleSet.Level2)]
-[assembly: InternalsVisibleTo("PSql.Tests")]
+[assembly: InternalsVisibleTo("PSql.Core.Tests")]
 
 // COM Compliance
 [assembly: ComVisible(false)]
