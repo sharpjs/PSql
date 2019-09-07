@@ -27,48 +27,71 @@ namespace PSql
             if (text.Length == 0)
                 return Enumerable.Empty<string>();
 
-            return ProcessCore(new Input(text, name ?? "(script)"));
+            var input = new Input(name ?? DefaultInputName, text);
+            return ProcessCore(input);
         }
 
         private IEnumerable<string> ProcessCore(Input input)
         {
-            var start = 0;
             string batch;
 
             do
             {
-                (batch, start) = GetNextBatch(input, start);
-                yield return batch;
+                (batch, input) = GetNextBatch(input);
+
+                if (batch.Length != 0)
+                    yield return batch;
             }
-            while (start < input.Text.Length);
+            while (input != null);
         }
 
-        private (string sql, int next) GetNextBatch(Input input, int start)
+        // Verbatim mode - reuse input string if possible
+        private (string, Input) GetNextBatch(Input input)
         {
-            // Verbatim mode - reuse input string if possible
+            var start = input.Index;
 
-            var text  = input.Text;
-            var match = TokenRegex.Match(text, start);
-
-            while (match.Success)
+            for (;;)
             {
+                var match = input.NextToken();
+
+                // Handle end of input
+                if (!match.Success)
+                {
+                    // End of top-level input => final batch
+                    if (input.Parent == null)
+                        return (input.Range(start), null);
+
+                    // Non-empty batch continuing in parent input => switch to builder mode
+                    if (start != input.Length)
+                        return BuildNextBatch(input, start, match);
+
+                    // Empty batch continuing in the parent input => continue in verbatim mode
+                    input = input.Parent;
+                    start = input.Index;
+                    continue;
+                }
+
+                // Handle token found
                 switch (match.Value[0])
                 {
                     // Comments
+                    default:
                     case '-':
                     case '/':
                         // Comments are verbatim
-                        break;
+                        continue;
 
                     // Quoted
                     case '\'':
                     case '[':
+#if WIP
                         // Variable expansion requires switch to builder mode
                         if (HasVariableReplacement(match.Value))
                             return BuildNextBatch(input, start, match);
+#endif
 
                         // Other quoted strings/identifiers are verbatim
-                        break;
+                        continue;
 
                     // Preprocessor directives
                     case '$':
@@ -80,28 +103,41 @@ namespace PSql
                     case 'g':
                     case 'G':
                         // Entire batch is verbatim => return portion of original input
-                        return (
-                            sql:  text.Substring(start, match.Index - start),
-                            next: match.Index + match.Length
-                        );
+                        return (input.Range(start, match.Index), input);
                 }
-
-                match = match.NextMatch();
             }
-
-            return ( text.Substring(start), text.Length );
         }
 
-        private (string sql, int next) BuildNextBatch(Input input, int start, Match match)
+        // Builder mode - assemble batch in a StringBuilder
+        private (string, Input) BuildNextBatch(Input input, int start, Match match)
         {
-            var text    = input.Text;
-            var builder = InitializeBuilder(text, start, match.Index);
+            var builder = InitializeBuilder(start, match.Index, input.Length);
 
-            do
+            for (;;)
             {
+                // Handle end of input
+                if (!match.Success)
+                {
+                    input.AppendRangeTo(builder, start);
+
+                    // End of top-level input => final batch
+                    if (input.Parent == null)
+                        return (builder.ToString(), null);
+
+                    // Batch continues in parent input
+                    input = input.Parent;
+                    start = input.Index;
+                    match = input.NextToken();
+                    continue;
+                }
+
+                input.AppendRangeTo(builder, start, match.Index);
+
+                // Handle token found
                 switch (match.Value[0])
                 {
                     // Comments
+                    default:
                     case '-':
                     case '/':
                         // Comments are verbatim
@@ -111,9 +147,11 @@ namespace PSql
                     // Quoted
                     case '\'':
                     case '[':
+#if WIP
                         // Variable expansion requires switch to builder mode
                         if (HasVariableReplacement(match.Value))
                             return BuildNextBatch(input, start, match);
+#endif
 
                         // Other quoted strings/identifiers are verbatim
                         builder.Append(match.Value);
@@ -131,25 +169,15 @@ namespace PSql
                     case 'g':
                     case 'G':
                         // Finish batch
-                        return (
-                            sql:  builder.ToString(),
-                            next: match.Index + match.Length
-                        );
+                        return (builder.ToString(), input);
                 }
 
-                match = match.NextMatch();
+                start = input.Index;
+                match = input.NextToken();
             }
-            while (match.Success);
-
-            if (false)
-                builder.Append("");
-
-            return (
-                sql:  builder.ToString(),
-                next: text.Length
-            );
         }
 
+#if WIP
         private void PerformVariableReplacement(string text)
         {
             var builder = _builder;
@@ -178,13 +206,14 @@ namespace PSql
                 start = match.Index + match.Length;
             }
         }
+#endif
 
-        private StringBuilder InitializeBuilder(string text, int start, int end)
+        private StringBuilder InitializeBuilder(int start, int end, int length)
         {
             const int MinimumBufferSize = 4096;
 
             // Calculate sizes
-            var length   = end - start;
+            length = (end > 0 ? end : length) - start;
             var capacity = length < MinimumBufferSize
                 ? MinimumBufferSize
                 : GetNextPowerOf2Saturating(length);
@@ -193,15 +222,13 @@ namespace PSql
             if (builder == null)
             {
                 // Create builder for first time
-                 builder = new StringBuilder(text, start, length, capacity);
-                _builder = builder;
+                _builder = builder = new StringBuilder(capacity);
             }
             else // (builder != null)
             {
                 // Reuse builder
                 builder.Clear();
                 builder.EnsureCapacity(capacity);
-                builder.Append(text, start, length);
             }
 
             return builder;
@@ -227,6 +254,45 @@ namespace PSql
         private static bool HasVariableReplacement(string text)
         {
             return VariableRegex.IsMatch(text);
+        }
+
+        private class Input
+        {
+            public Input(string name, string text, Input parent = null)
+            {
+                Name   = name ?? throw new ArgumentNullException(nameof(name));
+                Text   = text ?? throw new ArgumentNullException(nameof(text));
+                Parent = parent;
+            }
+
+            public string Name   { get; }
+            public string Text   { get; }
+            public int    Index  { get; private set; }
+            public Input  Parent { get; }
+
+            public Match NextToken()
+            {
+                var match = TokenRegex.Match(Text, Index);
+
+                Index = match.Index + match.Length;
+
+                return match;
+            }
+
+            public int Length
+                => Text.Length;
+
+            public string Range(int start)
+                => Text.Substring(start);
+
+            public string Range(int start, int end)
+                => Text.Substring(start, end - start);
+
+            public void AppendRangeTo(StringBuilder builder, int start)
+                => builder.Append(Text, start, Text.Length - start);
+
+            public void AppendRangeTo(StringBuilder builder, int start, int end)
+                => builder.Append(Text, start, end - start);
         }
 
         private static readonly Regex TokenRegex = new Regex(
@@ -258,18 +324,7 @@ namespace PSql
             | ExplicitCapture
             | Compiled;
 
-        private class Input
-        {
-            public Input(string text, string name, Input parent = null)
-            {
-                Text   = text ?? throw new ArgumentNullException(nameof(text));
-                Name   = name ?? throw new ArgumentNullException(nameof(name));
-                Parent = parent;
-            }
-
-            public string Text   { get; }
-            public string Name   { get; }
-            public Input  Parent { get; }
-        }
+        private const string
+            DefaultInputName = "(script)";
     }
 }
