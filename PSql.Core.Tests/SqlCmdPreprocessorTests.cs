@@ -176,7 +176,7 @@ namespace PSql
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
-        public void Process_BatchSeparator_AtEof(string eol, string eof)
+        public void Process_BatchSeparator_EmptyBatchAtEnd(string eol, string eof)
         {
             var preprocessor = new SqlCmdPreprocessor();
 
@@ -187,6 +187,22 @@ namespace PSql
                 var batches = preprocessor.Process(text);
 
                 batches.Should().Equal("a" + eol);
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_BatchSeparator_AllEmptyBatches(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor();
+
+            foreach (var separator in BatchSeparators)
+            {
+                var text = Lines(eol, eof, separator, separator);
+
+                var batches = preprocessor.Process(text);
+
+                batches.Should().BeEmpty();
             }
         }
 
