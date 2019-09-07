@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
@@ -200,6 +201,85 @@ namespace PSql
 
                 batches.Should().BeEmpty();
             }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_VariableReplacement_Normal(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["foo"] = "bar" }
+            };
+
+            var batches = preprocessor.Process(
+                Lines(eol, eof, "a $(foo) b")
+            );
+
+            batches.Should().Equal(
+                Lines(eol, eof, "a bar b")
+            );
+        }
+
+        [Test]
+        public void Process_VariableReplacement_Undefined()
+        {
+            var preprocessor = new SqlCmdPreprocessor { };
+
+            preprocessor
+                .Invoking(p => p.Process("$(foo)").Count())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("SqlCmd variable 'foo' is not defined.");
+        }
+
+        [Test]
+        public void Process_VariableReplacement_Unterminated()
+        {
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["foo"] = "bar" }
+            };
+
+            preprocessor
+                .Invoking(p => p.Process("$(foo").Count())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("Unterminated reference to SqlCmd variable 'foo'.");
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_VariableReplacement_InSingleQuotedString(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["foo"] = "bar" }
+            };
+
+            var batches = preprocessor.Process(
+                Lines(eol, eof, "a 'b '' $(foo) c' d")
+            );
+
+            batches.Should().Equal(
+                Lines(eol, eof, "a 'b '' bar c' d")
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_VariableReplacement_InBracketQuotedIdentifier(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["foo"] = "bar" }
+            };
+
+            var batches = preprocessor.Process(
+                Lines(eol, eof, "a [b ]] $(foo) c] d")
+            );
+
+            batches.Should().Equal(
+                Lines(eol, eof, "a [b ]] bar c] d")
+            );
         }
 
         private static readonly string[][] EolEofCases =

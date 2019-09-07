@@ -84,11 +84,9 @@ namespace PSql
                     // Quoted
                     case '\'':
                     case '[':
-#if WIP
                         // Variable expansion requires switch to builder mode
                         if (HasVariableReplacement(match.Value))
                             return BuildNextBatch(input, start, match);
-#endif
 
                         // Other quoted strings/identifiers are verbatim
                         continue;
@@ -147,18 +145,13 @@ namespace PSql
                     // Quoted
                     case '\'':
                     case '[':
-#if WIP
-                        // Variable expansion requires switch to builder mode
-                        if (HasVariableReplacement(match.Value))
-                            return BuildNextBatch(input, start, match);
-#endif
-
-                        // Other quoted strings/identifiers are verbatim
-                        builder.Append(match.Value);
+                        // Quoted strings/identifiers are subject to variable replacement
+                        PerformVariableReplacement(match.Value);
                         break;
 
                     // Variable expansion
                     case '$':
+                        builder.Append(GetVariableReplacement(match));
                         break;
 
                     // Preprocessor directive
@@ -177,7 +170,11 @@ namespace PSql
             }
         }
 
-#if WIP
+        private static bool HasVariableReplacement(string text)
+        {
+            return VariableRegex.IsMatch(text);
+        }
+
         private void PerformVariableReplacement(string text)
         {
             var builder = _builder;
@@ -195,18 +192,25 @@ namespace PSql
                 }
 
                 builder.Append(text, start, match.Index);
-
-                var name = match.Groups["name"].Value;
-
-                if (!_variables.TryGetValue(name, out var value))
-                    throw new Exception();
-
-                builder.Append(value);
+                builder.Append(GetVariableReplacement(match));
 
                 start = match.Index + match.Length;
             }
         }
-#endif
+
+        private string GetVariableReplacement(Match match)
+        {
+            var name = match.Groups["name"];
+
+            var unterminated = match.Index + match.Length == name.Index + name.Length;
+            if (unterminated)
+                throw new SqlCmdException($"Unterminated reference to SqlCmd variable '{name.Value}'.");
+
+            if (!_variables.TryGetValue(name.Value, out var value))
+                throw new SqlCmdException($"SqlCmd variable '{name.Value}' is not defined.");
+
+            return value;
+        }
 
         private StringBuilder InitializeBuilder(int start, int end, int length)
         {
@@ -249,11 +253,6 @@ namespace PSql
             return value == int.MaxValue
                 ? value         // edge case: avoid overflow
                 : value + 1;    // normal
-        }
-
-        private static bool HasVariableReplacement(string text)
-        {
-            return VariableRegex.IsMatch(text);
         }
 
         private class Input
