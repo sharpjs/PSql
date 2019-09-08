@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
-using static FluentAssertions.FluentActions;
 
 namespace PSql
 {
@@ -336,7 +334,23 @@ namespace PSql
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
-        public void Process_SetVariable_Quoted(string eol, string eof)
+        public void Process_SetVariable_Unquoted_Invalid(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor { };
+
+            var text = Lines(eol, eof, ":setvar foo bar baz");
+
+            preprocessor
+                .Invoking(p => p.Process(text).Count())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("Invalid syntax in :setvar directive.");
+
+            preprocessor.Variables.Should().NotContainKey("foo");
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_SetVariable_DoubleQuoted(string eol, string eof)
         {
             // NOTE: This test contains German, Japanese, and Russian characters.
 
@@ -371,6 +385,22 @@ namespace PSql
                     @"「ほげ」 grault"
                 )
             );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_SetVariable_DoubleQuoted_Unterminated(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor { };
+
+            var text = Lines(eol, eof, @":setvar foo ""bar");
+
+            preprocessor
+                .Invoking(p => p.Process(text).Count())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("Unterminated double-quoted string.");
+
+            preprocessor.Variables.Should().NotContainKey("foo");
         }
 
         private static readonly string[][] EolEofCases =
