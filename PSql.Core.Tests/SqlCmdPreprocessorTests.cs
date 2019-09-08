@@ -322,9 +322,9 @@ namespace PSql
             );
 
             batches.Should().Equal(
-                Lines(eol, eof,
-                    @"a",
-                    @"b qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ c"
+                Batch(
+                    @"a",                                          eol,
+                    @"b qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ c", eof
                 )
             );
 
@@ -380,7 +380,7 @@ namespace PSql
             );
 
             preprocessor.Variables["f0ö_Бар-baß"].Should().Be(
-                string.Concat(
+                Batch(
                     @"qux ~`!@#$%^&*()-_=+[{]}\|;:'"",<.>/? corge ", eol,
                     @"",                                             eol,
                     @"「ほげ」 grault"
@@ -421,9 +421,11 @@ namespace PSql
                 );
 
                 batches.Should().Equal(
-                    "a"        + eol +
-                    "included" + eof +
-                    "b"        + eof
+                    Batch(
+                        "a",        eol,
+                        "included", eof,
+                        "b",        eof
+                    )
                 );
             }
         }
@@ -487,5 +489,8 @@ namespace PSql
 
             return text.Append(eof).ToString();
         }
+
+        private static string Batch(params string[] args)
+            => string.Concat(args);
     }
 }
