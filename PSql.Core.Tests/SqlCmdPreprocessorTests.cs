@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
@@ -410,7 +409,7 @@ namespace PSql
         {
             using (var file = new TemporaryFile())
             {
-                File.WriteAllText(file.Path, Lines(eol, eof,
+                file.Write(Lines(eol, eof,
                     "included"
                 ));
 
@@ -437,13 +436,13 @@ namespace PSql
             using (var file0 = new TemporaryFile())
             using (var file1 = new TemporaryFile())
             {
-                File.WriteAllText(file0.Path, Lines(eol, eof,
+                file0.Write(Lines(eol, eof,
                     "b",
                     $":r {file1.Path}",
                     "c"
                 ));
 
-                File.WriteAllText(file1.Path, Lines(eol, eof,
+                file1.Write(Lines(eol, eof,
                     "included"
                 ));
 
@@ -472,13 +471,13 @@ namespace PSql
             using (var file0 = new TemporaryFile())
             using (var file1 = new TemporaryFile())
             {
-                File.WriteAllText(file0.Path, Lines(eol, eof,
+                file0.Write(Lines(eol, eof,
                     "file0.a",
                     "GO",
                     "file0.b"
                 ));
 
-                File.WriteAllText(file1.Path, Lines(eol, eof,
+                file1.Write(Lines(eol, eof,
                     "file1.a",
                     "GO",
                     "file1.b"
@@ -521,7 +520,7 @@ namespace PSql
         {
             using (var file = new TemporaryFile())
             {
-                File.WriteAllText(file.Path, Lines(eol, eof,
+                file.Write(Lines(eol, eof,
                     "file.a",
                     "GO",
                     "file.b",
@@ -562,7 +561,7 @@ namespace PSql
         {
             using (var file = new TemporaryFile())
             {
-                File.WriteAllText(file.Path,
+                file.Write(
                     Lines(eol, eof,
                         "included",
                         "GO"
@@ -592,7 +591,7 @@ namespace PSql
         {
             using (var file = new TemporaryFile())
             {
-                File.WriteAllText(file.Path,
+                file.Write(
                     Lines(eol, eof,
                         "GO",
                         "included"
