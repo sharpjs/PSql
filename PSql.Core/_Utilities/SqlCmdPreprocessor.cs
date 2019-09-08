@@ -186,7 +186,7 @@ namespace PSql
             path = match.Groups[nameof(path)].Value;
             path = Unquote(path);
 
-            var text = File.ReadAllText(path);
+            var text = IoHelper.ReadText(path);
 
             input = new Input(path, text, input);
         }
