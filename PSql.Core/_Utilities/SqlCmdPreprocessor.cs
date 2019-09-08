@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -156,6 +157,11 @@ namespace PSql
 
                     // Preprocessor directive
                     case ':':
+                        var args = match.Groups["args"].Value;
+                        if (match.Value[1] == 'r')
+                            Include(args);
+                        else // :setvar
+                            SetVariable(args);
                         break;
 
                     // Batch separator
@@ -168,6 +174,46 @@ namespace PSql
                 start = input.Index;
                 match = input.NextToken();
             }
+        }
+
+        private void Include(string args)
+        {
+        }
+
+        private void SetVariable(string args)
+        {
+            var match = SetVariableRegex.Match(args);
+            if (!match.Success)
+                throw new SqlCmdException("Invalid syntax in :setvar directive.");
+
+            string name, value;
+            name  = match.Groups[nameof(name )].Value;
+            value = match.Groups[nameof(value)].Value;
+
+            if (string.IsNullOrEmpty(value))
+                _variables.Remove(name);
+            else
+                _variables[name] = Unquote(value);
+        }
+
+        internal string Unquote(string value)
+        {
+            const char
+                Quote = '"';
+
+            const string
+                QuoteUnescaped = @"""",
+                QuoteEscaped   = QuoteUnescaped + QuoteUnescaped;
+
+            if (value.Length == 0 || value[0] != Quote)
+                return value;
+
+            if (value.Length == 1 || value[value.Length - 1] != Quote)
+                throw new SqlCmdException("Unterminated double-quoted string.");
+
+            return value
+                .Substring(1, value.Length - 2)
+                .Replace(QuoteEscaped, QuoteUnescaped);
         }
 
         private static bool HasVariableReplacement(string text)
@@ -296,14 +342,18 @@ namespace PSql
 
         private static readonly Regex TokenRegex = new Regex(
             @"
-                '    ( [^']  | ''   )*  ( '     | \z ) |     # string
-                \[   ( [^\]] | \]\] )*  ( \]    | \z ) |     # quoted identifier
-                --   .*?                ( \r?\n | \z ) |     # line comment
-                /\*  ( .     | \n   )*? ( \*/   | \z ) |     # block comment
-                \$\( (?<name>\w+)       ( \)    | \z ) |     # variable replacement
-                ^:r      \s+            ( \r?\n | \z ) |     # include directive
-                ^:setvar \s+            ( \r?\n | \z ) |     # set-variable directive
-                ^GO                     ( \r?\n | \z )       # batch separator
+                '    ( [^']  | ''   )*      ( '     | \z ) |    # string
+                \[   ( [^\]] | \]\] )*      ( \]    | \z ) |    # quoted identifier
+                --   .*?                    ( \r?\n | \z ) |    # line comment
+                /\*  ( .     | \n   )*?     ( \*/   | \z ) |    # block comment
+                \$\( (?<name> [\w-]+ )      ( \)    | \z ) |    # variable replacement
+                ^GO                         ( \r?\n | \z ) |    # batch separator
+                ^:(r|setvar) (?<args>                           # directives
+                    ( [^""\r\n]
+                    | \r (?!\n)
+                    | "" ( [^""] | """" )*  ( ""    | \z )
+                    )*
+                )                           ( \r?\n | \z )
             ",
             Options
         );
@@ -311,6 +361,21 @@ namespace PSql
         private static readonly Regex VariableRegex = new Regex(
             @"
                 \$\( (?<name>\w+) \)
+            ",
+            Options
+        );
+
+        private static readonly Regex SetVariableRegex = new Regex(
+            @"
+                \A  [ \t]+ (?<name> [\w-[0-9]] [\w-]* )     # name
+
+                (?> [ \t]+ (?<value>                        # value
+                    ( [^"" \t\r\n]+                         # - unquoted
+                    | "" ( [^""] | """" )* ( "" | \z )      # - quoted
+                    )
+                ))?
+
+                [ \t]* \z
             ",
             Options
         );

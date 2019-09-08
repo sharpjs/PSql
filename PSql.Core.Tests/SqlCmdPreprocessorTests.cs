@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
+using static FluentAssertions.FluentActions;
 
 namespace PSql
 {
@@ -279,6 +281,95 @@ namespace PSql
 
             batches.Should().Equal(
                 Lines(eol, eof, "a [b ]] bar c] d")
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_SetVariable_Unset(string eol, string eof)
+        {
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["foo"] = "bar" }
+            };
+
+            var text = Lines(eol, eof, ":setvar foo", "$(foo)");
+
+            preprocessor
+                .Invoking(p => p.Process(text).Count())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("SqlCmd variable 'foo' is not defined.");
+
+            preprocessor.Variables.Should().NotContainKey("foo");
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_SetVariable_Unquoted(string eol, string eof)
+        {
+            // NOTE: This test contains German, Japanese, and Russian characters.
+
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["f0ö_Бар-baß"] = "original value" }
+            };
+
+            var batches = preprocessor.Process(
+                Lines(eol, eof,
+                    @"a",
+                    @":setvar f0ö_Бар-baß qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ",
+                    @"b $(f0ö_Бар-baß) c"
+                )
+            );
+
+            batches.Should().Equal(
+                Lines(eol, eof,
+                    @"a",
+                    @"b qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ c"
+                )
+            );
+
+            preprocessor.Variables["f0ö_Бар-baß"].Should().Be(
+                @"qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ"
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_SetVariable_Quoted(string eol, string eof)
+        {
+            // NOTE: This test contains German, Japanese, and Russian characters.
+
+            var preprocessor = new SqlCmdPreprocessor
+            {
+                Variables = { ["f0ö_Бар-baß"] = "original value" }
+            };
+
+            var batches = preprocessor.Process(
+                Lines(eol, eof,
+                    @"a",
+                    @":setvar f0ö_Бар-baß ""qux ~`!@#$%^&*()-_=+[{]}\|;:'"""",<.>/? corge ",
+                    @"",
+                    @"「ほげ」 grault""",
+                    @"b $(f0ö_Бар-baß) c"
+                )
+            );
+
+            batches.Should().Equal(
+                Lines(eol, eof,
+                    @"a",
+                    @"b qux ~`!@#$%^&*()-_=+[{]}\|;:'"",<.>/? corge ",
+                    @"",
+                    @"「ほげ」 grault c"
+                )
+            );
+
+            preprocessor.Variables["f0ö_Бар-baß"].Should().Be(
+                string.Concat(
+                    @"qux ~`!@#$%^&*()-_=+[{]}\|;:'"",<.>/? corge ", eol,
+                    @"",                                             eol,
+                    @"「ほげ」 grault"
+                )
             );
         }
 
