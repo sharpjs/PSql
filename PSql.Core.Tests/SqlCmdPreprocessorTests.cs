@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
@@ -401,6 +402,63 @@ namespace PSql
                 .WithMessage("Unterminated double-quoted string.");
 
             preprocessor.Variables.Should().NotContainKey("foo");
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_Include_Normal(string eol, string eof)
+        {
+            using (var file = new TemporaryFile())
+            {
+                File.WriteAllText(file.Path, Lines(eol, eof,
+                    "included"
+                ));
+
+                var preprocessor = new SqlCmdPreprocessor { };
+
+                var batches = preprocessor.Process(
+                    Lines(eol, eof, "a", $":r {file.Path}", "b")
+                );
+
+                batches.Should().Equal(
+                    "a"        + eol +
+                    "included" + eof +
+                    "b"        + eof
+                );
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(EolEofCases))]
+        public void Process_Include_Nested(string eol, string eof)
+        {
+            using (var file0 = new TemporaryFile())
+            using (var file1 = new TemporaryFile())
+            {
+                File.WriteAllText(file0.Path, Lines(eol, eof,
+                    "b",
+                    $":r {file1.Path}",
+                    "c"
+                ));
+
+                File.WriteAllText(file1.Path, Lines(eol, eof,
+                    "included"
+                ));
+
+                var preprocessor = new SqlCmdPreprocessor { };
+
+                var batches = preprocessor.Process(
+                    Lines(eol, eof, "a", $":r {file0.Path}", "d")
+                );
+
+                batches.Should().Equal(
+                    "a"        + eol +
+                    "b"        + eol +
+                    "included" + eof +
+                    "c"        + eof +
+                    "d"        + eof
+                );
+            }
         }
 
         private static readonly string[][] EolEofCases =

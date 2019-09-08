@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -159,7 +159,7 @@ namespace PSql
                     case ':':
                         var args = match.Groups["args"].Value;
                         if (match.Value[1] == 'r')
-                            Include(args);
+                            Include(args, ref input);
                         else // :setvar
                             SetVariable(args);
                         break;
@@ -176,8 +176,19 @@ namespace PSql
             }
         }
 
-        private void Include(string args)
+        private void Include(string args, ref Input input)
         {
+            var match = IncludeRegex.Match(args);
+            if (!match.Success)
+                throw new SqlCmdException("Invalid syntax in :r directive.");
+
+            string path;
+            path = match.Groups[nameof(path)].Value;
+            path = Unquote(path);
+
+            var text = File.ReadAllText(path);
+
+            input = new Input(path, text, input);
         }
 
         private void SetVariable(string args)
@@ -361,6 +372,19 @@ namespace PSql
         private static readonly Regex VariableRegex = new Regex(
             @"
                 \$\( (?<name>\w+) \)
+            ",
+            Options
+        );
+
+        private static readonly Regex IncludeRegex = new Regex(
+            @"
+                \A [ \t]+
+
+                (?<path> [^"" \t\r\n]+                      # unquoted
+                |        "" ( [^""] | """" )* ( "" | \z )   # quoted
+                )
+
+                [ \t]* \z
             ",
             Options
         );
