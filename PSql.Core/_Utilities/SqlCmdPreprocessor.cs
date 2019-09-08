@@ -367,13 +367,15 @@ namespace PSql
 
         private static readonly Regex SetVariableRegex = new Regex(
             @"
-                \A  [ \t]+ (?<name> [\w-[0-9]] [\w-]* )     # name
+                \A [ \t]+
 
-                (?> [ \t]+ (?<value>                        # value
-                    ( [^"" \t\r\n]+                         # - unquoted
-                    | "" ( [^""] | """" )* ( "" | \z )      # - quoted
+                (?<name> [\w-[0-9]] [\w-]* )
+
+                (?> [ \t]+
+                    (?<value> [^"" \t\r\n]+                     # unquoted
+                    |         "" ( [^""] | """" )* ( "" | \z )  # quoted
                     )
-                ))?
+                )?
 
                 [ \t]* \z
             ",
