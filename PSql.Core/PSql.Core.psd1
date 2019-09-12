@@ -34,10 +34,16 @@
     # Exports
     # NOTE: Use empty arrays to indicate no exports.
     FunctionsToExport    = @()
-    CmdletsToExport      = @("New-SqlContext", "Connect-Sql", "Disconnect-Sql", "Split-SqlBatches")
     VariablesToExport    = @()
     AliasesToExport      = @()
     DscResourcesToExport = @()
+    CmdletsToExport      = @(
+        "New-SqlContext",
+        "Connect-Sql",
+        "Disconnect-Sql",
+        "Expand-SqlCmdDirectives",
+        "Split-SqlBatches"
+    )
 
     # Discoverability and URLs
     PrivateData = @{
