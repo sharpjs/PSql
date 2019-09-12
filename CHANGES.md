@@ -4,12 +4,12 @@ This file documents all notable changes.
 Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
-## [Unreleased](https://github.com/sharpjs/PSConcurrent/compare/v1.0.1..HEAD)
-n/a
+## [Unreleased](https://github.com/sharpjs/PSConcurrent/compare/v2.0.1..HEAD)
+(none)
 
-## [0.0.1](https://github.com/sharpjs/PSConcurrent/compare/v1.0.0..v1.0.1)
+## [2.0.1](https://github.com/sharpjs/PSConcurrent/compare/v2.0.0..v2.0.1)
 Future release.
 
-## [0.0.0](https://github.com/sharpjs/PSConcurrent/tree/v1.0.0)
+## [2.0.0](https://github.com/sharpjs/PSConcurrent/tree/v2.0.0)
 Future release.
 
