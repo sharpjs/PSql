@@ -7,7 +7,6 @@ namespace PSql
     public class DisconnectSqlCommand : Cmdlet
     {
         // -Connection
-        [Alias("c", "cn")]
         [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]
         public SqlConnection[] Connection { get; set; }
 
