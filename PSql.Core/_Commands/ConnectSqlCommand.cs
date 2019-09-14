@@ -3,29 +3,17 @@ using System.Management.Automation;
 
 namespace PSql
 {
-    [Cmdlet(VerbsCommunications.Connect, "Sql", DefaultParameterSetName = BasicName)]
+    [Cmdlet(VerbsCommunications.Connect, "Sql")]
     [OutputType(typeof(SqlConnection))]
     public class ConnectSqlCommand : Cmdlet
     {
-        private const string
-            BasicName   = "Basic",
-            ContextName = "Context";
-
         // -Context
-        [Alias("c")]
-        [Parameter(ParameterSetName = ContextName, Position = 0, Mandatory = true, ValueFromPipeline = true)]
-        [ValidateNotNull]
+        [Parameter(ValueFromPipeline = true)]
         public SqlContext Context { get; set; }
 
-        // -ServerName
-        [Alias("s", "sn", "Server")]
-        [Parameter(ParameterSetName = BasicName, Position = 0)]
-        [ValidateNotNullOrEmpty]
-        public string ServerName { get; set; }
-
         // -DatabaseName
-        [Alias("d", "dn", "Database")]
-        [Parameter(Position = 1)]
+        [Parameter]
+        [Alias("Database")]
         public string DatabaseName { get; set; }
 
         protected override void ProcessRecord()
