@@ -33,11 +33,11 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            var inputs = Sql;
-            if (inputs == null)
+            var scripts = Sql;
+            if (scripts == null)
                 return;
 
-            foreach (var input in inputs)
+            foreach (var input in scripts)
                 if (!string.IsNullOrEmpty(input))
                     foreach (var batch in _preprocessor.Process(input))
                         WriteObject(batch);
