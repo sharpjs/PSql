@@ -31,10 +31,15 @@ namespace PSql
             if (scripts == null)
                 return;
 
-            foreach (var input in scripts)
-                if (!string.IsNullOrEmpty(input))
-                    foreach (var batch in _preprocessor.Process(input))
-                        WriteObject(batch);
+            foreach (var script in scripts)
+                if (!string.IsNullOrEmpty(script))
+                    ProcessScript(script);
+        }
+
+        private void ProcessScript(string script)
+        {
+            foreach (var batch in _preprocessor.Process(script))
+                WriteObject(batch);
         }
     }
 }
