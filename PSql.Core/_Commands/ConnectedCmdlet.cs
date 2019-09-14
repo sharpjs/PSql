@@ -42,6 +42,7 @@ namespace PSql
             {
                 Connection.Dispose();
                 Connection = null;
+                _ownsConnection = false;
             }
         }
 
