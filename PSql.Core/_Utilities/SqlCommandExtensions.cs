@@ -19,26 +19,23 @@ namespace PSql
 
             using (var reader = command.ExecuteReader())
             {
-                var names = null as string[];
-
-                for (;;)
+                // Visit each result set
+                do
                 {
-                    // Advance to next row in any result set
-                    while (!reader.Read())
+                    var names = null as string[];
+
+                    // Visit each row in result set
+                    while (reader.Read())
                     {
-                        if (!reader.NextResult())
-                            yield break;
+                        // If first row in result set, get column names
+                        if (names == null)
+                            names = GetColumnNames(reader);
 
-                        names = null;
+                        // Return the row as a PowerShell object
+                        yield return Project(reader, names);
                     }
-
-                    // If this is the first row in its result set, get the column names
-                    if (names == null)
-                        names = GetColumnNames(reader);
-
-                    // Return the row as a PowerShell object
-                    yield return Project(reader, names);
                 }
+                while (reader.NextResult());
             }
         }
 
