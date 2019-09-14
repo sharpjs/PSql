@@ -44,7 +44,7 @@ namespace PSql
             var names = new string[reader.FieldCount];
 
             for (var i = 0; i < names.Length; i++)
-                names[i] = reader.GetName(i) ?? Invariant($"Col{i}");
+                names[i] = reader.GetName(i).NullIfEmpty() ?? Invariant($"Col{i}");
 
             return names;
         }
