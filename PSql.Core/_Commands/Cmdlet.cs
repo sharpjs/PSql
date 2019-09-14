@@ -94,12 +94,8 @@ namespace PSql
                 }
                 else
                 {
-                    // Provide a fake procedure name if error has none
-                    var procedure = error.Procedure;
-                    if (string.IsNullOrEmpty(procedure))
-                        procedure = NonProcedureLocationName;
-
                     // Output as warning
+                    var procedure = error.Procedure.NullIfEmpty() ?? NonProcedureLocationName;
                     var formatted = $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
                     WriteWarning(formatted);
 
