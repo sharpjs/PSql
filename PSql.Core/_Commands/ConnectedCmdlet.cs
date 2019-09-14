@@ -28,7 +28,6 @@ namespace PSql
         public string DatabaseName { get; set; }
 
         private bool _ownsConnection;
-        private bool _isDisposed;
 
         protected override void BeginProcessing()
         {
@@ -39,16 +38,11 @@ namespace PSql
 
         protected virtual void Dispose(bool managed)
         {
-            if (_isDisposed)
-                return;
-
             if (managed && _ownsConnection)
             {
                 Connection.Dispose();
                 Connection = null;
             }
-
-            _isDisposed = true;
         }
 
         ~ConnectedCmdlet()
