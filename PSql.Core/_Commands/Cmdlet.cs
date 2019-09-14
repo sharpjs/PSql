@@ -4,7 +4,10 @@ using System.Management.Automation.Host;
 
 namespace PSql
 {
-    public class Cmdlet : System.Management.Automation.Cmdlet
+    /// <summary>
+    ///   Base class for PSql cmdlets.
+    /// </summary>
+    public abstract class Cmdlet : System.Management.Automation.Cmdlet
     {
         private static readonly string[]
             HostTag = { "PSHOST" };
