@@ -42,6 +42,7 @@
         "Connect-Sql",
         "Disconnect-Sql",
         "Expand-SqlCmdDirectives",
+        "Invoke-Sql",
         "Split-SqlBatches"
     )
 
