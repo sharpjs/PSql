@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Management.Automation;
 
 namespace PSql
@@ -17,12 +19,23 @@ namespace PSql
         [Parameter(Position = 1)]
         public Hashtable Define { get; set; }
 
-        // // -Raw
-        // [Parameter]
-        // public SwitchParameter Raw { get; set; }
+        // -NoPreprocessing
+        [Parameter]
+        [Alias("NoSqlCmdMode")]
+        public SwitchParameter NoPreprocessing { get; set; }
+
+        // -NoErrorHandling
+        [Parameter]
+        public SwitchParameter NoErrorHandling { get; set; }
 
         private SqlCmdPreprocessor _preprocessor;
         private SqlCommand         _command;
+
+        private bool ShouldUsePreprocessing
+            => !NoPreprocessing;
+
+        private bool ShouldUseErrorHandling
+            => !NoErrorHandling;
 
         protected override void BeginProcessing()
         {
@@ -41,38 +54,42 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            var scripts = Sql;
+            // Check if scripts were provided at all
+            var scripts = (IEnumerable<string>) Sql;
             if (scripts == null)
                 return;
 
-            foreach (var script in scripts)
-                if (!string.IsNullOrEmpty(script))
-                    ProcessScript(script);
+            // No need to send empty scripts to server
+            scripts = ExcludeNullOrEmpty(scripts);
+
+            // Add optional preprocessing
+            if (ShouldUsePreprocessing)
+                scripts = Preprocess(scripts);
+
+            // Execute with optional error handling
+            if (ShouldUseErrorHandling)
+                Execute(SqlErrorHandling.Apply(scripts));
+            else
+                Execute(scripts);
         }
 
-        protected override void EndProcessing()
+        private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string> scripts)
         {
-            base.EndProcessing();
-
-            if (ConnectionInfo.Get(Connection).HasErrors)
-                throw new DataException("An error occurred while executing the SQL batch.");
+            return scripts.Where(s => !string.IsNullOrEmpty(s));
         }
 
-        protected override void StopProcessing()
+        private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
         {
-            base.StopProcessing();
-
-            if (ConnectionInfo.Get(Connection).HasErrors)
-                throw new DataException("An error occurred while executing the SQL batch.");
+            return scripts.SelectMany(s => _preprocessor.Process(s));
         }
 
-        private void ProcessScript(string script)
+        private void Execute(IEnumerable<string> batches)
         {
-            foreach (var batch in _preprocessor.Process(script))
-                ProcessBatch(batch);
+            foreach (var batch in batches)
+                Execute(batch);
         }
 
-        private void ProcessBatch(string batch)
+        private void Execute(string batch)
         {
             _command.CommandText = batch;
 
@@ -80,13 +97,33 @@ namespace PSql
                 WriteObject(obj);
         }
 
+        protected override void EndProcessing()
+        {
+            base.EndProcessing();
+
+            ReportErrors();
+        }
+
+        protected override void StopProcessing()
+        {
+            base.StopProcessing();
+
+            ReportErrors();
+        }
+
+        private void ReportErrors()
+        {
+            if (ConnectionInfo.Get(Connection).HasErrors)
+                throw new DataException("An error occurred while executing the SQL batch.");
+        }
+
         protected override void Dispose(bool managed)
         {
             if (managed)
             {
-            _command?.Dispose();
-            _command = null;
-        }
+                _command?.Dispose();
+                _command = null;
+            }
 
             base.Dispose(managed);
         }
