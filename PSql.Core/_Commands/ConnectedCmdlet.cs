@@ -40,6 +40,10 @@ namespace PSql
         {
             if (managed && _ownsConnection)
             {
+                // Indicate that disconnection is expected
+                ConnectionInfo.Get(Connection).IsDisconnecting = true;
+
+                // Disconnect
                 Connection.Dispose();
                 Connection = null;
                 _ownsConnection = false;
