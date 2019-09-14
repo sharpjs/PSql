@@ -22,7 +22,9 @@ namespace PSql
                 if (connection == null)
                     continue;
 
+                // Indicate that disconnection is expected
                 ConnectionInfo.Get(connection).IsDisconnecting = true;
+
                 connection.Dispose();
             }
         }
