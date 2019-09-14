@@ -42,8 +42,7 @@
         "Connect-Sql",
         "Disconnect-Sql",
         "Expand-SqlCmdDirectives",
-        "Invoke-Sql",
-        "Split-SqlBatches"
+        "Invoke-Sql"
     )
 
     # Discoverability and URLs
