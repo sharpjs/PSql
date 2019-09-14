@@ -26,9 +26,7 @@ namespace PSql
 
         protected override void BeginProcessing()
         {
-            _preprocessor = new SqlCmdPreprocessor();
-
-            InitializeVariables(_preprocessor.Variables);
+            _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
         }
 
         protected override void ProcessRecord()
@@ -41,27 +39,6 @@ namespace PSql
                 if (!string.IsNullOrEmpty(input))
                     foreach (var batch in _preprocessor.Process(input))
                         WriteObject(batch);
-        }
-
-        private void InitializeVariables(IDictionary<string, string> variables)
-        {
-            var entries = Define;
-            if (entries == null)
-                return;
-
-            foreach (DictionaryEntry entry in entries)
-            {
-                if (entry.Key is null)
-                    continue;
-
-                var key = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
-                if (string.IsNullOrEmpty(key))
-                    continue;
-
-                var value = Convert.ToString(entry.Value, CultureInfo.InvariantCulture);
-
-                variables[key] = value ?? string.Empty;
-            }
         }
     }
 }
