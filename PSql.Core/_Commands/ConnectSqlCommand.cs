@@ -30,64 +30,9 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            if (Context == null)
-            {
-                Context = new SqlContext
-                {
-                    ServerName   = ServerName,
-                    DatabaseName = DatabaseName
-                };
-            }
+            (var connection, _) = EnsureConnection(null, Context, DatabaseName);
 
-            var connection = null as SqlConnection;
-            var info       = null as ConnectionInfo;
-
-            try
-            {
-                connection = Context.CreateConnection();
-                info       = ConnectionInfo.Get(connection);
-
-                connection.FireInfoMessageEventOnUserErrors = true;
-                connection.InfoMessage += HandleConnectionMessage;
-
-                connection.Open();
-
-                WriteObject(connection);
-            }
-            catch
-            {
-                if (info != null)
-                    info.IsDisconnecting = true;
-
-                connection?.Dispose();
-                throw;
-            }
-        }
-
-        private void HandleConnectionMessage(object sender, SqlInfoMessageEventArgs e)
-        {
-            const int    MaxInformationalSeverity = 10;
-            const string NonProcedureLocationName = "(batch)";
-
-            var connection = (SqlConnection) sender;
-
-            foreach (SqlError error in e.Errors)
-            {
-                if (error.Class <= MaxInformationalSeverity)
-                {
-                    WriteHost(error.Message);
-                }
-                else
-                {
-                    // Output as warning
-                    var procedure = error.Procedure ?? NonProcedureLocationName;
-                    var formatted = $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
-                    WriteWarning(formatted);
-
-                    // Mark current command as failed
-                    ConnectionInfo.Get(connection).HasErrors = true;
-                }
-            }
+            WriteObject(connection);
         }
     }
 }

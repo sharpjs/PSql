@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 
@@ -43,6 +44,65 @@ namespace PSql
             }
 
             WriteInformation(data, HostTag);
+        }
+
+        private protected (SqlConnection, bool owned)
+            EnsureConnection(SqlConnection connection, SqlContext context, string databaseName)
+        {
+            if (connection != null)
+                return (connection, false);
+
+            if (context == null)
+                context = new SqlContext { DatabaseName = databaseName };
+
+            var info = null as ConnectionInfo;
+
+            try
+            {
+                connection = context.CreateConnection(databaseName);
+                info       = ConnectionInfo.Get(connection);
+
+                connection.FireInfoMessageEventOnUserErrors = true;
+                connection.InfoMessage += HandleConnectionMessage;
+
+                connection.Open();
+
+                return (connection, true);
+            }
+            catch
+            {
+                if (info != null)
+                    info.IsDisconnecting = true;
+
+                connection?.Dispose();
+                throw;
+            }
+        }
+
+        private void HandleConnectionMessage(object sender, SqlInfoMessageEventArgs e)
+        {
+            const int    MaxInformationalSeverity = 10;
+            const string NonProcedureLocationName = "(batch)";
+
+            var connection = (SqlConnection) sender;
+
+            foreach (SqlError error in e.Errors)
+            {
+                if (error.Class <= MaxInformationalSeverity)
+                {
+                    WriteHost(error.Message);
+                }
+                else
+                {
+                    // Output as warning
+                    var procedure = error.Procedure ?? NonProcedureLocationName;
+                    var formatted = $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
+                    WriteWarning(formatted);
+
+                    // Mark current command as failed
+                    ConnectionInfo.Get(connection).HasErrors = true;
+                }
+            }
         }
     }
 }
