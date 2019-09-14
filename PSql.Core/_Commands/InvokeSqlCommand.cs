@@ -26,7 +26,11 @@ namespace PSql
 
         protected override void BeginProcessing()
         {
+            // Will open a connection if one is not already open
             base.BeginProcessing();
+
+            // Clear any failures from prior command
+            ConnectionInfo.Get(Connection).HasErrors = false;
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
 
@@ -44,6 +48,22 @@ namespace PSql
             foreach (var script in scripts)
                 if (!string.IsNullOrEmpty(script))
                     ProcessScript(script);
+        }
+
+        protected override void EndProcessing()
+        {
+            base.EndProcessing();
+
+            if (ConnectionInfo.Get(Connection).HasErrors)
+                throw new DataException("An error occurred while executing the SQL batch.");
+        }
+
+        protected override void StopProcessing()
+        {
+            base.StopProcessing();
+
+            if (ConnectionInfo.Get(Connection).HasErrors)
+                throw new DataException("An error occurred while executing the SQL batch.");
         }
 
         private void ProcessScript(string script)
