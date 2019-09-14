@@ -11,15 +11,11 @@ namespace PSql
     public class ExpandSqlCmdDirectivesCommand : Cmdlet
     {
         // -Sql
-        [Alias("s")]
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
-        [AllowNull, AllowEmptyCollection]
         public string[] Sql { get; set; }
 
         // -Define
-        [Alias("d")]
         [Parameter(Position = 1)]
-        [AllowNull, AllowEmptyCollection]
         public Hashtable Define { get; set; }
 
         private SqlCmdPreprocessor _preprocessor;
