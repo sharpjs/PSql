@@ -31,11 +31,14 @@ namespace PSql
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
-        internal SqlConnection CreateConnection()
+        internal SqlConnection CreateConnection(string databaseName)
         {
             var builder = new SqlConnectionStringBuilder();
 
             BuildConnectionString(builder);
+
+            if (databaseName != null)
+                builder.InitialCatalog = databaseName;
 
             var connectionString = builder.ToString();
             var credential       = GetCredential();
