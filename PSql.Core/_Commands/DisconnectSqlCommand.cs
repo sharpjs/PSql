@@ -4,6 +4,7 @@ using System.Management.Automation;
 namespace PSql
 {
     [Cmdlet(VerbsCommunications.Disconnect, "Sql")]
+    [OutputType(typeof(void))]
     public class DisconnectSqlCommand : Cmdlet
     {
         // -Connection
