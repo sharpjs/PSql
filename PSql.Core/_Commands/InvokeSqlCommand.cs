@@ -62,13 +62,13 @@ namespace PSql
 
         protected override void Dispose(bool managed)
         {
-            base.Dispose(managed);
-
-            if (!managed)
-                return;
-
+            if (managed)
+            {
             _command?.Dispose();
             _command = null;
+        }
+
+            base.Dispose(managed);
         }
     }
 }
