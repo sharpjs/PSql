@@ -21,21 +21,24 @@ namespace PSql
             {
                 var names = null as string[];
 
-                // Advance to next row in any result set
-                while (!reader.Read())
+                for (;;)
                 {
-                    if (!reader.NextResult())
-                        yield break;
+                    // Advance to next row in any result set
+                    while (!reader.Read())
+                    {
+                        if (!reader.NextResult())
+                            yield break;
 
-                    names = null;
+                        names = null;
+                    }
+
+                    // If this is the first row in its result set, get the column names
+                    if (names == null)
+                        names = GetColumnNames(reader);
+
+                    // Return the row as a PowerShell object
+                    yield return Project(reader, names);
                 }
-
-                // If this is the first row in its result set, get the column names
-                if (names == null)
-                    names = GetColumnNames(reader);
-
-                // Return the row as a PowerShell object
-                yield return Project(reader, names);
             }
         }
 
