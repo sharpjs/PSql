@@ -13,7 +13,11 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            foreach (var connection in Connection)
+            var connections = Connection;
+            if (connections == null)
+                return;
+
+            foreach (var connection in connections)
             {
                 if (connection == null)
                     continue;
