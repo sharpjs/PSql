@@ -28,7 +28,7 @@
     # Requirements
     PowerShellVersion      = '5.1'
     CompatiblePSEditions   = "Desktop", "Core"  # Added in PowerShell 5.1
-    DotNetFrameworkVersion = '4.5.2'            # Valid for Desktop edition only
+    DotNetFrameworkVersion = '4.6'              # Valid for Desktop edition only
     CLRVersion             = '4.0'              # Valid for Desktop edition only
 
     # Exports
