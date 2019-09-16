@@ -33,7 +33,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PSql.Core.psd1">
+    <None Update="*.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="*.ps?1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="*\*.dll-help.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
