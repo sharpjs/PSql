@@ -48,7 +48,10 @@
     # Discoverability and URLs
     PrivateData = @{
         PSData = @{
-            Tags = @("SQL", "Server", "Azure", "Invoke", "SqlCmd")
+            Tags = @(
+                "SQL", "Server", "Azure", "Invoke", "SqlCmd",
+                "PSEdition_Desktop", "PSEdition_Core", "Windows", "Linux", "MacOS"
+            )
             LicenseUri = 'https://github.com/sharpjs/PSql/blob/master/LICENSE.txt'
             ProjectUri = 'https://github.com/sharpjs/PSql'
             # IconUri = ''
