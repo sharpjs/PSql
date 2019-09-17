@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Management.Automation;
-using static System.Data.SqlClient.ApplicationIntent;
+using static Microsoft.Data.SqlClient.ApplicationIntent;
 
 namespace PSql
 {

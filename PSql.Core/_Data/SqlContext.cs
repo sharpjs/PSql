@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Management.Automation;
 using System.Net;
+using Microsoft.Data.SqlClient;
 
 namespace PSql
 {

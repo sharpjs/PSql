@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using System.Management.Automation;
+﻿using System.Management.Automation;
+using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
