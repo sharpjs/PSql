@@ -48,7 +48,7 @@ Set-StrictMode -Version Latest
 $Command = $PSCmdlet.ParameterSetName
 if ($Command -eq "Test") { $Test = $true }
 
-$AssemblyNameRoot = "PSql"
+$AssemblyNameRoot = "PSql.Core"
 
 # http://patorjk.com/software/taag/#p=display&f=Slant
 Write-Host -ForegroundColor Cyan @' 
@@ -66,7 +66,7 @@ function Main {
 
     if ($Test -or $Coverage) {
         Set-Location -LiteralPath "$AssemblyNameRoot.Tests"
-        Invoke-TestForTargetFramework net472
+        #Invoke-TestForTargetFramework net472
         Invoke-TestForTargetFramework netcoreapp2.1
     }
 } 
