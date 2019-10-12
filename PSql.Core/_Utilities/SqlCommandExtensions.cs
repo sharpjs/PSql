@@ -17,8 +17,8 @@ namespace PSql
             if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
 
-            using (var reader = command.ExecuteReader())
-            {
+            using var reader = command.ExecuteReader();
+
                 // Visit each result set
                 do
                 {
@@ -28,8 +28,7 @@ namespace PSql
                     while (reader.Read())
                     {
                         // If first row in result set, get column names
-                        if (names == null)
-                            names = GetColumnNames(reader);
+                    names ??= GetColumnNames(reader);
 
                         // Return the row as a PowerShell object
                         yield return Project(reader, names);
@@ -37,7 +36,6 @@ namespace PSql
                 }
                 while (reader.NextResult());
             }
-        }
 
         private static string[] GetColumnNames(SqlDataReader reader)
         {

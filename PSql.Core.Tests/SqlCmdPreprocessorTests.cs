@@ -407,212 +407,206 @@ namespace PSql
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_Normal(string eol, string eof)
         {
-            using (var file = new TemporaryFile())
-            {
-                file.Write(Lines(eol, eof,
-                    "included"
-                ));
+            using var file = new TemporaryFile();
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file.Write(Lines(eol, eof,
+                "included"
+            ));
 
-                var batches = preprocessor.Process(
-                    Lines(eol, eof, "a", $":r {file.Path}", "b")
-                );
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    Batch(
-                        "a",        eol,
-                        "included", eof,
-                        "b",        eof
-                    )
-                );
-            }
+            var batches = preprocessor.Process(
+                Lines(eol, eof, "a", $":r {file.Path}", "b")
+            );
+
+            batches.Should().Equal(
+                Batch(
+                    "a", eol,
+                    "included", eof,
+                    "b", eof
+                )
+            );
         }
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_Nested(string eol, string eof)
         {
-            using (var file0 = new TemporaryFile())
-            using (var file1 = new TemporaryFile())
-            {
-                file0.Write(Lines(eol, eof,
-                    "b",
-                    $":r {file1.Path}",
-                    "c"
-                ));
+            using var file0 = new TemporaryFile();
+            using var file1 = new TemporaryFile();
 
-                file1.Write(Lines(eol, eof,
-                    "included"
-                ));
+            file0.Write(Lines(eol, eof,
+                "b",
+                $":r {file1.Path}",
+                "c"
+            ));
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file1.Write(Lines(eol, eof,
+                "included"
+            ));
 
-                var batches = preprocessor.Process(
-                    Lines(eol, eof, "a", $":r {file0.Path}", "d")
-                );
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    Batch(
-                        "a",        eol,
-                        "b",        eol,
-                        "included", eof,
-                        "c",        eof,
-                        "d",        eof
-                    )
-                );
-            }
+            var batches = preprocessor.Process(
+                Lines(eol, eof, "a", $":r {file0.Path}", "d")
+            );
+
+            batches.Should().Equal(
+                Batch(
+                    "a", eol,
+                    "b", eol,
+                    "included", eof,
+                    "c", eof,
+                    "d", eof
+                )
+            );
         }
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_CrossInclusionBatches(string eol, string eof)
         {
-            using (var file0 = new TemporaryFile())
-            using (var file1 = new TemporaryFile())
-            {
-                file0.Write(Lines(eol, eof,
-                    "file0.a",
-                    "GO",
-                    "file0.b"
-                ));
+            using var file0 = new TemporaryFile();
+            using var file1 = new TemporaryFile();
 
-                file1.Write(Lines(eol, eof,
-                    "file1.a",
-                    "GO",
-                    "file1.b"
-                ));
+            file0.Write(Lines(eol, eof,
+                "file0.a",
+                "GO",
+                "file0.b"
+            ));
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file1.Write(Lines(eol, eof,
+                "file1.a",
+                "GO",
+                "file1.b"
+            ));
 
-                var batches = preprocessor.Process(Lines(eol, eof,
-                    "beg",
-                    $":r {file0.Path}",
-                    "mid",
-                    $":r {file1.Path}",
-                    "end"
-                ));
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    // Batch begins in top level and ends in included
-                    Batch(
-                        "beg",     eol,
-                        "file0.a", eol
-                    ),
-                    // Batch begins in included, continues to top level, and ends in another included
-                    Batch(
-                        "file0.b", eof,
-                        "mid",     eol,
-                        "file1.a", eol
-                    ),
-                    // Batch begins in included and ends in top level
-                    Batch(
-                        "file1.b", eof,
-                        "end",     eof
-                    )
-                );
-            }
+            var batches = preprocessor.Process(Lines(eol, eof,
+                "beg",
+                $":r {file0.Path}",
+                "mid",
+                $":r {file1.Path}",
+                "end"
+            ));
+
+            batches.Should().Equal(
+                // Batch begins in top level and ends in included
+                Batch(
+                    "beg",     eol,
+                    "file0.a", eol
+                ),
+                // Batch begins in included, continues to top level, and ends in another included
+                Batch(
+                    "file0.b", eof,
+                    "mid",     eol,
+                    "file1.a", eol
+                ),
+                // Batch begins in included and ends in top level
+                Batch(
+                    "file1.b", eof,
+                    "end",     eof
+                )
+            );
         }
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_BatchInsideInclude(string eol, string eof)
         {
-            using (var file = new TemporaryFile())
-            {
-                file.Write(Lines(eol, eof,
-                    "file.a",
-                    "GO",
-                    "file.b",
-                    "GO",
-                    "file.c"
-                ));
+            using var file = new TemporaryFile();
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file.Write(Lines(eol, eof,
+                "file.a",
+                "GO",
+                "file.b",
+                "GO",
+                "file.c"
+            ));
 
-                var batches = preprocessor.Process(Lines(eol, eof,
-                    "beg",
-                    $":r {file.Path}",
-                    "end"
-                ));
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    // Batch begins in top level and ends in included
-                    Batch(
-                        "beg",    eol,
-                        "file.a", eol
-                    ),
-                    // Batch begins in included and ends in same included
-                    Batch(
-                        "file.b", eol
-                    ),
-                    // Batch begins in included and ends in top level
-                    Batch(
-                        "file.c", eof,
-                        "end",    eof
-                    )
-                );
-            }
+            var batches = preprocessor.Process(Lines(eol, eof,
+                "beg",
+                $":r {file.Path}",
+                "end"
+            ));
+
+            batches.Should().Equal(
+                // Batch begins in top level and ends in included
+                Batch(
+                    "beg", eol,
+                    "file.a", eol
+                ),
+                // Batch begins in included and ends in same included
+                Batch(
+                    "file.b", eol
+                ),
+                // Batch begins in included and ends in top level
+                Batch(
+                    "file.c", eof,
+                    "end", eof
+                )
+            );
         }
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_BatchSeparatorBeforeInclusionBoundary(string eol, string eof)
         {
-            using (var file = new TemporaryFile())
-            {
-                file.Write(
-                    Lines(eol, eof,
-                        "included",
-                        "GO"
-                    )
-                );
+            using var file = new TemporaryFile();
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file.Write(
+                Lines(eol, eof,
+                    "included",
+                    "GO"
+                )
+            );
 
-                var batches = preprocessor.Process(
-                    Lines(eol, eof,
-                        "GO",
-                        $":r {file.Path}",
-                        "main"
-                    )
-                );
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    Batch("included", eol),
-                    Batch("main",     eof)
-                );
-            }
+            var batches = preprocessor.Process(
+                Lines(eol, eof,
+                    "GO",
+                    $":r {file.Path}",
+                    "main"
+                )
+            );
+
+            batches.Should().Equal(
+                Batch("included", eol),
+                Batch("main", eof)
+            );
         }
 
         [Test]
         [TestCaseSource(nameof(EolEofCases))]
         public void Process_Include_BatchSeparatorAfterInclusionBoundary(string eol, string eof)
         {
-            using (var file = new TemporaryFile())
-            {
-                file.Write(
-                    Lines(eol, eof,
-                        "GO",
-                        "included"
-                    )
-                );
+            using var file = new TemporaryFile();
 
-                var preprocessor = new SqlCmdPreprocessor { };
+            file.Write(
+                Lines(eol, eof,
+                    "GO",
+                    "included"
+                )
+            );
 
-                var batches = preprocessor.Process(
-                    Lines(eol, eof,
-                        $":r {file.Path}",
-                        "GO",
-                        "main"
-                    )
-                );
+            var preprocessor = new SqlCmdPreprocessor { };
 
-                batches.Should().Equal(
-                    Batch("included", eof),
-                    Batch("main",     eof)
-                );
-            }
+            var batches = preprocessor.Process(
+                Lines(eol, eof,
+                    $":r {file.Path}",
+                    "GO",
+                    "main"
+                )
+            );
+
+            batches.Should().Equal(
+                Batch("included", eof),
+                Batch("main", eof)
+            );
         }
 
         private static readonly string[][] EolEofCases =
