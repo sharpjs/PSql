@@ -4,6 +4,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Text;
+using Microsoft.PowerShell;
 using NUnit.Framework;
 using static System.Char;
 
@@ -27,6 +28,8 @@ namespace PSql
         private static InitialSessionState CreateInitialSessionState()
         {
             var state = InitialSessionState.CreateDefault();
+
+            state.ExecutionPolicy = ExecutionPolicy.RemoteSigned;
 
             state.Variables.Add(new SessionStateVariableEntry(
                 "ErrorActionPreference", "Stop", description: null
