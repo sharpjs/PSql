@@ -42,7 +42,7 @@ namespace PSql
             return state;
         }
 
-        internal static (ICollection<PSObject?>, Exception?) Execute(string script)
+        internal static (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
         {
             if (script is null)
                 throw new ArgumentNullException(nameof(script));
