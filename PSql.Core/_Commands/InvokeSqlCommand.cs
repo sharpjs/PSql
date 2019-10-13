@@ -28,6 +28,10 @@ namespace PSql
         [Parameter]
         public SwitchParameter NoErrorHandling { get; set; }
 
+        // -UseSqlTypes
+        [Parameter]
+        public SwitchParameter UseSqlTypes { get; set; }
+
         private SqlCmdPreprocessor _preprocessor;
         private SqlCommand         _command;
 
@@ -93,7 +97,7 @@ namespace PSql
         {
             _command.CommandText = batch;
 
-            foreach (var obj in _command.ExecuteAndProjectToPSObjects())
+            foreach (var obj in _command.ExecuteAndProjectToPSObjects(UseSqlTypes))
                 WriteObject(obj);
         }
 
