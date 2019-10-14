@@ -4,6 +4,7 @@ using System.Management.Automation;
 using FluentAssertions;
 using NUnit.Framework;
 using static PSql.ScriptExecutor;
+using static System.Data.SqlTypes.SqlCompareOptions;
 
 #nullable enable
 
@@ -316,5 +317,248 @@ namespace PSql
                 .Property("Max",  SqlDecimal.MaxValue)
             );
         }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectChar_ToClrString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    DECLARE @Values TABLE (
+                        [Null]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", "          ")
+                .Property("One",   "Å         ")
+                .Property("Full",  "Åbcdefghij")
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectChar_ToSqlString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    DECLARE @Values TABLE (
+                        [Null]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlString.Null)
+                .Property("Empty", Greenlandic("          "))
+                .Property("One",   Greenlandic("Å         "))
+                .Property("Full",  Greenlandic("Åbcdefghij"))
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectNChar_ToClrString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    DECLARE @Values TABLE (
+                        [Null]  nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, N'', N'Å', N'Åbcde何でやねん');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", "          ")
+                .Property("One",   "Å         ")
+                .Property("Full",  "Åbcde何でやねん")
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectNChar_ToSqlString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    DECLARE @Values TABLE (
+                        [Null]  nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  nchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, N'', N'Å', N'Åbcde何でやねん');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlString.Null)
+                .Property("Empty", Greenlandic("          "))
+                .Property("One",   Greenlandic("Å         "))
+                .Property("Full",  Greenlandic("Åbcde何でやねん"))
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectVarChar_ToClrString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    DECLARE @Values TABLE (
+                        [Null]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", "")
+                .Property("One",   "Å")
+                .Property("Full",  "Åbcdefghij")
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectVarChar_ToSqlString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    DECLARE @Values TABLE (
+                        [Null]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlString.Null)
+                .Property("Empty", Greenlandic(""))
+                .Property("One",   Greenlandic("Å"))
+                .Property("Full",  Greenlandic("Åbcdefghij"))
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectNVarChar_ToClrString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    DECLARE @Values TABLE (
+                        [Null]  nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, N'', N'Å', N'Åbcde何でやねん');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", "")
+                .Property("One",   "Å")
+                .Property("Full",  "Åbcde何でやねん")
+            );
+        }
+
+        [Test]
+        [SetCulture(GreenlandicCulture)]
+        public void ProjectNVarChar_ToSqlString()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    DECLARE @Values TABLE (
+                        [Null]  nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Empty] nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [One]   nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL,
+                        [Full]  nvarchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
+                    );
+
+                    INSERT @Values VALUES (NULL, N'', N'Å', N'Åbcde何でやねん');
+
+                    SELECT * FROM @Values;
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlString.Null)
+                .Property("Empty", Greenlandic(""))
+                .Property("One",   Greenlandic("Å"))
+                .Property("Full",  Greenlandic("Åbcde何でやねん"))
+            );
+        }
+
+        private static SqlString Greenlandic(string s)
+        {
+            return new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
+        }
+
+        private const int
+            GreenlandicLcid = 1135;
+
+        private const string
+            GreenlandicCulture = "kl-GL";
     }
 }
