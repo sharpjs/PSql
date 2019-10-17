@@ -550,6 +550,98 @@ namespace PSql
             );
         }
 
+        [Test]
+        public void ProjectBinary_ToClrByteArray()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null]  = CONVERT(binary(8), NULL),
+                        [Empty] = CONVERT(binary(8), 0x),
+                        [One]   = CONVERT(binary(8), 0xAA),
+                        [Full]  = CONVERT(binary(8), 0xDECAFC0C0AC0FFEE);
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, structural: true)
+                .Property("One",   new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, structural: true)
+                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, structural: true)
+            );
+        }
+
+        [Test]
+        public void ProjectBinary_ToSqlBinary()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null]  = CONVERT(binary(8), NULL),
+                        [Empty] = CONVERT(binary(8), 0x),
+                        [One]   = CONVERT(binary(8), 0xAA),
+                        [Full]  = CONVERT(binary(8), 0xDECAFC0C0AC0FFEE);
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlBinary.Null)
+                .Property("Empty", new SqlBinary(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }))
+                .Property("One",   new SqlBinary(new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }))
+                .Property("Full",  new SqlBinary(new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }))
+            );
+        }
+
+        [Test]
+        public void ProjectVarBinary_ToClrByteArray()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null]  = CONVERT(varbinary(8), NULL),
+                        [Empty] = CONVERT(varbinary(8), 0x),
+                        [One]   = CONVERT(varbinary(8), 0xAA),
+                        [Full]  = CONVERT(varbinary(8), 0xDECAFC0C0AC0FFEE);
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", new byte[] {                                                }, structural: true)
+                .Property("One",   new byte[] { 0xAA                                           }, structural: true)
+                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, structural: true)
+            );
+        }
+
+        [Test]
+        public void ProjectVarBinary_ToSqlBinary()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null]  = CONVERT(varbinary(8), NULL),
+                        [Empty] = CONVERT(varbinary(8), 0x),
+                        [One]   = CONVERT(varbinary(8), 0xAA),
+                        [Full]  = CONVERT(varbinary(8), 0xDECAFC0C0AC0FFEE);
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlBinary.Null)
+                .Property("Empty", new SqlBinary(new byte[] {                                                }))
+                .Property("One",   new SqlBinary(new byte[] { 0xAA                                           }))
+                .Property("Full",  new SqlBinary(new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }))
+            );
+        }
+
         private static SqlString Greenlandic(string s)
         {
             return new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);

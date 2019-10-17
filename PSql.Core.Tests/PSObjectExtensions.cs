@@ -26,7 +26,8 @@ namespace PSql
                 string                           name,
                 T                                value,
                 bool                             gettable = true,
-                bool                             settable = true
+                bool                             settable = true,
+                bool                             structural = false
             )
         {
             properties.MoveNext().Should().BeTrue();
@@ -39,7 +40,11 @@ namespace PSql
             property.IsInstance     .Should().BeTrue();
             property.IsGettable     .Should().Be(gettable);
             property.IsSettable     .Should().Be(settable);
-            property.Value          .Should().Be(value);
+
+            if (structural)
+                property.Value.Should().BeEquivalentTo(value);
+            else
+                property.Value.Should().Be(value);
 
             return properties;
         }
