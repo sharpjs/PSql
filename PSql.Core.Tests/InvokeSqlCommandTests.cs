@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Data.SqlTypes;
+using System.Linq;
 using System.Management.Automation;
 using FluentAssertions;
 using NUnit.Framework;
-using static PSql.ScriptExecutor;
 using static System.Data.SqlTypes.SqlCompareOptions;
+using static PSql.ScriptExecutor;
 
 #nullable enable
 
@@ -567,9 +568,9 @@ namespace PSql
 
             objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
                 .Property("Null",  default(object?))
-                .Property("Empty", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, structural: true)
-                .Property("One",   new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, structural: true)
-                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, structural: true)
+                .Property("Empty", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, EqualBytes)
+                .Property("One",   new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, EqualBytes)
+                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, EqualBytes)
             );
         }
 
@@ -613,9 +614,9 @@ namespace PSql
 
             objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
                 .Property("Null",  default(object?))
-                .Property("Empty", new byte[] {                                                }, structural: true)
-                .Property("One",   new byte[] { 0xAA                                           }, structural: true)
-                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, structural: true)
+                .Property("Empty", new byte[] {                                                }, EqualBytes)
+                .Property("One",   new byte[] { 0xAA                                           }, EqualBytes)
+                .Property("Full",  new byte[] { 0xDE, 0xCA, 0xFC, 0x0C, 0x0A, 0xC0, 0xFF, 0xEE }, EqualBytes)
             );
         }
 
@@ -646,6 +647,9 @@ namespace PSql
         {
             return new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
         }
+
+        private static bool EqualBytes(byte[] a, byte[] b)
+            => a.AsSpan().SequenceEqual(b);
 
         private const int
             GreenlandicLcid = 1135;

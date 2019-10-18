@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using FluentAssertions;
 
+#nullable enable
+
 namespace PSql
 {
     internal static class PSObjectExtensions
     {
         internal static void
             ShouldHaveProperties(
-                this PSObject                       obj,
+                this PSObject?                      obj,
                 Action<IEnumerator<PSPropertyInfo>> assertion
             )
         {
-            using var properties = obj.Properties.GetEnumerator();
+            obj.Should().NotBeNull();
+
+            using var properties = obj!.Properties.GetEnumerator();
 
             assertion(properties);
 
@@ -25,9 +29,7 @@ namespace PSql
                 this IEnumerator<PSPropertyInfo> properties,
                 string                           name,
                 T                                value,
-                bool                             gettable = true,
-                bool                             settable = true,
-                bool                             structural = false
+                Func<T, T, bool>?                comparison = null
             )
         {
             properties.MoveNext().Should().BeTrue();
@@ -38,11 +40,11 @@ namespace PSql
             property.Name           .Should().Be(name);
             property.TypeNameOfValue.Should().Be(typeof(T).FullName);
             property.IsInstance     .Should().BeTrue();
-            property.IsGettable     .Should().Be(gettable);
-            property.IsSettable     .Should().Be(settable);
+            property.IsGettable     .Should().Be(true);
+            property.IsSettable     .Should().Be(true);
 
-            if (structural)
-                property.Value.Should().BeEquivalentTo(value);
+            if (comparison != null)
+                comparison((T) property.Value, value).Should().BeTrue();
             else
                 property.Value.Should().Be(value);
 
