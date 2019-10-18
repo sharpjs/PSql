@@ -643,13 +643,142 @@ namespace PSql
             );
         }
 
-        private static SqlString Greenlandic(string s)
+        [Test]
+        public void ProjectSmallDateTime_ToClrDateTime()
         {
-            return new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(smalldatetime, NULL),
+                        [Min]  = CONVERT(smalldatetime, '1900-01-01 00:00:00'),
+                        [Max]  = CONVERT(smalldatetime, '2079-06-06 23:59:00');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(1900, 1, 1,  0,  0, 0, DateTimeKind.Unspecified), EqualStrictly)
+                .Property("Max",  new DateTime(2079, 6, 6, 23, 59, 0, DateTimeKind.Unspecified), EqualStrictly)
+            );
         }
+
+        [Test]
+        public void ProjectSmallDateTime_ToSqlDateTime()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(smalldatetime, NULL),
+                        [Min]  = CONVERT(smalldatetime, '1900-01-01 00:00:00'),
+                        [Max]  = CONVERT(smalldatetime, '2079-06-06 23:59:00');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", SqlDateTime.Null)
+                .Property("Min",  new SqlDateTime(1900, 1, 1,  0,  0, 0))
+                .Property("Max",  new SqlDateTime(2079, 6, 6, 23, 59, 0))
+            );
+        }
+
+        [Test]
+        public void ProjectDateTime_ToClrDateTime()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(datetime, NULL),
+                        [Min]  = CONVERT(datetime, '1753-01-01 00:00:00.000'),
+                        [Max]  = CONVERT(datetime, '9999-12-31 23:59:59.997');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(1753,  1,  1,  0,  0,  0,   0, DateTimeKind.Unspecified), EqualStrictly)
+                .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, 997, DateTimeKind.Unspecified), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectDateTime_ToSqlDateTime()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(datetime, NULL),
+                        [Min]  = CONVERT(datetime, '1753-01-01 00:00:00.000'),
+                        [Max]  = CONVERT(datetime, '9999-12-31 23:59:59.997');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", SqlDateTime.Null)
+                .Property("Min",  new SqlDateTime(1753,  1,  1,  0,  0,  0,   0.0))
+                .Property("Max",  new SqlDateTime(9999, 12, 31, 23, 59, 59, 997.0))
+            );
+        }
+
+        [Test]
+        public void ProjectDateTime2_UseClrTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(datetime2(7), NULL),
+                        [Min]  = CONVERT(datetime2(7), '0001-01-01 00:00:00.0000000'),
+                        [Max]  = CONVERT(datetime2(7), '9999-12-31 23:59:59.9999999');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(   1,  1,  1,  0,  0,  0, DateTimeKind.Unspecified).AddTicks(000_000_0), EqualStrictly)
+                .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, DateTimeKind.Unspecified).AddTicks(999_999_9), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectDateTime2_UseSqlTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(datetime2(7), NULL),
+                        [Min]  = CONVERT(datetime2(7), '0001-01-01 00:00:00.0000000'),
+                        [Max]  = CONVERT(datetime2(7), '9999-12-31 23:59:59.9999999');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            // ATTN: Does not use SQL types
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(   1,  1,  1,  0,  0,  0, DateTimeKind.Unspecified).AddTicks(000_000_0), EqualStrictly)
+                .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, DateTimeKind.Unspecified).AddTicks(999_999_9), EqualStrictly)
+            );
+        }
+
+        private static SqlString Greenlandic(string s)
+            => new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
 
         private static bool EqualBytes(byte[] a, byte[] b)
             => a.AsSpan().SequenceEqual(b);
+
+        private static bool EqualStrictly(DateTime a, DateTime b)
+            => a.Ticks == b.Ticks
+            && a.Kind  == b.Kind;
 
         private const int
             GreenlandicLcid = 1135;
