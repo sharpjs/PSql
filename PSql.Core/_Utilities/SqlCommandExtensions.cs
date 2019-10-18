@@ -59,7 +59,7 @@ namespace PSql
             {
                 obj.Properties.Add(new PSNoteProperty(
                     name:  names[i],
-                    value: reader.IsDBNull(i) ? null : reader.GetValue(i)
+                    value: reader.GetValue(i).MapDbNull()
                 ));
             }
 
@@ -74,11 +74,16 @@ namespace PSql
             {
                 obj.Properties.Add(new PSNoteProperty(
                     name:  names[i],
-                    value: reader.GetSqlValue(i)
+                    value: reader.GetSqlValue(i).MapDbNull()
                 ));
             }
 
             return obj;
+        }
+
+        private static object MapDbNull(this object value)
+        {
+            return value is DBNull ? null : value;
         }
     }
 }
