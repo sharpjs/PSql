@@ -33,9 +33,7 @@ namespace PSql
                     names ??= GetColumnNames(reader);
 
                     // Return the row as a PowerShell object
-                    yield return useSqlTypes
-                        ? ProjectWithSqlTypes(reader, names)
-                        : ProjectWithClrTypes(reader, names);
+                    yield return ProjectToPSObject(reader, names, useSqlTypes);
                 }
             }
             while (reader.NextResult());
@@ -51,7 +49,7 @@ namespace PSql
             return names;
         }
 
-        private static PSObject ProjectWithClrTypes(SqlDataReader reader, string[] names)
+        private static PSObject ProjectToPSObject(SqlDataReader reader, string[] names, bool useSqlTypes)
         {
             var obj = new PSObject();
 
@@ -59,31 +57,22 @@ namespace PSql
             {
                 obj.Properties.Add(new PSNoteProperty(
                     name:  names[i],
-                    value: reader.GetValue(i).MapDbNull()
+                    value: reader.GetValue(i, useSqlTypes)
                 ));
             }
 
             return obj;
         }
 
-        private static PSObject ProjectWithSqlTypes(SqlDataReader reader, string[] names)
+        private static object GetValue(this SqlDataReader reader, int ordinal, bool useSqlTypes)
         {
-            var obj = new PSObject();
+            var value = useSqlTypes
+                ? reader.GetSqlValue (ordinal)
+                : reader.GetValue    (ordinal);
 
-            for (var i = 0; i < names.Length; i++)
-            {
-                obj.Properties.Add(new PSNoteProperty(
-                    name:  names[i],
-                    value: reader.GetSqlValue(i).MapDbNull()
-                ));
-            }
-
-            return obj;
-        }
-
-        private static object MapDbNull(this object value)
-        {
-            return value is DBNull ? null : value;
+            return value is DBNull
+                ? null
+                : value;
         }
     }
 }
