@@ -3,6 +3,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Management.Automation;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using NUnit.Framework;
 using static System.Data.SqlTypes.SqlCompareOptions;
 using static PSql.ScriptExecutor;
@@ -770,6 +771,217 @@ namespace PSql
             );
         }
 
+        [Test]
+        public void ProjectDateTimeOffset_UseClrTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(datetimeoffset(7), NULL),
+                        [Min]  = CONVERT(datetimeoffset(7), '0001-01-01 00:00:00.0000000-14:00'),
+                        [Max]  = CONVERT(datetimeoffset(7), '9999-12-31 23:59:59.9999999+14:00');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTimeOffset(   1,  1,  1,  0,  0,  0, -14.Hours()).AddTicks(000_000_0), EqualStrictly)
+                .Property("Max",  new DateTimeOffset(9999, 12, 31, 23, 59, 59, +14.Hours()).AddTicks(999_999_9), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectDateTimeOffset_UseSqlTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(datetimeoffset(7), NULL),
+                        [Min]  = CONVERT(datetimeoffset(7), '0001-01-01 00:00:00.0000000-14:00'),
+                        [Max]  = CONVERT(datetimeoffset(7), '9999-12-31 23:59:59.9999999+14:00');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            // ATTN: Does not use SQL types
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTimeOffset(   1,  1,  1,  0,  0,  0, -14.Hours()).AddTicks(000_000_0), EqualStrictly)
+                .Property("Max",  new DateTimeOffset(9999, 12, 31, 23, 59, 59, +14.Hours()).AddTicks(999_999_9), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectDate_UseClrTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(date, NULL),
+                        [Min]  = CONVERT(date, '0001-01-01'),
+                        [Max]  = CONVERT(date, '9999-12-31');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(   1,  1,  1, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
+                .Property("Max",  new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectDate_UseSqlTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(date, NULL),
+                        [Min]  = CONVERT(date, '0001-01-01'),
+                        [Max]  = CONVERT(date, '9999-12-31');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            // ATTN: Does not use SQL types
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new DateTime(   1,  1,  1, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
+                .Property("Max",  new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
+            );
+        }
+
+        [Test]
+        public void ProjectTime_UseClrTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null] = CONVERT(time(7), NULL),
+                        [Min]  = CONVERT(time(7), '00:00:00.0000000'),
+                        [Max]  = CONVERT(time(7), '23:59:59.9999999');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new TimeSpan( 0,  0,  0) + new TimeSpan(000_000_0L))
+                .Property("Max",  new TimeSpan(23, 59, 59) + new TimeSpan(999_999_9L))
+            );
+        }
+
+        [Test]
+        public void ProjectTime_UseSqlTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null] = CONVERT(time(7), NULL),
+                        [Min]  = CONVERT(time(7), '00:00:00.0000000'),
+                        [Max]  = CONVERT(time(7), '23:59:59.9999999');
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            // ATTN: Does not use SQL types
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null", default(object?))
+                .Property("Min",  new TimeSpan( 0,  0,  0) + new TimeSpan(000_000_0L))
+                .Property("Max",  new TimeSpan(23, 59, 59) + new TimeSpan(999_999_9L))
+            );
+        }
+
+        [Test]
+        public void ProjectUniqueIdentifier_UseClrTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null]  = CONVERT(uniqueidentifier, NULL),
+                        [Empty] = CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000'),
+                        [Rand]  = CONVERT(uniqueidentifier, '3061c9f2-7464-4b2b-ab0d-9de762f9ef65')
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  default(object?))
+                .Property("Empty", Guid.Empty)
+                .Property("Rand",  new Guid("3061c9f2-7464-4b2b-ab0d-9de762f9ef65"))
+            );
+        }
+
+        [Test]
+        public void ProjectUniqueIdentifier_UseSqlTypes()
+        {
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null]  = CONVERT(uniqueidentifier, NULL),
+                        [Empty] = CONVERT(uniqueidentifier, '00000000-0000-0000-0000-000000000000'),
+                        [Rand]  = CONVERT(uniqueidentifier, '3061c9f2-7464-4b2b-ab0d-9de762f9ef65')
+                ""
+            ");
+
+            exception.Should().BeNull();
+
+            objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+                .Property("Null",  SqlGuid.Null)
+                .Property("Empty", new SqlGuid("00000000-0000-0000-0000-000000000000"))
+                .Property("Rand",  new SqlGuid("3061c9f2-7464-4b2b-ab0d-9de762f9ef65"))
+            );
+        }
+
+        [Test]
+        public void ProjectHierarchyId_UseClrTypes()
+        {
+            // hierarchyid is not supported by .NET Standard or Core
+
+            var (objects, exception) = Execute(@"
+                Invoke-Sql ""
+                    SELECT
+                        [Null]  = CONVERT(hierarchyid, NULL),
+                        [Root]  = CONVERT(hierarchyid, '/'),
+                        [Child] = CONVERT(hierarchyid, '/0/1.2/3/');
+                ""
+            ");
+
+            exception.Should().BeOfType<CmdletInvocationException>()
+                .Which.InnerException.Should().BeOfType<InvalidCastException>();
+
+            objects.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ProjectHierarchyId_UseSqlTypes()
+        {
+            // hierarchyid is not supported by .NET Standard or Core
+
+            var (objects, exception) = Execute(@"
+                Invoke-Sql -UseSqlTypes ""
+                    SELECT
+                        [Null]  = CONVERT(hierarchyid, NULL),
+                        [Root]  = CONVERT(hierarchyid, '/'),
+                        [Child] = CONVERT(hierarchyid, '/0/1.2/3/');
+                ""
+            ");
+
+            exception.Should().BeOfType<CmdletInvocationException>()
+                .Which.InnerException.Should().BeOfType<InvalidCastException>();
+
+            objects.Should().BeEmpty();
+        }
+
         private static SqlString Greenlandic(string s)
             => new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
 
@@ -779,6 +991,10 @@ namespace PSql
         private static bool EqualStrictly(DateTime a, DateTime b)
             => a.Ticks == b.Ticks
             && a.Kind  == b.Kind;
+
+        private static bool EqualStrictly(DateTimeOffset a, DateTimeOffset b)
+            => a.Ticks  == b.Ticks
+            && a.Offset == b.Offset;
 
         private const int
             GreenlandicLcid = 1135;
