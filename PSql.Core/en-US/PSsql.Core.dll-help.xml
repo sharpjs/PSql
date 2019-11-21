@@ -20,45 +20,75 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
     Documentation:
-    https://msdn.microsoft.com/en-us/library/bb525433(v=vs.85).aspx
+    https://docs.microsoft.com/en-us/powershell/developer/help/how-to-create-the-cmdlet-help-file
   -->
 
   <command:command>
     <command:details>
-      <command:name>New-SqlContext</command:name>
-      <command:verb>New</command:verb>
-      <command:noun>SqlContext</command:noun>
+      <command:name>Invoke-Sql</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>Sql</command:noun>
       <maml:description>
-        <maml:para>Creates a new SqlContext object.</maml:para>
+        <maml:para>Runs SQL scripts on SQL Server or Azure SQL Database.</maml:para>
       </maml:description>
-      <maml:copyright>
-        <maml:para>Copyright (C) 2019 Jeffrey Sharp</maml:para>
-      </maml:copyright>
     </command:details>
 
-    <!--
+    <maml:description>
+      <maml:para>The Invoke-Sql cmdlet runs SQL scripts on SQL Server or Azure SQL Database.</maml:para>
+    </maml:description>
 
     <command:syntax>
       <command:syntaxItem>
-        <maml:name>New-SqlContext</maml:name>
-        <command:parameter required="true" position="0" pipelineInput="true (ByValue, ByPropertyName)" globbing="false">
-          <maml:name>ScriptBlock</maml:name>
-          <command:parameterValue required="true">ScriptBlock[]</command:parameterValue>
+        <maml:name>Invoke-Sql</maml:name>
+        <command:parameter required="true" position="0" aliases="none" pipelineInput="true (ByValue)" globbing="false">
+          <maml:name>Sql</maml:name>
+          <command:parameterValue required="true">string[]</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
-          <maml:name>MaxConcurrency</maml:name>
-          <command:parameterValue required="true">Int32</command:parameterValue>
+        <command:parameter required="false" position="1" pipelineInput="false" globbing="false" >
+          <maml:name>Define</maml:name>
+          <command:parameterValue required="true">hashtable</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
-          <maml:name>Variable</maml:name>
-          <command:parameterValue required="true">PSVariable[]</command:parameterValue>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>Context</maml:name>
+          <command:parameterValue required="true">SqlContext</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
-          <maml:name>Module</maml:name>
-          <command:parameterValue required="true">PSModuleInfo[]</command:parameterValue>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>NoPreprocessing</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>NoErrorHandling</maml:name>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Invoke-Sql</maml:name>
+        <command:parameter required="true" position="0" aliases="none" pipelineInput="true (ByValue)" globbing="false">
+          <maml:name>Sql</maml:name>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="1" pipelineInput="false" globbing="false" >
+          <maml:name>Define</maml:name>
+          <command:parameterValue required="true">hashtable</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="true" position="named" pipelineInput="false" globbing="false">
+          <maml:name>Connection</maml:name>
+          <command:parameterValue required="true">SqlConnection</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>NoPreprocessing</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>NoErrorHandling</maml:name>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
+
+    <!--
+
+    Invoke-Sql [-Sql] <string[]> [[-Define] <hashtable>] [-NoPreprocessing] [-NoErrorHandling] [-Context <SqlContext>]
+    [-DatabaseName <string>]  [<CommonParameters>]
+
+    Invoke-Sql [-Sql] <string[]> [[-Define] <hashtable>] -Connection <SqlConnection> [-NoPreprocessing]
+    [-NoErrorHandling]  [<CommonParameters>]
 
     <command:parameters>
       <command:parameter required="true" position="0" pipelineInput="true (ByValue, ByPropertyName)" globbing="false">
