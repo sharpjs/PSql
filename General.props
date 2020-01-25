@@ -1,7 +1,7 @@
 ﻿<Project>
 
   <!--
-    Copyright (C) 2019 Jeffrey Sharp
+    Copyright (C) 2020 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
@@ -21,7 +21,7 @@
     <Version>2.0.0-local</Version>
     <Authors>Jeffrey Sharp</Authors>
     <Company>Subatomix Research, Inc.</Company>
-    <Copyright>Copyright 2019 Jeffrey Sharp</Copyright>
+    <Copyright>Copyright 2020 Jeffrey Sharp</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -1,5 +1,5 @@
 ﻿<#
-    Copyright (C) 2019 Jeffrey Sharp
+    Copyright (C) 2020 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@
     # General
     Author      = 'Jeffrey Sharp'
     CompanyName = 'Subatomix Research, Inc.'
-    Copyright   = 'Copyright (C) 2019 Jeffrey Sharp'
+    Copyright   = 'Copyright (C) 2020 Jeffrey Sharp'
     Description = 'Provides basic cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.'
 
     # Requirements

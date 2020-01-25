@@ -17,7 +17,7 @@
     1.2.3-local   v1.2.3-rc       789  =>  1.2.3-rc            1.2.3.789
     1.2.3-local   v2.3.4-rc       789  =>  *ERROR*             *ERROR*
 
-    Copyright (C) 2019 Jeffrey Sharp
+    Copyright (C) 2020 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
