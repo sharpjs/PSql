@@ -1,29 +1,31 @@
-# Visual Studio User Files
-.vs/
+# Visual Studio local files
+/.vs/
 *.user
 
-# Build Products
-lib/
+# Build products
 obj/
 bin/
+/lib/
+/dist/
 /Local.props
 
-# Testing
+# Test products
+/test/
 /coverage/
 
-# Temporary Files
+# Temporary files
 *.log
 *.old
 *.tmp
 
-# Git Junk
+# Git junk
 *.orig
 *.patch
 *.rej
 
-# Windows Junk
+# Windows junk
 Thumbs.db
 Desktop.ini
 
-# OS X Junk
+# macOS junk
 .DS_Store
