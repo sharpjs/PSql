@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <RuntimeIdentifiers>win-arm64;win-x64;win-x86;unix</RuntimeIdentifiers>
+    <Edition Condition="'$(TargetFramework)' == 'net461'">desktop</Edition>
+    <Edition Condition="'$(TargetFramework)' != 'net461'">core</Edition>
+    <PublishDir>..\lib\$(Edition)\</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.0" />
+  </ItemGroup>
+
+  <Target Name="PublishOnBuild" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <Exec Command="dotnet publish --nologo --no-build -f $(TargetFramework)" LogStandardErrorAsError="true"/>
+  </Target>
+
+</Project>

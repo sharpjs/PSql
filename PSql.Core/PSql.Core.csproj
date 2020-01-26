@@ -29,7 +29,7 @@
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.0.19249.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,78 +45,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Microsoft.Data.SqlClient.dll -->
-    <None Include="$(NuGetPackageRoot)microsoft.data.sqlclient\1.0.19249.1\lib\net46\Microsoft.Data.SqlClient.dll">
-      <Link>deps\win-net461\Microsoft.Data.SqlClient.dll</Link>
+    <None Include="..\lib\**" Exclude="**\PSql.Core.Dependencies.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(NuGetPackageRoot)microsoft.data.sqlclient\1.0.19249.1\runtimes\win\lib\netcoreapp2.1\Microsoft.Data.SqlClient.dll">
-      <Link>deps\win-netcoreapp2.1\Microsoft.Data.SqlClient.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)microsoft.data.sqlclient\1.0.19249.1\runtimes\unix\lib\netcoreapp2.1\Microsoft.Data.SqlClient.dll">
-      <Link>deps\unix-netcoreapp2.1\Microsoft.Data.SqlClient.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <!-- SNI.dll -->
-    <None Include="$(NuGetPackageRoot)microsoft.data.sqlclient.sni\1.0.19235.1\buildTransitive\net46\x64\SNI.dll">
-      <Link>deps\win-net461\x64\SNI.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)microsoft.data.sqlclient.sni\1.0.19235.1\buildTransitive\net46\x86\SNI.dll">
-      <Link>deps\win-net461\x86\SNI.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)runtime.win7-x64.runtime.native.system.data.sqlclient.sni\4.3.0\runtimes\win7-x64\native\sni.dll">
-      <Link>deps\win-netcoreapp2.1\x64\sni.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)runtime.win7-x86.runtime.native.system.data.sqlclient.sni\4.3.0\runtimes\win7-x86\native\sni.dll">
-      <Link>deps\win-netcoreapp2.1\x86\sni.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <!-- Microsoft.Identity.Client.dll -->
-    <None Include="$(NuGetPackageRoot)microsoft.identity.client\3.0.8\lib\net45\Microsoft.Identity.Client.dll">
-      <Link>deps\win-net461\Microsoft.Identity.Client.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)microsoft.identity.client\3.0.8\lib\netcoreapp2.1\Microsoft.Identity.Client.dll">
-      <Link>deps\win-netcoreapp2.1\Microsoft.Identity.Client.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)microsoft.identity.client\3.0.8\lib\netcoreapp2.1\Microsoft.Identity.Client.dll">
-      <Link>deps\unix-netcoreapp2.1\Microsoft.Identity.Client.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <!-- System.Configuration.ConfigurationManager.dll -->
-    <None Include="$(NuGetPackageRoot)system.configuration.configurationmanager\4.5.0\lib\netstandard2.0\System.Configuration.ConfigurationManager.dll">
-      <Link>deps\win-netcoreapp2.1\System.Configuration.ConfigurationManager.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(NuGetPackageRoot)system.configuration.configurationmanager\4.5.0\lib\netstandard2.0\System.Configuration.ConfigurationManager.dll">
-      <Link>deps\unix-netcoreapp2.1\System.Configuration.ConfigurationManager.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <!-- System.Security.Permissions.dll -->
-    <None Include="$(_NugetFallbackFolder)\system.security.permissions\4.5.0\lib\netstandard2.0\System.Security.Permissions.dll">
-      <Link>deps\win-netcoreapp2.1\System.Security.Permissions.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
-    <!-- System.Text.Encoding.CodePages.dll -->
-    <None Include="$(_NugetFallbackFolder)\system.text.encoding.codepages\4.5.0\lib\netstandard2.0\System.Text.Encoding.CodePages.dll">
-      <Link>deps\win-netcoreapp2.1\System.Text.Encoding.CodePages.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(_NugetFallbackFolder)\system.text.encoding.codepages\4.5.0\lib\netstandard2.0\System.Text.Encoding.CodePages.dll">
-      <Link>deps\unix-netcoreapp2.1\System.Text.Encoding.CodePages.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-
   </ItemGroup>
 
 </Project>

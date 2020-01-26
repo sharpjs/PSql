@@ -3,6 +3,7 @@
 *.user
 
 # Build Products
+lib/
 obj/
 bin/
 /Local.props
