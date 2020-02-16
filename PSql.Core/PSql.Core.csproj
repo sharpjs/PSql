@@ -23,6 +23,7 @@
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
+    <SetGitHubActionsVersion>true</SetGitHubActionsVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +31,7 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.0" />
+    <PackageReference Include="Sharp.Build.Versioning.Semantic" Version="0.0.0-pre.0.8" />
   </ItemGroup>
 
   <ItemGroup>
