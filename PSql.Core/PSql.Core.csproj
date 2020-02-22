@@ -28,7 +28,6 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.1" />
-    <PackageReference Include="Sharp.Build.Versioning.Semantic" Version="0.0.0-pre.0.8" />
   </ItemGroup>
 
   <ItemGroup>
