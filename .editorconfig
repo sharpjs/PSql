@@ -1,0 +1,22 @@
+# Documentation:
+# https://editorconfig.org
+# https://aka.ms/editorconfigdocs
+
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,md,xml,yml}]
+indent_size = 2
+
+[*.{*proj,props,targets}]
+charset = utf-8-bom
+indent_size = 2
+
+[*.sln]
+charset = utf-8-bom
