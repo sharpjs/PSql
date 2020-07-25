@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 using Microsoft.Data.SqlClient;
@@ -12,6 +12,11 @@ namespace PSql
     {
         private static readonly string[]
             HostTag = { "PSHOST" };
+
+        static Cmdlet()
+        {
+            SniLoader.Load();
+        }
 
         public void WriteHost(string message,
             bool          newLine         = true,

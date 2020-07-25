@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
 
   <!--
     Copyright (C) 2020 Jeffrey Sharp
@@ -16,16 +16,53 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   -->
 
+  <!--
+    * Imported early: this -> NuGet package .props -> SDK .props -> project
+    * Many properties are not yet defined and behave as if empty.
+    * Provide defaults for properties here.
+    https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
+  -->
+
+  <!-- Descriptive properties -->
   <PropertyGroup>
     <Product>PSql</Product>
     <VersionPrefix>2.0.0</VersionPrefix>
     <Authors>Jeffrey Sharp</Authors>
-    <Company>Subatomix Research, Inc.</Company>
-    <Copyright>Copyright 2020 Subatomix Research, Inc.</Copyright>
+    <Company>Subatomix Research Inc.</Company>
+    <Copyright>Copyright $([System.DateTime]::UtcNow.Year) Jeffrey Sharp, Subatomix Research Inc.</Copyright>
+    <PackageLicenseExpression>ISC</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/sharpjs/PSql</PackageProjectUrl>
+    <PackageTags>PowerShell SQL Server Azure Invoke SqlCmd</PackageTags>
+    <PackageReleaseNotes>$(PackageProjectUrl)/blob/master/CHANGES.md</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
   </PropertyGroup>
 
+  <!-- Build properties -->
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
+    <!--<Nullable>enable</Nullable>-->
   </PropertyGroup>
+
+  <!-- Packaging properties -->
+  <PropertyGroup>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <PackageOutputPath>..\dist\</PackageOutputPath>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- Hide .root project output -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == '.root'">
+    <BaseOutputPath>.vs\.root\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>.vs\.root\obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <!-- Version stamping (Subatomix.Build.Versioning.Semantic) -->
+  <PropertyGroup>
+    <StampFilePath>$(MSBuildThisFileDirectory)Stamp.props</StampFilePath>
+  </PropertyGroup>
+  <Import Project="$(StampFilePath)" Condition="Exists('$(StampFilePath)')"/>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿<#
+<#
     Copyright (C) 2020 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
@@ -17,19 +17,25 @@
     # Identity
     GUID          = '218cb4b2-911a-46b1-b47c-d3504acd4627'
     RootModule    = 'PSql.Core.dll'
-    ModuleVersion = '2.0.0'
+    ModuleVersion = '{VersionPrefix}'
 
     # General
-    Author      = 'Jeffrey Sharp'
-    CompanyName = 'Subatomix Research, Inc.'
-    Copyright   = 'Copyright (C) 2020 Jeffrey Sharp'
     Description = 'Provides basic cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.'
+    Author      = 'Jeffrey Sharp'
+    CompanyName = 'Subatomix Research Inc.'
+    Copyright   = '{Copyright}'
 
     # Requirements
-    PowerShellVersion      = '5.1'
-    CompatiblePSEditions   = "Desktop", "Core"  # Added in PowerShell 5.1
-    DotNetFrameworkVersion = '4.6.1'            # Valid for Desktop edition only
-    CLRVersion             = '4.0'              # Valid for Desktop edition only
+    CompatiblePSEditions = 'Core'
+    PowerShellVersion    = '7.0'
+    #RequiredModules     = @(...)
+    #RequiredAssemblies  = @(...)
+
+    # Initialization
+    ScriptsToProcess  = @( 'Resolve-SqlClient.ps1' )
+    #TypesToProcess   = @(...)
+    #FormatsToProcess = @(...)
+    #NestedModules    = @(...)
 
     # Exports
     # NOTE: Use empty arrays to indicate no exports.
@@ -38,30 +44,26 @@
     AliasesToExport      = @()
     DscResourcesToExport = @()
     CmdletsToExport      = @(
-        "New-SqlContext",
-        "Connect-Sql",
-        "Disconnect-Sql",
-        "Expand-SqlCmdDirectives",
+        "New-SqlContext"
+        "Connect-Sql"
+        "Disconnect-Sql"
+        "Expand-SqlCmdDirectives"
         "Invoke-Sql"
     )
-
-    # Initialization
-    ScriptsToProcess = @( 'Resolve-SqlClient.ps1' )
 
     # Discoverability and URLs
     PrivateData = @{
         PSData = @{
-            Tags = @(
+            # Additional metadata
+            Prerelease   = '{VersionSuffix}'
+            ProjectUri   = 'https://github.com/sharpjs/PSql'
+            ReleaseNotes = "https://github.com/sharpjs/PSql/blob/master/CHANGES.md"
+            LicenseUri   = 'https://github.com/sharpjs/PSql/blob/master/LICENSE.txt'
+            IconUri      = 'https://github.com/sharpjs/PSql/blob/master/icon.png'
+            Tags         = @(
                 "SQL", "Server", "Azure", "Invoke", "SqlCmd",
                 "PSEdition_Desktop", "PSEdition_Core", "Windows", "Linux", "MacOS"
             )
-            LicenseUri = 'https://github.com/sharpjs/PSql/blob/master/LICENSE.txt'
-            ProjectUri = 'https://github.com/sharpjs/PSql'
-            # IconUri = ''
-            ReleaseNotes = @"
-Release notes are available at:
-https://github.com/sharpjs/PSql/releases
-"@
         }
     }
 }

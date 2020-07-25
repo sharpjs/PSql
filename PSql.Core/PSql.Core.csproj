@@ -18,34 +18,34 @@
 
   <PropertyGroup>
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RuntimeIdentifiers>win-arm;win-arm64;win-x64;win-x86;unix</RuntimeIdentifiers>
     <RootNamespace>PSql</RootNamespace>
-    <SetGitHubActionsVersion>true</SetGitHubActionsVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DefaultModuleManifestPath>DontWantThis.psd1</DefaultModuleManifestPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0">
-      <PrivateAssets>All</PrivateAssets>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0-pre.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>build</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.1" />
+    <PackageReference Include="System.Management.Automation" Version="7.0.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="*.ps1">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="*.ps?1">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="*\*.dll-help.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Update="Properties\**" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\lib\**" Exclude="**\PSql.Core.Dependencies.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="P.targets">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Import Project="P.targets" />
 
 </Project>

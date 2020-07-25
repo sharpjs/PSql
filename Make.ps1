@@ -29,20 +29,20 @@ param (
     [Parameter(ParameterSetName="Test")]
     [switch] $Test,
 
-    # Build, run tests, and produce code covarage report.
+    # Build, run tests, produce code coverage report.
     [Parameter(Mandatory, ParameterSetName="Coverage")]
     [switch] $Coverage,
-
-    # Open code coverage report in a web browser.
-    [Parameter(ParameterSetName="Coverage")]
-    [switch] $Open,
 
     # The configuration to build: Debug or Release.  The default is Debug.
     [Parameter(ParameterSetName="Build")]
     [Parameter(ParameterSetName="Test")]
     [Parameter(ParameterSetName="Coverage")]
     [ValidateSet("Debug", "Release")]
-    [string] $Configuration = "Debug"
+    [string] $Configuration = "Debug",
+
+    # Update .NET CLI 'local tool' plugins.
+    [Parameter(Mandatory, ParameterSetName="UpdateLocalTools")]
+    [switch] $UpdateLocalTools
 )
 
 #Requires -Version 5
@@ -64,6 +64,11 @@ Write-Host -ForegroundColor Cyan @'
 '@
 
 function Main {
+    if ($UpdateLocalTools) {
+        Update-LocalTools
+        return
+    }
+
     Invoke-Build
 
     if ($Test -or $Coverage) {
@@ -75,6 +80,11 @@ function Main {
     }
 } 
 
+function Update-LocalTools {
+    Write-Phase "Update Local Tools"
+    Invoke-DotNetExe tool update dotnet-reportgenerator-globaltool
+}
+
 function Invoke-Build {
     Write-Phase "Build"
     Invoke-DotNetExe build --configuration:$Configuration
@@ -82,14 +92,15 @@ function Invoke-Build {
 
 function Invoke-Test {
     Write-Phase "Test$(if ($Coverage) {" + Coverage"})"
-    Remove-Item test -Recurse -ErrorAction SilentlyContinue
+    Remove-Item coverage\raw -Recurse -ErrorAction SilentlyContinue
     Invoke-DotNetExe -Arguments @(
         "test"
+        "--nologo"
         "--no-build"
         "--configuration:$Configuration"
         if ($Coverage) {
-            "--collect:XPlat Code Coverage"
-            "--results-directory:test"
+            "--settings:Coverlet.runsettings"
+            "--results-directory:coverage\raw"
         }
     )
 }
@@ -99,15 +110,11 @@ function Export-CoverageReport {
     Invoke-DotNetExe -Arguments "tool", "restore"
     Invoke-DotNetExe -Arguments @(
         "reportgenerator"
-        "-reports:test\*\coverage.cobertura.xml"
+        "-reports:coverage\raw\**\coverage.opencover.xml"
         "-targetdir:coverage"
-        "-reporttypes:HtmlInline_AzurePipelines_Dark;TeamCitySummary;Badges"
+        "-reporttypes:Cobertura;HtmlInline_AzurePipelines_Dark;Badges;TeamCitySummary"
         "-verbosity:Warning"
     )
-
-    if ($Open) {
-        & .\coverage\index.htm
-    }
 }
 
 function Invoke-DotNetExe {

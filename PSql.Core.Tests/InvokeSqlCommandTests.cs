@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Management.Automation;
@@ -333,7 +333,12 @@ namespace PSql
                         [Full]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
                     );
 
-                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+                    INSERT @Values VALUES (
+                        NULL,
+                        ''           COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Å'          COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Åbcdefghij' COLLATE Danish_Greenlandic_100_CI_AS
+                    );
 
                     SELECT * FROM @Values;
                 ""
@@ -362,7 +367,12 @@ namespace PSql
                         [Full]  char(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
                     );
 
-                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+                    INSERT @Values VALUES (
+                        NULL,
+                        ''           COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Å'          COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Åbcdefghij' COLLATE Danish_Greenlandic_100_CI_AS
+                    );
 
                     SELECT * FROM @Values;
                 ""
@@ -449,7 +459,12 @@ namespace PSql
                         [Full]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
                     );
 
-                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+                    INSERT @Values VALUES (
+                        NULL,
+                        ''           COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Å'          COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Åbcdefghij' COLLATE Danish_Greenlandic_100_CI_AS
+                    );
 
                     SELECT * FROM @Values;
                 ""
@@ -478,7 +493,12 @@ namespace PSql
                         [Full]  varchar(10) COLLATE Danish_Greenlandic_100_CI_AS NULL
                     );
 
-                    INSERT @Values VALUES (NULL, '', 'Å', 'Åbcdefghij');
+                    INSERT @Values VALUES (
+                        NULL,
+                        ''           COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Å'          COLLATE Danish_Greenlandic_100_CI_AS,
+                        'Åbcdefghij' COLLATE Danish_Greenlandic_100_CI_AS
+                    );
 
                     SELECT * FROM @Values;
                 ""

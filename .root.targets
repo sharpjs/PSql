@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets/2.0.1">
+  <!-- https://github.com/microsoft/MSBuildSdks/tree/master/src/NoTargets -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
+    <IsPublishable>false</IsPublishable>
+    <IsPackable>false</IsPackable>
+    <SetGitHubActionsVersion>true</SetGitHubActionsVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="**" Exclude=".git;PSql.*\**;dist\**;coverage\**;$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(MSBuildThisFile)" />
+    <None Include=".*\**" Exclude=".git\**;.vs\**" />
+  </ItemGroup>
+
+</Project>

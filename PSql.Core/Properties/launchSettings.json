@@ -3,13 +3,7 @@
     "PS Core": {
       "commandName": "Executable",
       "executablePath": "pwsh",
-      "commandLineArgs": "-NoLogo -NoProfile -NoExit -Command \"Import-Module .\\PSql.Core.psd1; Set-PSReadLineOption -EditMode Emacs\"",
-      "workingDirectory": "$(OutDir)"
-    },
-    "PS Desktop": {
-      "commandName": "Executable",
-      "executablePath": "powershell",
-      "commandLineArgs": "-NoLogo -NoProfile -NoExit -Command \"Import-Module .\\PSql.Core.psd1; Set-PSReadLineOption -EditMode Emacs\"",
+      "commandLineArgs": "-NoLogo -NoProfile -NoExit -Command \"Import-Module .\\PSql.Core.psd1; Set-PSReadLineOption -EditMode Emacs; function prompt { 'PS> ' }\"",
       "workingDirectory": "$(OutDir)"
     }
   }

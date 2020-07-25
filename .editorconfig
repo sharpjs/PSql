@@ -6,17 +6,20 @@ root = true
 
 [*]
 charset = utf-8
-indent_style = space
 indent_size = 4
+indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{json,md,xml,yml}]
-indent_size = 2
-
-[*.{*proj,props,targets}]
-charset = utf-8-bom
-indent_size = 2
-
 [*.sln]
 charset = utf-8-bom
+indent_style = tab
+
+[.root.targets]
+charset = utf-8-bom
+
+[*.*proj]
+charset = utf-8-bom
+
+[*.{config,json,jsonc,md,*proj,props,runsettings,targets,xml,yaml,yml}]
+indent_size = 2

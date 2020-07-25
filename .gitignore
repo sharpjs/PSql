@@ -5,20 +5,17 @@
 # Build products
 obj/
 bin/
-/lib/
 /dist/
-/Local.props
-
-# Test products
-/test/
 /coverage/
+/Stamp.props
+PSql.Core.psd1
 
 # Temporary files
 *.log
 *.old
 *.tmp
 
-# Git junk
+# Git
 *.orig
 *.patch
 *.rej

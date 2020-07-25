@@ -3,26 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".root", ".root.targets", "{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Core", "PSql.Core\PSql.Core.csproj", "{107453D0-4728-4073-BC78-F1C8383C6975}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C} = {EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F53AB2F9-1E5B-43C5-B380-31B7790FE21B}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
-		CHANGES.md = CHANGES.md
-		Directory.Build.props = Directory.Build.props
-		Directory.Build.targets = Directory.Build.targets
-		.config\dotnet-tools.json = .config\dotnet-tools.json
-		LICENSE.txt = LICENSE.txt
-		Make.ps1 = Make.ps1
-		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Core.Dependencies", "PSql.Core.Dependencies\PSql.Core.Dependencies.csproj", "{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Core.Tests", "PSql.Core.Tests\PSql.Core.Tests.csproj", "{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}"
 EndProject
@@ -32,14 +15,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}.Release|Any CPU.Build.0 = Release|Any CPU
 		{107453D0-4728-4073-BC78-F1C8383C6975}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{107453D0-4728-4073-BC78-F1C8383C6975}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{107453D0-4728-4073-BC78-F1C8383C6975}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{107453D0-4728-4073-BC78-F1C8383C6975}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAB2AE7A-5FE1-4FCE-AC8C-BAB8FC1FB56C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
