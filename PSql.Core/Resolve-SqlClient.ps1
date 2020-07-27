@@ -4,5 +4,5 @@ if ($IsWindows)
 }
 else
 {
-    Add-Type -Path (Join-Path $PSScriptRoot runtimes\unix\lib\netcoreapp3.1\Microsoft.Data.SqlClient.dll)
+    Add-Type -Path (Join-Path $PSScriptRoot runtimes/unix/lib/netcoreapp3.1/Microsoft.Data.SqlClient.dll)
 }
