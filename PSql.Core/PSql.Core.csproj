@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
-    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0-pre.1">
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0-pre.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>build</IncludeAssets>
     </PackageReference>
@@ -39,13 +39,5 @@
   <ItemGroup>
     <None Update="Properties\**" CopyToOutputDirectory="Never" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="P.targets">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <Import Project="P.targets" />
 
 </Project>
