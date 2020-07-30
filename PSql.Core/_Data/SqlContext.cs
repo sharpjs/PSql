@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Management.Automation;
 using System.Net;
+using System.Security;
 using Microsoft.Data.SqlClient;
 
 namespace PSql
@@ -135,7 +136,11 @@ namespace PSql
             if (Credential.IsNullOrEmpty())
                 return null; // using integrated security
 
-            return new SqlCredential(Credential.UserName, Credential.Password);
+            var password = Credential.Password;
+            if (!password.IsReadOnly())
+                (password = password.Copy()).MakeReadOnly();
+
+            return new SqlCredential(Credential.UserName, password);
         }
     }
 }
