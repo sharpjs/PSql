@@ -62,7 +62,7 @@
             IconUri      = 'https://github.com/sharpjs/PSql/blob/master/icon.png'
             Tags         = @(
                 "SQL", "Server", "Azure", "Invoke", "SqlCmd",
-                "PSEdition_Desktop", "PSEdition_Core", "Windows", "Linux", "MacOS"
+                "PSEdition_Core", "Windows", "Linux", "MacOS"
             )
         }
     }
