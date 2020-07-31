@@ -34,7 +34,47 @@
     </command:details>
 
     <maml:description>
-      <maml:para>The Invoke-Sql cmdlet runs SQL scripts on SQL Server or Azure SQL Database.</maml:para>
+      <maml:para>
+        The Invoke-Sql cmdlet runs SQL scripts on SQL Server or Azure SQL Database and outputs each result row as a PowerShell custom object.  Additionally, the Invoke-Sql cmdlet receives messages sent by the server and writes them to the information or warning streams, depending on severity.
+      </maml:para>
+      <maml:para>
+        Invoke-Sql supports a limited subset of SQLCMD.EXE preprocessing features:
+
+  GO       batch separator
+  $()      sqlcmd variable expansion
+  :setvar  set a sqlcmd variable
+  :r       include a file
+      </maml:para>
+      <maml:para>
+        Use the -NoPreprocessing switch to disable preprocessing.
+      </maml:para>
+      <maml:para>
+        By default, Invoke-Sql executes each SQL batch using an error-handling wrapper that prints the offending SQL batch if an error occurs, greatly improving the diagnostic experience.  However, the wrapper conflicts with a few specific scenarios:
+      </maml:para>
+      <maml:list>
+        <maml:listItem>
+          <maml:para>
+            Beginning a transaction without committing it in the same batch.  This causes an error when using the wrapper.
+          </maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>
+            Committing a transaction that was not started in the same batch.  This causes an error when using the wrapper.
+          </maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>
+            Creating a temporary table.  The temporary table vanishes at the end of the batch when using the wrapper.
+          </maml:para>
+        </maml:listItem>
+      </maml:list>
+      <maml:para><!-- HACK: Get-Help does not put a blank line after the <list> --></maml:para>
+      <maml:para>
+        To support these scenarios, disable the error-handling wrapper when required.  To disable the wrapper for a single SQL batch, include the line '--# NOWRAP' (without the quotes) anywhere in the batch.  To disable the wrapper for all batches, use -NoErrorHandling switch.
+      </maml:para>
+      <maml:para>
+        After execution of each batch, if an error occurred, Invoke-Sql writes an object to the error stream.
+      </maml:para>
     </maml:description>
 
     <command:syntax>
