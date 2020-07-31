@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".root", ".root.targets", "{8BC2BA17-8948-4C72-AEBD-7CEF6E4E8B96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Core", "PSql.Core\PSql.Core.csproj", "{107453D0-4728-4073-BC78-F1C8383C6975}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql", "PSql\PSql.csproj", "{107453D0-4728-4073-BC78-F1C8383C6975}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Core.Tests", "PSql.Core.Tests\PSql.Core.Tests.csproj", "{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Tests", "PSql.Tests\PSql.Tests.csproj", "{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

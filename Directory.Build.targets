@@ -30,7 +30,7 @@
   <!-- Visibility -->
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>PSql.Core.Tests</_Parameter1>
+      <_Parameter1>PSql.Tests</_Parameter1>
     </AssemblyAttribute>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <!-- Required for Moq to mock a class with an internal abstract method. -->

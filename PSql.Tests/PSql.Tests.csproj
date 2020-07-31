@@ -17,13 +17,13 @@
   -->
 
   <PropertyGroup>
-    <Description>Unit tests for PSql.Core</Description>
+    <Description>Unit tests for PSql</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PSql.Core\PSql.Core.csproj" />
+    <ProjectReference Include="..\PSql\PSql.csproj" />
   </ItemGroup>
 
   <ItemGroup>

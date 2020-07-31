@@ -16,7 +16,7 @@
 @{
     # Identity
     GUID          = '218cb4b2-911a-46b1-b47c-d3504acd4627'
-    RootModule    = 'PSql.Core.dll'
+    RootModule    = 'PSql.dll'
     ModuleVersion = '{VersionPrefix}'
 
     # General

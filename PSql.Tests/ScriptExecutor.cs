@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
@@ -36,7 +36,7 @@ namespace PSql
             ));
 
             state.ImportPSModule(
-                Path.Combine(TestPath, "PSql.Core.psd1")
+                Path.Combine(TestPath, "PSql.psd1")
             );
 
             return state;
