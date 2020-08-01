@@ -38,13 +38,23 @@
         The Invoke-Sql cmdlet runs SQL scripts on SQL Server or Azure SQL Database and outputs each result row as a PowerShell custom object.  Additionally, the Invoke-Sql cmdlet receives messages sent by the server and writes them to the information or warning streams, depending on severity.
       </maml:para>
       <maml:para>
-        Invoke-Sql supports a limited subset of SQLCMD.EXE preprocessing features:
-
-  GO       batch separator
-  $()      sqlcmd variable expansion
-  :setvar  set a sqlcmd variable
-  :r       include a file
+        Invoke-Sql supports a limited subset of SQLCMD preprocessing features:
       </maml:para>
+      <maml:list>
+        <maml:listItem>
+          <maml:para>GO       batch separator</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>$()      sqlcmd variable expansion</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>:setvar  set a sqlcmd variable</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>:r       include a file</maml:para>
+        </maml:listItem>
+      </maml:list>
+      <maml:para><!-- HACK: Get-Help does not put a blank line after the <list> --></maml:para>
       <maml:para>
         Use the -NoPreprocessing switch to disable preprocessing.
       </maml:para>
@@ -54,23 +64,23 @@
       <maml:list>
         <maml:listItem>
           <maml:para>
-            Beginning a transaction without committing it in the same batch.  This causes an error when using the wrapper.
+            Beginning a transaction without committing it in the same batch: this causes an error when using the wrapper.
           </maml:para>
         </maml:listItem>
         <maml:listItem>
           <maml:para>
-            Committing a transaction that was not started in the same batch.  This causes an error when using the wrapper.
+            Committing a transaction that was not started in the same batch: this causes an error when using the wrapper.
           </maml:para>
         </maml:listItem>
         <maml:listItem>
           <maml:para>
-            Creating a temporary table.  The temporary table vanishes at the end of the batch when using the wrapper.
+            Creating a temporary table: the temporary table vanishes at the end of the batch when using the wrapper.
           </maml:para>
         </maml:listItem>
       </maml:list>
       <maml:para><!-- HACK: Get-Help does not put a blank line after the <list> --></maml:para>
       <maml:para>
-        To support these scenarios, disable the error-handling wrapper when required.  To disable the wrapper for a single SQL batch, include the line '--# NOWRAP' (without the quotes) anywhere in the batch.  To disable the wrapper for all batches, use -NoErrorHandling switch.
+        To support these scenarios, disable the error-handling wrapper when required.  To disable the wrapper for a single SQL batch, include the line '--# NOWRAP' (without the quotes) anywhere in the batch.  To disable the wrapper for all batches, use the -NoErrorHandling switch.
       </maml:para>
       <maml:para>
         After execution of each batch, if an error occurred, Invoke-Sql writes an object to the error stream.
@@ -98,6 +108,9 @@
         <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
           <maml:name>NoErrorHandling</maml:name>
         </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>UseSqlTypes</maml:name>
+        </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>Invoke-Sql</maml:name>
@@ -119,65 +132,78 @@
         <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
           <maml:name>NoErrorHandling</maml:name>
         </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>UseSqlTypes</maml:name>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
 
-    <!--
-
-    Invoke-Sql [-Sql] <string[]> [[-Define] <hashtable>] [-NoPreprocessing] [-NoErrorHandling] [-Context <SqlContext>]
-    [-DatabaseName <string>]  [<CommonParameters>]
-
-    Invoke-Sql [-Sql] <string[]> [[-Define] <hashtable>] -Connection <SqlConnection> [-NoPreprocessing]
-    [-NoErrorHandling]  [<CommonParameters>]
-
     <command:parameters>
-      <command:parameter required="true" position="0" pipelineInput="true (ByValue, ByPropertyName)" globbing="false">
-        <maml:name>ScriptBlock</maml:name>
+      <command:parameter required="true" position="0" pipelineInput="true (ByValue)" globbing="false">
+        <maml:name>Sql</maml:name>
         <maml:description>
-          <maml:para>The script block(s) to run concurrently.</maml:para>
+          <maml:para>The SQL scripts(s) to run.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">ScriptBlock[]</command:parameterValue>
+        <command:parameterValue required="true">string[]</command:parameterValue>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>ScriptBlock[]</dev:type>
+        <dev:type>string[]</dev:type>
       </command:parameter>
       <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
-        <maml:name>MaxConcurrency</maml:name>
+        <maml:name>Define</maml:name>
         <maml:description>
-          <maml:para>The maximum number of simultaneously running script blocks.  The default is the number of processor threads on the current computer.</maml:para>
+          <maml:para>SQLCMD preprocessor variables to define.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">Int32</command:parameterValue>
-        <dev:defaultValue>[Environment]::ProcessorCount</dev:defaultValue>
-        <dev:type>Int32</dev:type>
-      </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
-        <maml:name>Variable</maml:name>
-        <maml:description>
-          <maml:para>Variables to set for script blocks.  Use Get-Variable to obtain PSVariable objects.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true">PSVariable[]</command:parameterValue>
+        <command:parameterValue required="true">hashtable</command:parameterValue>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>PSVariable[]</dev:type>
+        <dev:type>hashtable</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
-        <maml:name>Module</maml:name>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>Context</maml:name>
         <maml:description>
-          <maml:para>Modules to import for script blocks.  Use Get-Module to obtain PSModuleInfo objects.</maml:para>
+          <maml:para>An object specifying how to connect to the database.  Obtain via the New-SqlContext cmdlet.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">PSModuleInfo[]</command:parameterValue>
+        <command:parameterValue required="true">SqlContext</command:parameterValue>
+        <dev:defaultValue>Default SQL Server instance on the local machine</dev:defaultValue>
+        <dev:type>SqlContext</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>Connection</maml:name>
+        <maml:description>
+          <maml:para>The SQL connection on which to execute commands.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">SqlConnection</command:parameterValue>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>PSModuleInfo[]</dev:type>
+        <dev:type>SqlConnection</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>NoPreprocessing</maml:name>
+        <maml:description>
+          <maml:para>Disables SQLCMD preprocessing support.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:defaultValue>false</dev:defaultValue>
+        <dev:type>SwitchParameter</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>NoErrorHandling</maml:name>
+        <maml:description>
+          <maml:para>Disables the error-handling wrapper.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:defaultValue>false</dev:defaultValue>
+        <dev:type>SwitchParameter</dev:type>
       </command:parameter>
     </command:parameters>
 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>ScriptBlock[]</maml:name>
+          <maml:name>string[]</maml:name>
           <maml:uri/>
           <maml:description/>
         </dev:type>
         <maml:description>
-          <maml:para>Script block(s) to run concurrently.</maml:para>
+          <maml:para>SQL scripts(s) to run.</maml:para>
         </maml:description>
       </command:inputType>
     </command:inputTypes>
@@ -185,28 +211,27 @@
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>PSConcurrent.TaskOutput[]</maml:name>
+          <maml:name>PSCustomObject[]</maml:name>
           <maml:uri/>
           <maml:description/>
         </dev:type>
         <maml:description>
-          <maml:para>Output of the invoked ScriptBlocks.  Each output object is wrapped in TaskOutput object that identifies which scriptblock produced the output.</maml:para>
+          <maml:para>Result rows of the invoked scripts.  The cmdlet converts each row to a PSCustomObject by mapping columns to properties.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
 
     <maml:relatedLinks>
       <maml:navigationLink>
-        <maml:linkText>https://github.com/sharpjs/PSConcurrent</maml:linkText>
+        <maml:linkText>PSql:</maml:linkText>
+        <maml:uri>https://github.com/sharpjs/PSql</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
-        <maml:linkText>Get-Module</maml:linkText>
+        <maml:linkText>sqlcmd Utility:</maml:linkText>
+        <maml:uri>https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility</maml:uri>
       </maml:navigationLink>
-      <maml:navigationLink>
-        <maml:linkText>Get-Variable</maml:linkText>
-      </maml:navigationLink>
+
     </maml:relatedLinks>
-    -->
 
   </command:command>
 </helpItems>
