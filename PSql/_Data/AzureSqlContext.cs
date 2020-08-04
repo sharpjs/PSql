@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace PSql
 {
     /// <summary>
-    ///   Information necessary to connect to an Azyure SQL Database or
+    ///   Information necessary to connect to an Azure SQL Database or
     ///   compatible database.
     /// </summary>
     public class AzureSqlContext : SqlContext
