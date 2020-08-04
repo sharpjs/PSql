@@ -1,7 +1,6 @@
 using System;
 using System.Management.Automation;
 using System.Net;
-using System.Security;
 using Microsoft.Data.SqlClient;
 
 namespace PSql
@@ -136,6 +135,7 @@ namespace PSql
             if (Credential.IsNullOrEmpty())
                 return null; // using integrated security
 
+            // Prevent error that occurs if password is not marked read-only
             var password = Credential.Password;
             if (!password.IsReadOnly())
                 (password = password.Copy()).MakeReadOnly();
