@@ -1,5 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PSql
 {
@@ -54,7 +55,7 @@ namespace PSql
         private static FileStream Open(string path)
         {
             return new FileStream(
-                path,
+                ToPlatformPath(path),
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.Read,
@@ -71,6 +72,16 @@ namespace PSql
                 detectEncodingFromByteOrderMarks: true,
                 bufferSize: 8,  // only used to read the BOM
                 leaveOpen: true // another reader will be opened for this stream
+            );
+        }
+
+        private static string ToPlatformPath(string path)
+        {
+            return Regex.Replace(
+                path,
+                @"[\\/]",
+                Path.DirectorySeparatorChar.ToString(),
+                RegexOptions.CultureInvariant
             );
         }
     }
