@@ -230,8 +230,242 @@
         <maml:linkText>sqlcmd Utility:</maml:linkText>
         <maml:uri>https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility</maml:uri>
       </maml:navigationLink>
-
     </maml:relatedLinks>
 
   </command:command>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <command:command>
+    <command:details>
+      <command:name>New-SqlContext</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>SqlContext</command:noun>
+      <maml:description>
+        <maml:para>Creates an object specifying how to connect to a SQL Server or compatible database.</maml:para>
+      </maml:description>
+    </command:details>
+
+    <maml:description>
+      <maml:para>
+        The PSql New-SqlContext cmdlet accepts parameters specifying how to connect to a SQL Server, Azure SQL Database, or compatible database, and outputs a context object containing the supplied values.  Pass the context object to other PSql cmdlets via their -Context parameter to work with the specified database.
+      </maml:para>
+    </maml:description>
+
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>New-SqlContext</maml:name>
+        <command:parameter required="false" position="0" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ServerName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="1" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>DatabaseName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false" >
+            <maml:name>Credential</maml:name>
+          <command:parameterValue required="true">PSCredential</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+            <maml:name>EncryptionMode</maml:name>
+          <command:parameterValue required="true">{ Default | None }</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>ReadOnlyIntent</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ClientName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ApplicationName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ConnectTimeout</maml:name>
+          <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>New-SqlContext</maml:name>
+        <command:parameter required="true" position="named" aliases="none" pipelineInput="true (ByPropertyName)" globbing="false">
+          <maml:name>Azure</maml:name>
+        </command:parameter>
+        <command:parameter required="true" position="1" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ResourceGroupName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="true" position="2" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ServerName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="3" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>DatabaseName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="true" position="4" pipelineInput="true (ByPropertyName)" globbing="false" >
+            <maml:name>Credential</maml:name>
+          <command:parameterValue required="true">PSCredential</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+          <maml:name>ReadOnlyIntent</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ClientName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ApplicationName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+          <maml:name>ConnectTimeout</maml:name>
+          <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+
+    <command:parameters>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>Azure</maml:name>
+        <maml:description>
+          <maml:para>Specifies that the database is an Azure SQL Database resource.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:defaultValue>false</dev:defaultValue>
+        <dev:type>SwitchParameter</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="1" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>ResourceGroupName</maml:name>
+        <maml:description>
+          <maml:para>The name of the Azure resource group containing the virtual database server.  Requires the -Azure switch.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>string</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>ServerName</maml:name>
+        <maml:description>
+          <maml:para>The name of the database server.</maml:para>
+          <maml:para>When -Azure is specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
+          <maml:para>Otherwise, this parameter specifies the DNS name of the database server, optionally suffixed by a backslash and a database engine instance name.  Examples: db.example.com, db.example.com\instance2</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:defaultValue>None with -Azure; otherwise, a value specifying the default instance on the local machine</dev:defaultValue>
+        <dev:type>string</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="3" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>DatabaseName</maml:name>
+        <maml:description>
+          <maml:para>The name of the database.</maml:para>
+          <maml:para>If not specified, connections will attempt to open in the default database of the authenticated user.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>string</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>Credential</maml:name>
+        <maml:description>
+          <maml:para>The credential to use to authenticate with the database server.</maml:para>
+          <maml:para>If not specified, connections will attempt to use integrated authentication.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSCredential</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>PSCredential</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>EncryptionMode</maml:name>
+        <maml:description>
+          <maml:para>The transport encryption to use for connections.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSql.EncryptionMode</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>PSql.EncryptionMode</dev:type>
+        <dev:possibleValues>
+          <dev:possibleValue>
+            <dev:value>Default</dev:value>
+            <maml:description>
+              <maml:para>
+                The default encrption mode.  Equivalent to None for connections to the local machine, and Full for all other connections.  
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>None</dev:value>
+            <maml:description>
+              <maml:para>
+                No connection encryption or server identity check.  Data sent over the connection is exposed to other network devices.  A malicious device could masquerade as a server.  This encryption mode is appropriate for same-machine connections only.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>Unverified</dev:value>
+            <maml:description>
+              <maml:para>
+                Connections are encrypted, but server identities are not verified.  A malicious device could masquerade as a server.  This encryption mode is appropriate only when the server uses a self-signed certificate.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>Full</dev:value>
+            <maml:description>
+              <maml:para>
+                Connections are encrypted, and server identities are verified.  This is the most secure encryption mode.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+        </dev:possibleValues>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>ClientName</maml:name>
+        <maml:description>
+          <maml:para>The name of the client device.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>string</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>ApplicationName</maml:name>
+        <maml:description>
+          <maml:para>The name of the client application.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>string</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <maml:name>ConnectTimeout</maml:name>
+        <maml:description>
+          <maml:para>The duration after which a connection attempt times out.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:type>TimeSpan</dev:type>
+      </command:parameter>
+    </command:parameters>
+
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>PSql.SqlContext</maml:name>
+          <maml:uri/>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
+          <maml:para>An object specifying how to connect to a SQL Server or compatible database.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>PSql:</maml:linkText>
+        <maml:uri>https://github.com/sharpjs/PSql</maml:uri>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+   </command:command>
 </helpItems>
