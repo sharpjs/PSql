@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Management.Automation;
 using static Microsoft.Data.SqlClient.ApplicationIntent;
 
@@ -31,8 +31,8 @@ namespace PSql
 
         // -DatabaseName
         [Alias("Database")]
-        [Parameter(ParameterSetName = GenericName, Position = 1, ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 3, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 1,                   ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 3, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string DatabaseName { get; set; }
 
