@@ -185,6 +185,7 @@ namespace PSql
             string path;
             path = match.Groups[nameof(path)].Value;
             path = Unquote(path);
+            path = ReplaceVariables(path);
 
             var text = IoHelper.ReadText(path);
 
@@ -227,6 +228,16 @@ namespace PSql
                 .Replace(QuoteEscaped, QuoteUnescaped);
         }
 
+        private string ReplaceVariables(string text)
+        {
+            // TODO: Make this fit better with existing code when more brain
+            // is available.  Right now brain is exhausted.
+
+            var builder = new StringBuilder();
+            PerformVariableReplacement(builder, text);
+            return builder.ToString();
+        }
+
         private static bool HasVariableReplacement(string text)
         {
             return VariableRegex.IsMatch(text);
@@ -234,7 +245,11 @@ namespace PSql
 
         private void PerformVariableReplacement(string text)
         {
-            var builder = _builder;
+            PerformVariableReplacement(_builder, text);
+        }
+
+        private void PerformVariableReplacement(StringBuilder builder, string text)
+        {
             var start   = 0;
             var length  = text.Length;
 
