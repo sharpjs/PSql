@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -32,6 +33,10 @@ namespace PSql
         [Parameter]
         public SwitchParameter UseSqlTypes { get; set; }
 
+        // -Timeout
+        [Parameter]
+        public TimeSpan? Timeout { get; set; }
+
         private SqlCmdPreprocessor _preprocessor;
         private SqlCommand         _command;
 
@@ -54,6 +59,9 @@ namespace PSql
             _command             = Connection.CreateCommand();
             _command.Connection  = Connection;
             _command.CommandType = CommandType.Text;
+
+            if (Timeout.HasValue)
+                _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
         }
 
         protected override void ProcessRecord()

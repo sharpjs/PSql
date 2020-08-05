@@ -111,6 +111,10 @@
         <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
           <maml:name>UseSqlTypes</maml:name>
         </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>Timeout</maml:name>
+          <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>Invoke-Sql</maml:name>
@@ -134,6 +138,10 @@
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
           <maml:name>UseSqlTypes</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+          <maml:name>Timeout</maml:name>
+          <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
@@ -192,6 +200,15 @@
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
         <dev:defaultValue>false</dev:defaultValue>
         <dev:type>SwitchParameter</dev:type>
+      </command:parameter>
+      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <maml:name>Timeout</maml:name>
+        <maml:description>
+          <maml:para>The maximum duration to wait for each SQL batch to complete.  If a batch exceeds this duration, the cmdlet ceases waiting on the batch and writes an error to the error stream.  The batch might continue to execute on the database server. </maml:para>
+        </maml:description>
+        <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        <dev:defaultValue>00:00:30</dev:defaultValue>
+        <dev:type>TimeSpan</dev:type>
       </command:parameter>
     </command:parameters>
 
