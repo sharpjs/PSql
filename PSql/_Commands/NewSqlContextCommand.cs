@@ -42,6 +42,10 @@ namespace PSql
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
+        // -UseAzureActiveDirectoryPassword
+        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter UseAzureActiveDirectoryPassword { get; set; }
+
         // -EncryptionMode
         [Alias("Encryption")]
         [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
@@ -70,10 +74,35 @@ namespace PSql
         [ValidateRange("0:00:00", "24855.03:14:07")]
         public TimeSpan? ConnectTimeout { get; set; }
 
+        // -PersistSecurityInfo
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public Boolean PersistSecurityInfo { get; set; } = true;
+
+        // -Pooling
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public Boolean Pooling { get; set; }  = true;
+
+        // -MultipleActiveResultSets
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public Boolean MultipleActiveResultSets { get; set; }  = true;
+
+        // -TrustServerCertificate
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public Boolean TrustServerCertificate { get; set; }  = true;
+
+
         protected override void ProcessRecord()
         {
             var context = Azure.IsPresent
                 ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
+                : UseAzureActiveDirectoryPassword.IsPresent
+                 ? new AzureActiveDirectorySqlContext { 
+                     EncryptionMode = EncryptionMode, 
+                     PersistSecurityInfo = PersistSecurityInfo,
+                     Pooling = Pooling,
+                     MultipleActiveResultSets = MultipleActiveResultSets,
+                     TrustServerCertificate = TrustServerCertificate
+                   }
                 : new SqlContext      { EncryptionMode    = EncryptionMode    };
 
             var credential = Credential.IsNullOrEmpty()
