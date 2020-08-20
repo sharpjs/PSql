@@ -8,7 +8,7 @@ namespace PSql
     public class ConnectSqlCommand : Cmdlet
     {
         // -Context
-        [Parameter(ValueFromPipeline = true)]
+        [Parameter(Position = 0, ValueFromPipeline = true)]
         public SqlContext Context { get; set; }
 
         // -DatabaseName
