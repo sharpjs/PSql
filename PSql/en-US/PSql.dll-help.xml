@@ -23,6 +23,287 @@
     https://docs.microsoft.com/en-us/powershell/developer/help/how-to-create-the-cmdlet-help-file
   -->
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Connect-Sql -->
+
+  <command:command>
+
+    <command:details>
+      <command:name>Connect-Sql</command:name>
+      <command:verb>Connect</command:verb>
+      <command:noun>Sql</command:noun>
+      <maml:description>
+        <maml:para>Connects to SQL Server or Azure SQL Database.</maml:para>
+      </maml:description>
+    </command:details>
+
+    <maml:description>
+      <maml:para>
+        The Connect-Sql cmdlet opens a new connection to the specifed SQL Server instance or Azure SQL Database resource.  The cmdlet outputs the open connection.
+      </maml:para>
+      <maml:para>
+        The connection remains open until explicitly closed.  Use the Disconnect-Sql cmdlet to close connections.
+      </maml:para>
+    </maml:description>
+
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Connect-Sql</maml:name>
+        <command:parameter required="false" position="0" pipelineInput="True (ByValue)" globbing="false">
+          <maml:name>Context</maml:name>
+          <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
+          <maml:name>DatabaseName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+
+    <command:parameters>
+
+      <command:parameter required="false" position="0" pipelineInput="True (ByValue)" globbing="false" aliases="none">
+        <maml:name>Context</maml:name>
+        <maml:description>
+          <maml:para>An object specifying how to connect to the database.  Obtain via the New-SqlContext cmdlet.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
+        <dev:type>
+          <maml:name>PSql.SqlContext</maml:name>
+        </dev:type>
+        <dev:defaultValue>Default SQL Server instance on the local machine</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="DatabaseName">
+        <maml:name>DatabaseName</maml:name>
+        <maml:description>
+          <maml:para>The name of the database to which to connect.  This parameter overrides any database specified via -Context and any default database for the credential.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+    </command:parameters>
+
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>PSql.SqlContext</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>An object specifying how to connect to the database.  Obtain via the New-SqlContext cmdlet.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>Microsoft.Data.SqlClient.SqlConnection</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A new, open connection to the specifed SQL Server instance or Azure SQL Database resource.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>PSql:</maml:linkText>
+        <maml:uri>https://github.com/sharpjs/PSql</maml:uri>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+
+  </command:command>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Disconnect-Sql -->
+
+  <command:command>
+
+    <command:details>
+      <command:name>Disconnect-Sql</command:name>
+      <command:verb>Disconnect</command:verb>
+      <command:noun>Sql</command:noun>
+      <maml:description>
+        <maml:para>Disconnects from SQL Server or Azure SQL Database.</maml:para>
+      </maml:description>
+    </command:details>
+
+    <maml:description>
+      <maml:para>
+        The Disconnect-Sql cmdlet closes the specified connections to SQL Server instances and Azure SQL Database resources.
+      </maml:para>
+      <maml:para>
+        Use this cmdlet to close connections opened by the Connect-Sql cmdlet.
+      </maml:para>
+    </maml:description>
+
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Disconnect-Sql</maml:name>
+        <command:parameter required="false" position="0" pipelineInput="True (ByValue, FromRemainingArguments)" globbing="false">
+          <maml:name>Connection</maml:name>
+          <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection[]</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+
+    <command:parameters>
+
+      <command:parameter required="false" position="0" pipelineInput="True (ByValue, FromRemainingArguments)" globbing="false" aliases="none">
+        <maml:name>Connection</maml:name>
+        <maml:description>
+          <maml:para>The connections to close.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Microsoft.Data.SqlClient.SqlConnection[]</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+    </command:parameters>
+
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>Microsoft.Data.SqlClient.SqlConnection[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The connections to close.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>PSql:</maml:linkText>
+        <maml:uri>https://github.com/sharpjs/PSql</maml:uri>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+
+  </command:command>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Expand-SqlCmdDirectives -->
+
+  <command:command>
+
+    <command:details>
+      <command:name>Expand-SqlCmdDirectives</command:name>
+      <command:verb>Expand</command:verb>
+      <command:noun>SqlCmdDirectives</command:noun>
+      <maml:description>
+        <maml:para>Performs limited SQLCMD-style preprocessing.</maml:para>
+      </maml:description>
+    </command:details>
+
+    <maml:description>
+      <maml:para>
+        The Expand-SqlCmdDirectives cmdlet supports a limited subset of SQLCMD preprocessing features:
+      </maml:para>
+      <maml:list>
+        <maml:listItem>
+          <maml:para>GO       batch separator</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>$()      sqlcmd variable expansion</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>:setvar  set a sqlcmd variable</maml:para>
+        </maml:listItem>
+        <maml:listItem>
+          <maml:para>:r       include a file</maml:para>
+        </maml:listItem>
+      </maml:list>
+    </maml:description>
+
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Expand-SqlCmdDirectives</maml:name>
+        <command:parameter required="true" position="0" aliases="none" pipelineInput="True (ByValue)" globbing="false">
+          <maml:name>Sql</maml:name>
+          <command:parameterValue required="true">string[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="1" pipelineInput="False" globbing="false" >
+          <maml:name>Define</maml:name>
+          <command:parameterValue required="true">hashtable</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+
+    <command:parameters>
+
+      <command:parameter required="true" position="0" pipelineInput="True (ByValue)" globbing="false" aliases="none">
+        <maml:name>Sql</maml:name>
+        <maml:description>
+          <maml:para>The SQL scripts(s) to run.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
+        <maml:name>Define</maml:name>
+        <maml:description>
+          <maml:para>SQLCMD preprocessor variables to define.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">hashtable</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable[]</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+    </command:parameters>
+
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>SQL scripts(s) to preprocess.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+          <maml:uri/>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
+          <maml:para>Preprocessed SQL batches.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+
+    <maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>PSql:</maml:linkText>
+        <maml:uri>https://github.com/sharpjs/PSql</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>sqlcmd Utility:</maml:linkText>
+        <maml:uri>https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility</maml:uri>
+      </maml:navigationLink>
+    </maml:relatedLinks>
+
+  </command:command>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Invoke-Sql -->
+
   <command:command>
     <command:details>
       <command:name>Invoke-Sql</command:name>
@@ -90,56 +371,56 @@
     <command:syntax>
       <command:syntaxItem>
         <maml:name>Invoke-Sql</maml:name>
-        <command:parameter required="true" position="0" aliases="none" pipelineInput="true (ByValue)" globbing="false">
+        <command:parameter required="true" position="0" aliases="none" pipelineInput="True (ByValue)" globbing="false">
           <maml:name>Sql</maml:name>
           <command:parameterValue required="true">string[]</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="1" pipelineInput="false" globbing="false" >
+        <command:parameter required="false" position="1" pipelineInput="False" globbing="false" >
           <maml:name>Define</maml:name>
           <command:parameterValue required="true">hashtable</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Context</maml:name>
-          <command:parameterValue required="true">SqlContext</command:parameterValue>
+          <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>NoPreprocessing</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>NoErrorHandling</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>UseSqlTypes</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Timeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>Invoke-Sql</maml:name>
-        <command:parameter required="true" position="0" aliases="none" pipelineInput="true (ByValue)" globbing="false">
+        <command:parameter required="true" position="0" aliases="none" pipelineInput="True (ByValue)" globbing="false">
           <maml:name>Sql</maml:name>
           <command:parameterValue required="true">string[]</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="1" pipelineInput="false" globbing="false" >
+        <command:parameter required="false" position="1" pipelineInput="False" globbing="false" >
           <maml:name>Define</maml:name>
           <command:parameterValue required="true">hashtable</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="true" position="named" pipelineInput="False" globbing="false">
           <maml:name>Connection</maml:name>
-          <command:parameterValue required="true">SqlConnection</command:parameterValue>
+          <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>NoPreprocessing</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>NoErrorHandling</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>UseSqlTypes</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Timeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
@@ -147,75 +428,97 @@
     </command:syntax>
 
     <command:parameters>
-      <command:parameter required="true" position="0" pipelineInput="true (ByValue)" globbing="false">
+
+      <command:parameter required="true" position="0" pipelineInput="True (ByValue)" globbing="false" aliases="none">
         <maml:name>Sql</maml:name>
         <maml:description>
           <maml:para>The SQL scripts(s) to run.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string[]</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String[]</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>string[]</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Define</maml:name>
         <maml:description>
           <maml:para>SQLCMD preprocessor variables to define.</maml:para>
         </maml:description>
         <command:parameterValue required="true">hashtable</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Collections.Hashtable[]</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>hashtable</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Context</maml:name>
         <maml:description>
           <maml:para>An object specifying how to connect to the database.  Obtain via the New-SqlContext cmdlet.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">SqlContext</command:parameterValue>
+        <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
+        <dev:type>
+          <maml:name>PSql.SqlContext</maml:name>
+        </dev:type>
         <dev:defaultValue>Default SQL Server instance on the local machine</dev:defaultValue>
-        <dev:type>SqlContext</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Connection</maml:name>
         <maml:description>
           <maml:para>The SQL connection on which to execute commands.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">SqlConnection</command:parameterValue>
+        <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection</command:parameterValue>
+        <dev:type>
+          <maml:name>Microsoft.Data.SqlClient.SqlConnection</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>SqlConnection</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="NoSqlCmdMode">
         <maml:name>NoPreprocessing</maml:name>
         <maml:description>
           <maml:para>Disables SQLCMD preprocessing support.</maml:para>
         </maml:description>
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
-        <dev:defaultValue>false</dev:defaultValue>
-        <dev:type>SwitchParameter</dev:type>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>NoErrorHandling</maml:name>
         <maml:description>
           <maml:para>Disables the error-handling wrapper.</maml:para>
         </maml:description>
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
-        <dev:defaultValue>false</dev:defaultValue>
-        <dev:type>SwitchParameter</dev:type>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Timeout</maml:name>
         <maml:description>
           <maml:para>The maximum duration to wait for each SQL batch to complete.  If a batch exceeds this duration, the cmdlet ceases waiting on the batch and writes an error to the error stream.  The batch might continue to execute on the database server. </maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>System.TimeSpan</maml:name>
+        </dev:type>
         <dev:defaultValue>00:00:30</dev:defaultValue>
-        <dev:type>TimeSpan</dev:type>
       </command:parameter>
+
     </command:parameters>
 
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>string[]</maml:name>
+          <maml:name>System.String[]</maml:name>
           <maml:uri/>
           <maml:description/>
         </dev:type>
@@ -252,6 +555,7 @@
   </command:command>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- New-SqlContext -->
 
   <command:command>
     <command:details>
@@ -272,71 +576,71 @@
     <command:syntax>
       <command:syntaxItem>
         <maml:name>New-SqlContext</maml:name>
-        <command:parameter required="false" position="0" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="0" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ServerName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="1" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false" >
-            <maml:name>Credential</maml:name>
+        <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
-            <maml:name>EncryptionMode</maml:name>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>EncryptionMode</maml:name>
           <command:parameterValue required="true">{ Default | None }</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="false" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>ReadOnlyIntent</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ClientName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ApplicationName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ConnectTimeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>New-SqlContext</maml:name>
-        <command:parameter required="true" position="named" aliases="none" pipelineInput="true (ByPropertyName)" globbing="false">
+        <command:parameter required="true" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>Azure</maml:name>
         </command:parameter>
-        <command:parameter required="true" position="1" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="true" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="2" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="true" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ServerName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="3" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="4" pipelineInput="true (ByPropertyName)" globbing="false" >
-            <maml:name>Credential</maml:name>
+        <command:parameter required="true" position="4" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ReadOnlyIntent</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ClientName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ApplicationName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false" >
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ConnectTimeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
@@ -344,25 +648,32 @@
     </command:syntax>
 
     <command:parameters>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
         <maml:name>Azure</maml:name>
         <maml:description>
           <maml:para>Specifies that the database is an Azure SQL Database resource.</maml:para>
         </maml:description>
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
-        <dev:defaultValue>false</dev:defaultValue>
-        <dev:type>SwitchParameter</dev:type>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" position="1" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ResourceGroup">
         <maml:name>ResourceGroupName</maml:name>
         <maml:description>
           <maml:para>The name of the Azure resource group containing the virtual database server.  Requires the -Azure switch.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>string</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Server">
         <maml:name>ServerName</maml:name>
         <maml:description>
           <maml:para>The name of the database server.</maml:para>
@@ -370,37 +681,48 @@
           <maml:para>Otherwise, this parameter specifies the DNS name of the database server, optionally suffixed by a backslash and a database engine instance name.  Examples: db.example.com, db.example.com\instance2</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
         <dev:defaultValue>None with -Azure; otherwise, a value specifying the default instance on the local machine</dev:defaultValue>
-        <dev:type>string</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="3" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
         <maml:name>DatabaseName</maml:name>
         <maml:description>
           <maml:para>The name of the database.</maml:para>
           <maml:para>If not specified, connections will attempt to open in the default database of the authenticated user.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>string</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="2" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
         <maml:name>Credential</maml:name>
         <maml:description>
           <maml:para>The credential to use to authenticate with the database server.</maml:para>
           <maml:para>If not specified, connections will attempt to use integrated authentication.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSCredential</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSCredential</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>PSCredential</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Encryption">
         <maml:name>EncryptionMode</maml:name>
         <maml:description>
           <maml:para>The transport encryption to use for connections.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.EncryptionMode</command:parameterValue>
+        <dev:type>
+          <maml:name>PSql.EncryptionMode</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>PSql.EncryptionMode</dev:type>
         <dev:possibleValues>
           <dev:possibleValue>
             <dev:value>Default</dev:value>
@@ -436,41 +758,49 @@
           </dev:possibleValue>
         </dev:possibleValues>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Client">
         <maml:name>ClientName</maml:name>
         <maml:description>
           <maml:para>The name of the client device.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>string</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Application">
         <maml:name>ApplicationName</maml:name>
         <maml:description>
           <maml:para>The name of the client application.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>string</dev:type>
       </command:parameter>
-      <command:parameter required="false" position="named" pipelineInput="true (ByPropertyName)" globbing="false">
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Timeout">
         <maml:name>ConnectTimeout</maml:name>
         <maml:description>
           <maml:para>The duration after which a connection attempt times out.</maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        <dev:type>
+          <maml:name>System.TimeSpan</maml:name>
+        </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-        <dev:type>TimeSpan</dev:type>
       </command:parameter>
+
     </command:parameters>
 
     <command:returnValues>
       <command:returnValue>
         <dev:type>
           <maml:name>PSql.SqlContext</maml:name>
-          <maml:uri/>
-          <maml:description/>
         </dev:type>
         <maml:description>
           <maml:para>An object specifying how to connect to a SQL Server or compatible database.</maml:para>
@@ -485,4 +815,5 @@
       </maml:navigationLink>
     </maml:relatedLinks>
    </command:command>
+
 </helpItems>
