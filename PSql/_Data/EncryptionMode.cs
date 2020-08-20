@@ -1,4 +1,4 @@
-﻿namespace PSql
+namespace PSql
 {
     /// <summary>
     ///   Modes for connection encryption and server identity verification.

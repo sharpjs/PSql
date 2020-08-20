@@ -1,4 +1,4 @@
-﻿namespace PSql
+namespace PSql
 {
     internal static class StringExtensions
     {
