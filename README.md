@@ -10,4 +10,5 @@ Experimental, but based on previous work already used in production code.
 
 Many thanks to the following contributors:
 
-@Jezour: #1
+**@Jezour**:
+  [#1](https://github.com/sharpjs/PSql/pull/1)
