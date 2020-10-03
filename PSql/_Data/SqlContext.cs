@@ -113,11 +113,14 @@ namespace PSql
 
         private (bool, bool) TranslateEncryptionMode(EncryptionMode mode)
         {
+            // tuple: (useEncryption, useServerIdentityCheck)
+
             switch (mode)
             {
-                case EncryptionMode.None:       return (false, false);
-                case EncryptionMode.Unverified: return (true,  false);
-                case EncryptionMode.Full:       return (true,  true );
+                //                                     ( ENCRYPT, VERIFY )
+                case EncryptionMode.None:       return ( false,   false  );
+                case EncryptionMode.Unverified: return ( true,    false  );
+                case EncryptionMode.Full:       return ( true,    true   );
                 case EncryptionMode.Default:
                 default:
                     var isRemote = !GetIsLocal();

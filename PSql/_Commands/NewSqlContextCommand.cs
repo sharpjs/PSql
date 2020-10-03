@@ -90,7 +90,6 @@ namespace PSql
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public Boolean TrustServerCertificate { get; set; }  = true;
 
-
         protected override void ProcessRecord()
         {
             var context = Azure.IsPresent
