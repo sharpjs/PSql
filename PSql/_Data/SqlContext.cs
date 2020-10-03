@@ -31,6 +31,12 @@ namespace PSql
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
+        public bool PersistSecurityInfo { get; set; }
+
+        public bool Pooling { get; set; }
+
+        public bool MultipleActiveResultSets { get; set; }
+
         internal SqlConnection CreateConnection(string databaseName)
         {
             var builder = new SqlConnectionStringBuilder();
@@ -88,7 +94,9 @@ namespace PSql
                 builder.ApplicationIntent = ApplicationIntent;
 
             // Other
-            builder.Pooling = false;
+            builder.PersistSecurityInfo      = PersistSecurityInfo;
+            builder.MultipleActiveResultSets = MultipleActiveResultSets;
+            builder.Pooling                  = Pooling;
         }
 
         protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)

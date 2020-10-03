@@ -96,14 +96,8 @@ namespace PSql
             var context = Azure.IsPresent
                 ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
                 : UseAzureActiveDirectoryPassword.IsPresent
-                 ? new AzureActiveDirectorySqlContext { 
-                     EncryptionMode = EncryptionMode, 
-                     PersistSecurityInfo = PersistSecurityInfo,
-                     Pooling = Pooling,
-                     MultipleActiveResultSets = MultipleActiveResultSets,
-                     TrustServerCertificate = TrustServerCertificate
-                   }
-                : new SqlContext      { EncryptionMode    = EncryptionMode    };
+                    ? new AzureActiveDirectorySqlContext { EncryptionMode = EncryptionMode }
+                    : new SqlContext      { EncryptionMode    = EncryptionMode    };
 
             var credential = Credential.IsNullOrEmpty()
                 ? null
@@ -116,6 +110,10 @@ namespace PSql
             context.ClientName        = ClientName;
             context.ApplicationName   = ApplicationName;
             context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
+
+            context.PersistSecurityInfo      = PersistSecurityInfo;
+            context.Pooling                  = Pooling;
+            context.MultipleActiveResultSets = MultipleActiveResultSets;
 
             WriteObject(context);
         }

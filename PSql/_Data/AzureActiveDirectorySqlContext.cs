@@ -12,14 +12,7 @@ namespace PSql
         public AzureActiveDirectorySqlContext()
         {
             EncryptionMode = EncryptionMode.Full;
-            PersistSecurityInfo = true;
-            Pooling = true;
-            MultipleActiveResultSets = false;
         }
-
-        public bool PersistSecurityInfo { get; set; }
-        public bool Pooling { get; set; }
-        public bool MultipleActiveResultSets { get; set; }
 
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
@@ -28,9 +21,6 @@ namespace PSql
 
             base.BuildConnectionString(builder);
 
-            builder.PersistSecurityInfo = PersistSecurityInfo;
-            builder.Pooling = Pooling;
-            builder.MultipleActiveResultSets = MultipleActiveResultSets;
             builder.Authentication = SqlAuthenticationMethod.ActiveDirectoryPassword;
 
             if (string.IsNullOrEmpty(DatabaseName))
