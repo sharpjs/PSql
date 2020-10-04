@@ -26,7 +26,7 @@ namespace PSql
         SqlPassword = Sam.SqlPassword,
 
         /// <summary>
-        ///   Azure Active Directory password authentication mode. The
+        ///   Azure Active Directory password authentication mode.  The
         ///   <see cref="SqlContext.Credential"/> property should contain the
         ///   name and password of an Azure AD principal.
         /// </summary>
@@ -46,9 +46,9 @@ namespace PSql
         AadInteractive = Sam.ActiveDirectoryInteractive,
 
         /// <summary>
-        ///   Azure Active Directory service principal authentication mode. The
-        ///   <see cref="SqlContext.Credential"/> property contains the client
-        ///   ID and secret of an Azure AD service principal.
+        ///   Azure Active Directory service principal authentication mode.
+        ///   The <see cref="SqlContext.Credential"/> property contains the
+        ///   client ID and secret of an Azure AD service principal.
         /// </summary>
         AadServicePrincipal = Sam.ActiveDirectoryServicePrincipal
     }
