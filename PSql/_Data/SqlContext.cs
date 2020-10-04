@@ -68,14 +68,9 @@ namespace PSql
             //else
             //  server determines database
 
-            // Authentication
-            if (Credential.IsNullOrEmpty())
-                builder.IntegratedSecurity = true;
-            //else
-            //  will provide credential as a SqlCredential object
-
-            // Encryption & Server Identity Check
-            ConfigureEncryption(builder);
+            // Authentication, encryption, and server identity check
+            ConfigureAuthentication (builder);
+            ConfigureEncryption     (builder);
 
             // Timeout
             if (ConnectTimeout.HasValue)
@@ -97,6 +92,15 @@ namespace PSql
             builder.PersistSecurityInfo      = PersistSecurityInfo;
             builder.MultipleActiveResultSets = MultipleActiveResultSets;
             builder.Pooling                  = Pooling;
+        }
+
+        protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        {
+            // Authentication
+            if (Credential.IsNullOrEmpty())
+                builder.IntegratedSecurity = true;
+            //else
+            //  will provide credential as a SqlCredential object
         }
 
         protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)

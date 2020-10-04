@@ -21,6 +21,8 @@ namespace PSql
 
         public string ServerFullName { get; private set; }
 
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
+
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
             if (Credential.IsNullOrEmpty())
@@ -32,6 +34,21 @@ namespace PSql
 
             if (string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = MasterDatabaseName;
+        }
+
+        protected override void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        {
+            builder.Authentication = AuthenticationMode switch
+            {
+                AzureAuthenticationMode.Default when Credential != null
+                    => SqlAuthenticationMethod.SqlPassword,
+
+                AzureAuthenticationMode.Default
+                    => SqlAuthenticationMethod.ActiveDirectoryIntegrated,
+
+                AzureAuthenticationMode mode
+                    => (SqlAuthenticationMethod) mode
+            };
         }
 
         protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
