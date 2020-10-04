@@ -26,9 +26,6 @@ namespace PSql
 
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
-            if (Credential.IsNullOrEmpty())
-                throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
-
             base.BuildConnectionString(builder);
 
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
@@ -39,17 +36,27 @@ namespace PSql
 
         protected override void ConfigureAuthentication(SqlConnectionStringBuilder builder)
         {
-            builder.Authentication = AuthenticationMode switch
+            var auth = (SqlAuthenticationMethod) AuthenticationMode;
+
+            switch (auth)
             {
-                AzureAuthenticationMode.Default when Credential != null
-                    => SqlAuthenticationMethod.SqlPassword,
+                case SqlAuthenticationMethod.NotSpecified when Credential != null:
+                    auth = SqlAuthenticationMethod.SqlPassword;
+                    break;
 
-                AzureAuthenticationMode.Default
-                    => SqlAuthenticationMethod.ActiveDirectoryIntegrated,
+                case SqlAuthenticationMethod.NotSpecified:
+                    auth = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+                    break;
 
-                AzureAuthenticationMode mode
-                    => (SqlAuthenticationMethod) mode
-            };
+                case SqlAuthenticationMethod.SqlPassword:
+                case SqlAuthenticationMethod.ActiveDirectoryPassword:
+                case SqlAuthenticationMethod.ActiveDirectoryServicePrincipal:
+                    if (Credential.IsNullOrEmpty())
+                        throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
+                    break;
+            }
+
+            builder.Authentication = auth;
         }
 
         protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
