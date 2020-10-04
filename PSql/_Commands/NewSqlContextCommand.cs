@@ -42,9 +42,10 @@ namespace PSql
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
-        // -UseAzureActiveDirectoryPassword
-        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter UseAzureActiveDirectoryPassword { get; set; }
+        // -AuthenticationMode
+        [Alias("Auth")]
+        [Parameter(ParameterSetName = AzureName, ValueFromPipelineByPropertyName = true)]
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         // -EncryptionMode
         [Alias("Encryption")]
@@ -93,10 +94,9 @@ namespace PSql
         protected override void ProcessRecord()
         {
             var context = Azure.IsPresent
-                ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
-                : UseAzureActiveDirectoryPassword.IsPresent
-                    ? new AzureActiveDirectorySqlContext { EncryptionMode = EncryptionMode }
-                    : new SqlContext      { EncryptionMode    = EncryptionMode    };
+                ? new AzureSqlContext { ResourceGroupName  = ResourceGroupName  ,
+                                        AuthenticationMode = AuthenticationMode }
+                : new SqlContext      { EncryptionMode     = EncryptionMode     };
 
             var credential = Credential.IsNullOrEmpty()
                 ? null
