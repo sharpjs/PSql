@@ -37,8 +37,8 @@ namespace PSql
         public string DatabaseName { get; set; }
 
         // -Credential
-        [Parameter(ParameterSetName = GenericName, Position = 2,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 4, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 2, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 4, ValueFromPipelineByPropertyName = true)]
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
