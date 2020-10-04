@@ -14,6 +14,7 @@ namespace PSql
     {
         public AzureSqlContext()
         {
+            // Encryption is required for connections to Azure SQL Database
             EncryptionMode = EncryptionMode.Full;
         }
 
@@ -53,7 +54,11 @@ namespace PSql
 
         protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
         {
+            // Encryption is required for connections to Azure SQL Database
             builder.Encrypt = true;
+
+            // Always verify server identity
+            // builder.TrustServerCertificate defaults to false
         }
 
         private string ResolveServerFullName()
