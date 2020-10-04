@@ -68,7 +68,7 @@ namespace PSql
             //else
             //  server determines database
 
-            // Authentication, encryption, and server identity check
+            // Security
             ConfigureAuthentication (builder);
             ConfigureEncryption     (builder);
 
