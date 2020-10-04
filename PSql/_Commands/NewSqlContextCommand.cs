@@ -75,17 +75,18 @@ namespace PSql
         [ValidateRange("0:00:00", "24855.03:14:07")]
         public TimeSpan? ConnectTimeout { get; set; }
 
-        // -PersistSecurityInfo
+        // -ExposeCredentialInConnectionString
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public Boolean PersistSecurityInfo { get; set; } = true;
+        public SwitchParameter ExposeCredentialInConnectionString { get; set; }
 
         // -Pooling
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public Boolean Pooling { get; set; }  = true;
+        public SwitchParameter Pooling { get; set; }
 
         // -MultipleActiveResultSets
+        [Alias("Mars")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public Boolean MultipleActiveResultSets { get; set; }  = true;
+        public SwitchParameter MultipleActiveResultSets { get; set; }  = true;
 
         protected override void ProcessRecord()
         {
@@ -106,9 +107,9 @@ namespace PSql
             context.ApplicationName   = ApplicationName;
             context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
 
-            context.PersistSecurityInfo      = PersistSecurityInfo;
-            context.Pooling                  = Pooling;
-            context.MultipleActiveResultSets = MultipleActiveResultSets;
+            context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
+            context.EnableConnectionPooling            = Pooling;
+            context.EnableMultipleActiveResultSets     = MultipleActiveResultSets;
 
             WriteObject(context);
         }

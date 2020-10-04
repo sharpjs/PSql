@@ -31,11 +31,11 @@ namespace PSql
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
-        public bool PersistSecurityInfo { get; set; }
+        public bool ExposeCredentialInConnectionString { get; set; }
 
-        public bool Pooling { get; set; }
+        public bool EnableConnectionPooling { get; set; }
 
-        public bool MultipleActiveResultSets { get; set; }
+        public bool EnableMultipleActiveResultSets { get; set; }
 
         internal SqlConnection CreateConnection(string databaseName)
         {
@@ -89,9 +89,9 @@ namespace PSql
                 builder.ApplicationIntent = ApplicationIntent;
 
             // Other
-            builder.PersistSecurityInfo      = PersistSecurityInfo;
-            builder.MultipleActiveResultSets = MultipleActiveResultSets;
-            builder.Pooling                  = Pooling;
+            builder.PersistSecurityInfo      = ExposeCredentialInConnectionString;
+            builder.MultipleActiveResultSets = EnableMultipleActiveResultSets;
+            builder.Pooling                  = EnableConnectionPooling;
         }
 
         protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
