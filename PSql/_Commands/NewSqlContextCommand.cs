@@ -18,29 +18,34 @@ namespace PSql
 
         // -ResourceGroupName
         [Alias("ResourceGroup")]
-        [Parameter(ParameterSetName = AzureName, Position = 1, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string ResourceGroupName { get; set; }
 
         // -ServerName
         [Alias("Server")]
         [Parameter(ParameterSetName = GenericName, Position = 0,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 1, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string ServerName { get; set; }
 
         // -DatabaseName
         [Alias("Database")]
         [Parameter(ParameterSetName = GenericName, Position = 1,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 3, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true)]
         [ValidateNotNullOrEmpty]
         public string DatabaseName { get; set; }
 
         // -Credential
-        [Parameter(ParameterSetName = GenericName, Position = 2,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 4, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 2, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 3, ValueFromPipelineByPropertyName = true)]
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
+
+        // -AuthenticationMode
+        [Alias("Auth")]
+        [Parameter(ParameterSetName = AzureName, ValueFromPipelineByPropertyName = true)]
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         // -EncryptionMode
         [Alias("Encryption")]
@@ -70,11 +75,25 @@ namespace PSql
         [ValidateRange("0:00:00", "24855.03:14:07")]
         public TimeSpan? ConnectTimeout { get; set; }
 
+        // -ExposeCredentialInConnectionString
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter ExposeCredentialInConnectionString { get; set; }
+
+        // -Pooling
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Pooling { get; set; }
+
+        // -MultipleActiveResultSets
+        [Alias("Mars")]
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter MultipleActiveResultSets { get; set; }  = true;
+
         protected override void ProcessRecord()
         {
             var context = Azure.IsPresent
-                ? new AzureSqlContext { ResourceGroupName = ResourceGroupName }
-                : new SqlContext      { EncryptionMode    = EncryptionMode    };
+                ? new AzureSqlContext { ResourceGroupName  = ResourceGroupName  ,
+                                        AuthenticationMode = AuthenticationMode }
+                : new SqlContext      { EncryptionMode     = EncryptionMode     };
 
             var credential = Credential.IsNullOrEmpty()
                 ? null
@@ -87,6 +106,10 @@ namespace PSql
             context.ClientName        = ClientName;
             context.ApplicationName   = ApplicationName;
             context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
+
+            context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
+            context.EnableConnectionPooling            = Pooling;
+            context.EnableMultipleActiveResultSets     = MultipleActiveResultSets;
 
             WriteObject(context);
         }

@@ -14,6 +14,7 @@ namespace PSql
     {
         public AzureSqlContext()
         {
+            // Encryption is required for connections to Azure SQL Database
             EncryptionMode = EncryptionMode.Full;
         }
 
@@ -21,11 +22,10 @@ namespace PSql
 
         public string ServerFullName { get; private set; }
 
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
+
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
-            if (Credential.IsNullOrEmpty())
-                throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
-
             base.BuildConnectionString(builder);
 
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
@@ -34,13 +34,56 @@ namespace PSql
                 builder.InitialCatalog = MasterDatabaseName;
         }
 
+        protected override void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        {
+            var auth = (SqlAuthenticationMethod) AuthenticationMode;
+
+            switch (auth)
+            {
+                case SqlAuthenticationMethod.NotSpecified when Credential != null:
+                    auth = SqlAuthenticationMethod.SqlPassword;
+                    break;
+
+                case SqlAuthenticationMethod.NotSpecified:
+                    auth = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+                    break;
+
+                case SqlAuthenticationMethod.SqlPassword:
+                case SqlAuthenticationMethod.ActiveDirectoryPassword:
+                case SqlAuthenticationMethod.ActiveDirectoryServicePrincipal:
+                    if (Credential.IsNullOrEmpty())
+                        throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
+                    break;
+            }
+
+            builder.Authentication = auth;
+        }
+
         protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
         {
+            // Encryption is required for connections to Azure SQL Database
             builder.Encrypt = true;
+
+            // Always verify server identity
+            // builder.TrustServerCertificate defaults to false
         }
 
         private string ResolveServerFullName()
         {
+            // Check if ServerName should be used as ServerFullName verbatim
+
+            if (string.IsNullOrEmpty(ServerName))
+                throw new InvalidOperationException("ServerName is required.");
+
+            var shouldUseServerNameVerbatim
+                =  ServerName.Contains('.', StringComparison.Ordinal)
+                || string.IsNullOrEmpty(ResourceGroupName);
+
+            if (shouldUseServerNameVerbatim)
+                return ServerName;
+
+            // Resolve ServerFullName using Az cmdlets
+
             var value = ScriptBlock
                 .Create("param ($x) Get-AzSqlServer @x -ea Stop")
                 .Invoke(new Dictionary<string, object>

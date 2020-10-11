@@ -31,6 +31,12 @@ namespace PSql
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
+        public bool ExposeCredentialInConnectionString { get; set; }
+
+        public bool EnableConnectionPooling { get; set; }
+
+        public bool EnableMultipleActiveResultSets { get; set; }
+
         internal SqlConnection CreateConnection(string databaseName)
         {
             var builder = new SqlConnectionStringBuilder();
@@ -62,14 +68,9 @@ namespace PSql
             //else
             //  server determines database
 
-            // Authentication
-            if (Credential.IsNullOrEmpty())
-                builder.IntegratedSecurity = true;
-            //else
-            //  will provide credential as a SqlCredential object
-
-            // Encryption & Server Identity Check
-            ConfigureEncryption(builder);
+            // Security
+            ConfigureAuthentication (builder);
+            ConfigureEncryption     (builder);
 
             // Timeout
             if (ConnectTimeout.HasValue)
@@ -88,7 +89,18 @@ namespace PSql
                 builder.ApplicationIntent = ApplicationIntent;
 
             // Other
-            builder.Pooling = false;
+            builder.PersistSecurityInfo      = ExposeCredentialInConnectionString;
+            builder.MultipleActiveResultSets = EnableMultipleActiveResultSets;
+            builder.Pooling                  = EnableConnectionPooling;
+        }
+
+        protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        {
+            // Authentication
+            if (Credential.IsNullOrEmpty())
+                builder.IntegratedSecurity = true;
+            //else
+            //  will provide credential as a SqlCredential object
         }
 
         protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)
@@ -105,11 +117,14 @@ namespace PSql
 
         private (bool, bool) TranslateEncryptionMode(EncryptionMode mode)
         {
+            // tuple: (useEncryption, useServerIdentityCheck)
+
             switch (mode)
             {
-                case EncryptionMode.None:       return (false, false);
-                case EncryptionMode.Unverified: return (true,  false);
-                case EncryptionMode.Full:       return (true,  true );
+                //                                     ( ENCRYPT, VERIFY )
+                case EncryptionMode.None:       return ( false,   false  );
+                case EncryptionMode.Unverified: return ( true,    false  );
+                case EncryptionMode.Full:       return ( true,    true   );
                 case EncryptionMode.Default:
                 default:
                     var isRemote = !GetIsLocal();

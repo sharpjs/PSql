@@ -607,27 +607,40 @@
           <maml:name>ConnectTimeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
         </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>ExposeCredentialInConnectionString</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>Pooling</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>MultipleActiveResultSets</maml:name>
+        </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem>
         <maml:name>New-SqlContext</maml:name>
         <command:parameter required="true" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>Azure</maml:name>
         </command:parameter>
-        <command:parameter required="true" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="true" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ServerName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="4" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="true" position="3" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>AuthenticationMode</maml:name>
+          <command:parameterValue required="true">{ Default | SqlPassword | AadPassword | AadIntegrated | AadInteractive | AadServicePrincipal }</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ReadOnlyIntent</maml:name>
@@ -643,6 +656,15 @@
         <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ConnectTimeout</maml:name>
           <command:parameterValue required="true">TimeSpan</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>ExposeCredentialInConnectionString</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>Pooling</maml:name>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>MultipleActiveResultSets</maml:name>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
@@ -661,7 +683,7 @@
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ResourceGroup">
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ResourceGroup">
         <maml:name>ResourceGroupName</maml:name>
         <maml:description>
           <maml:para>The name of the Azure resource group containing the virtual database server.  Requires the -Azure switch.</maml:para>
@@ -673,11 +695,11 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Server">
+      <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Server">
         <maml:name>ServerName</maml:name>
         <maml:description>
           <maml:para>The name of the database server.</maml:para>
-          <maml:para>When -Azure is specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
+          <maml:para>When both -Azure and -ResourceGroupName are specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
           <maml:para>Otherwise, this parameter specifies the DNS name of the database server, optionally suffixed by a backslash and a database engine instance name.  Examples: db.example.com, db.example.com\instance2</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -687,7 +709,7 @@
         <dev:defaultValue>None with -Azure; otherwise, a value specifying the default instance on the local machine</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
+      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
         <maml:name>DatabaseName</maml:name>
         <maml:description>
           <maml:para>The name of the database.</maml:para>
@@ -700,7 +722,7 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
+      <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
         <maml:name>Credential</maml:name>
         <maml:description>
           <maml:para>The credential to use to authenticate with the database server.</maml:para>
@@ -711,6 +733,68 @@
           <maml:name>System.Management.Automation.PSCredential</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Auth">
+        <maml:name>AuthenticationMode</maml:name>
+        <maml:description>
+          <maml:para>The method to use to authenticate with Azure SQL Database or compatible database.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">PSql.AuthenticationMode</command:parameterValue>
+        <dev:type>
+          <maml:name>PSql.AuthenticationMode</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+        <dev:possibleValues>
+          <dev:possibleValue>
+            <dev:value>Default</dev:value>
+            <maml:description>
+              <maml:para>
+                The default authentication mode.  Equivalent to SqlPassword if -Credential is specified, and AadIntegrated otherwise.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>SqlPassword</dev:value>
+            <maml:description>
+              <maml:para>
+                SQL authentication mode.  -Credential is required and should match the name and password stored for a server login or contained database user.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadPassword</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory password authentication mode.  -Credential is required and should match the name and password of an Azure AD principal.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadIntegrated</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory integrated authentication mode.  The identity of the process should be an Azure AD principal.  -Credential is not required.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadInteractive</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory interactive authentication mode, also known as Universal Authentication with MFA.  Authentication uses an interactive flow and supports multiple factors.  -Credential is not required.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadServicePrincipal</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory service principal authentication mode.  -Credential is required and should match client ID and secret of an Azure AD service principal.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+        </dev:possibleValues>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Encryption">
@@ -793,6 +877,43 @@
           <maml:name>System.TimeSpan</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
+        <maml:name>ExposeCredentialInConnectionString</maml:name>
+        <maml:description>
+          <maml:para>Specifies that the credential used for authentication should be exposed in connections' ConnectionString property.  This is a potential security risk, so use only when necessary.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
+        <maml:name>Pooling</maml:name>
+        <maml:description>
+          <maml:para>Specifies that connections may be pooled to reduce setup and teardown time.  Pooling is useful when making many connections with identical connection strings.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Mars">
+        <maml:name>MultipleActiveResultSets</maml:name>
+        <maml:description>
+          <maml:para>Specifies that connections support execution of multiple batches concurrently, with limitations.</maml:para>
+          <maml:para>For more informatino, see Multiple Active Result Sets (MARS): https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars .</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
 
     </command:parameters>
