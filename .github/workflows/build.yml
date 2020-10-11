@@ -44,7 +44,7 @@ jobs:
           -p:RepositoryCommit=${{ github.sha }}
 
       - name: Build
-        uses: dotnet build -c Release
+        run: dotnet build -c Release
 
       - name: Save Package
         uses: actions/upload-artifact@v2
