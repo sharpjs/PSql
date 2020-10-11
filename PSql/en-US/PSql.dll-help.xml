@@ -622,19 +622,19 @@
         <command:parameter required="true" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>Azure</maml:name>
         </command:parameter>
-        <command:parameter required="true" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="true" position="1" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ServerName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="true" position="4" pipelineInput="True (ByPropertyName)" globbing="false">
+        <command:parameter required="true" position="3" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
@@ -683,7 +683,7 @@
         <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ResourceGroup">
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ResourceGroup">
         <maml:name>ResourceGroupName</maml:name>
         <maml:description>
           <maml:para>The name of the Azure resource group containing the virtual database server.  Requires the -Azure switch.</maml:para>
@@ -695,11 +695,11 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Server">
+      <command:parameter required="false" position="1" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Server">
         <maml:name>ServerName</maml:name>
         <maml:description>
           <maml:para>The name of the database server.</maml:para>
-          <maml:para>When -Azure is specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
+          <maml:para>When both -Azure and -ResourceGroupName are specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
           <maml:para>Otherwise, this parameter specifies the DNS name of the database server, optionally suffixed by a backslash and a database engine instance name.  Examples: db.example.com, db.example.com\instance2</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -709,7 +709,7 @@
         <dev:defaultValue>None with -Azure; otherwise, a value specifying the default instance on the local machine</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
+      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
         <maml:name>DatabaseName</maml:name>
         <maml:description>
           <maml:para>The name of the database.</maml:para>
@@ -722,7 +722,7 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
+      <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
         <maml:name>Credential</maml:name>
         <maml:description>
           <maml:para>The credential to use to authenticate with the database server.</maml:para>

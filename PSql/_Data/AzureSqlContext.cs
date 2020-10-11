@@ -70,6 +70,20 @@ namespace PSql
 
         private string ResolveServerFullName()
         {
+            // Check if ServerName should be used as ServerFullName verbatim
+
+            if (string.IsNullOrEmpty(ServerName))
+                throw new InvalidOperationException("ServerName is required.");
+
+            var shouldUseServerNameVerbatim
+                =  ServerName.Contains('.', StringComparison.Ordinal)
+                || string.IsNullOrEmpty(ResourceGroupName);
+
+            if (shouldUseServerNameVerbatim)
+                return ServerName;
+
+            // Resolve ServerFullName using Az cmdlets
+
             var value = ScriptBlock
                 .Create("param ($x) Get-AzSqlServer @x -ea Stop")
                 .Invoke(new Dictionary<string, object>
