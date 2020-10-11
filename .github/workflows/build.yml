@@ -50,4 +50,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: PSql ${{ steps.stamp.outputs.version }}
-          path: dist\PSql.${{ steps.stamp.outputs.version }}.nupkg
+          path: dist/PSql.${{ steps.stamp.outputs.version }}.nupkg
+          if-no-files-found: error
