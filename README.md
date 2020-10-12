@@ -4,7 +4,7 @@ Cmdlets for SQL Server and Azure SQL databases.
 
 ## Status
 
-![Build](https://github.com/sharpjs/PSql/workflows/Build/badge.svg)
+[![Build](https://github.com/sharpjs/PSql/workflows/Build/badge.svg)](https://github.com/sharpjs/PSql/actions)
 
 This is a new C# rewrite of a previous script module already used in production
 code.  PSql is moving slowly towards a 2.0 release, which will occur when
@@ -15,7 +15,8 @@ documentation and test coverage is complete.
 PSql requires PowerShell 7.0 or later and should work on any platform where
 PowerShell runs.
 
-To install PSql, run this PowerShell command:
+To install PSql from [PowerShell Gallery](https://www.powershellgallery.com/packages/PSql),
+run this PowerShell command:
 
 ```powershell
 Install-Module PSql -AllowPrerelease
