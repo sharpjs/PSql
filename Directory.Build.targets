@@ -40,7 +40,7 @@
 
   <!-- Versioning -->
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="0.0.0-pre.6">
+    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="0.0.0-pre.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
