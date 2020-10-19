@@ -15,7 +15,7 @@ namespace PSql
 
         public SqlCmdPreprocessor()
         {
-            _variables = new Dictionary<string, string>();
+            _variables = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public IDictionary<string, string> Variables

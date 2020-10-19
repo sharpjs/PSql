@@ -213,7 +213,7 @@ namespace PSql
             };
 
             var batches = preprocessor.Process(
-                Lines(eol, eof, "a $(foo) b")
+                Lines(eol, eof, "a $(FOO) b")
             );
 
             batches.Should().Equal(
@@ -256,7 +256,7 @@ namespace PSql
             };
 
             var batches = preprocessor.Process(
-                Lines(eol, eof, "a 'b '' $(foo) c' d")
+                Lines(eol, eof, "a 'b '' $(fOO) c' d")
             );
 
             batches.Should().Equal(
@@ -274,7 +274,7 @@ namespace PSql
             };
 
             var batches = preprocessor.Process(
-                Lines(eol, eof, "a [b ]] $(foo) c] d")
+                Lines(eol, eof, "a [b ]] $(fOo) c] d")
             );
 
             batches.Should().Equal(
@@ -316,7 +316,7 @@ namespace PSql
                 Lines(eol, eof,
                     @"a",
                     @":setvar f0ö_Бар-baß qux~`!@#$%^&*()-_=+[{]}\|;:',<.>/?ほげ",
-                    @"b $(f0ö_Бар-baß) c"
+                    @"b $(F0ö_Бар-baß) c"
                 )
             );
 
@@ -365,7 +365,7 @@ namespace PSql
                     @":setvar f0ö_Бар-baß ""qux ~`!@#$%^&*()-_=+[{]}\|;:'"""",<.>/? corge ",
                     @"",
                     @"「ほげ」 grault""",
-                    @"b $(f0ö_Бар-baß) c"
+                    @"b $(F0ö_Бар-baß) c"
                 )
             );
 
