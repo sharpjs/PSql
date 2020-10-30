@@ -30,20 +30,16 @@ jobs:
       with:
         dotnet-version: 3.1.x
 
-    - name: Restore Packages for Stamp
-      run: dotnet restore .root.targets
-
     - name: Stamp Version
       id: stamp
       run: >
-        dotnet msbuild .root.targets
-        -t:Stamp
-        -p:Configuration=Release
+        dotnet build .root.targets -c Release
+        -p:StampOnBuild=true
         -p:Branch=${{ github.ref }}
         -p:Counter=${{ github.run_number }}
         -p:RepositoryCommit=${{ github.sha }}
 
-    - name: Build
+    - name: Build + Package
       run: dotnet build -c Release
 
     - name: Save Package
