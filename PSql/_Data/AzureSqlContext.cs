@@ -18,6 +18,8 @@ namespace PSql
             EncryptionMode = EncryptionMode.Full;
         }
 
+        public sealed override bool IsAzure => true;
+
         public string ResourceGroupName { get; set; }
 
         public string ServerFullName { get; private set; }

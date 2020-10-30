@@ -37,6 +37,12 @@ namespace PSql
 
         public bool EnableMultipleActiveResultSets { get; set; }
 
+        public virtual bool IsAzure => false;
+
+        public AzureSqlContext AsAzure => this as AzureSqlContext;
+
+        public bool IsLocal => GetIsLocal();
+
         internal SqlConnection CreateConnection(string databaseName)
         {
             var builder = new SqlConnectionStringBuilder();
