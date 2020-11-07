@@ -25,6 +25,8 @@
   <ItemGroup Condition="$(IsPackable)">
     <None Include="..\icon.png" Link="Properties\icon.png"
           Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
+    <None Include="..\LICENSE.txt" Link="Properties\LICENSE.txt"
+          Pack="true" PackagePath="$(PackageLicenseFile)" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
   <!-- Visibility -->
