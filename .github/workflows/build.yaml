@@ -6,12 +6,14 @@ name: Build
 on:
   push:
     branches:
-    - master
+      - master
+      - release/*
     tags:
-    - release/*
+      - release/*
   pull_request:
     branches:
-    - '*'
+      - master
+      - release/*
 
 env:
   # Minimize noise from dotnet CLI
