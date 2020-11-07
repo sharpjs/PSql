@@ -24,29 +24,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Check Out Code
-      uses: actions/checkout@v2
+      - name: Check Out Code
+        uses: actions/checkout@v2
 
-    - name: Configure .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.x
+      - name: Configure .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
 
-    - name: Stamp Version
-      id: stamp
-      run: >
-        dotnet build .root.targets -c Release
-        -p:StampOnBuild=true
-        -p:Branch=${{ github.ref }}
-        -p:Counter=${{ github.run_number }}
-        -p:RepositoryCommit=${{ github.sha }}
+      - name: Stamp Version
+        id: stamp
+        run: >
+          dotnet build .root.targets -c Release
+          -p:StampOnBuild=true
+          -p:Branch=${{ github.ref }}
+          -p:Counter=${{ github.run_number }}
+          -p:RepositoryCommit=${{ github.sha }}
 
-    - name: Build + Package
-      run: dotnet build -c Release
+      - name: Build + Package
+        run: dotnet build -c Release
 
-    - name: Save Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: PSql ${{ steps.stamp.outputs.version }}
-        path: dist/PSql.${{ steps.stamp.outputs.version }}.nupkg
-        if-no-files-found: error
+      - name: Save Package
+        uses: actions/upload-artifact@v2
+        with:
+          name: PSql ${{ steps.stamp.outputs.version }}
+          path: dist/PSql.${{ steps.stamp.outputs.version }}.nupkg
+          if-no-files-found: error
