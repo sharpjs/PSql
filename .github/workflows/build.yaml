@@ -52,7 +52,8 @@ jobs:
 
       - name: Save Package
         uses: actions/upload-artifact@v2
+        #url: https://github.com/actions/upload-artifact
         with:
-          name: PSql ${{ steps.stamp.outputs.version }}
-          path: dist/PSql.${{ steps.stamp.outputs.version }}.nupkg
+          name: Packages
+          path: ${{ runner.temp }}/dist
           if-no-files-found: error
