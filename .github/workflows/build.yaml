@@ -42,8 +42,13 @@ jobs:
           -p:Counter=${{ github.run_number }}
           -p:RepositoryCommit=${{ github.sha }}
 
-      - name: Build + Package
-        run: dotnet build -c Release
+      - name: Restore NuGet Packages
+        run: dotnet restore
+
+      - name: Build
+        run: >
+          dotnet build --no-restore -c Release
+          -p:PackageOutputPath=${{ runner.temp }}/dist
 
       - name: Save Package
         uses: actions/upload-artifact@v2
