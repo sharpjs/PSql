@@ -23,3 +23,7 @@ charset = utf-8-bom
 
 [*.{config,json,jsonc,md,*proj,props,runsettings,targets,xml,yaml,yml}]
 indent_size = 2
+
+[*.cs]
+csharp_space_after_cast = true
+dotnet_sort_system_directives_first = true
