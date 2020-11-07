@@ -1,7 +1,3 @@
-# Visual Studio local files
-/.vs/
-*.user
-
 # Build products
 obj/
 bin/
@@ -9,6 +5,10 @@ bin/
 /coverage/
 /Stamp.props
 PSql.psd1
+
+# Visual Studio
+.vs/
+*.user
 
 # Temporary files
 *.log
