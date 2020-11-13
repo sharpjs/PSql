@@ -28,19 +28,44 @@ namespace PSql
     /// </summary>
     public class AzureSqlContext : SqlContext
     {
+        /// <summary>
+        ///   Initializes a new <see cref="AzureSqlContext"/> instance with
+        ///   default property values.
+        /// </summary>
         public AzureSqlContext()
         {
             // Encryption is required for connections to Azure SQL Database
             EncryptionMode = EncryptionMode.Full;
         }
 
+        /// <summary>
+        ///   Initializes a new <see cref="AzureSqlContext"/> instance by
+        ///   copying property values from the specified instance.
+        /// </summary>
+        /// <param name="other">
+        ///   The instance from which to copy property values.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="other"/> is <c>null</c>.
+        /// </exception>
+        public AzureSqlContext(AzureSqlContext other) : base(other)
+        {
+            ResourceGroupName  = other.ResourceGroupName;
+            ServerFullName     = other.ServerFullName;
+            AuthenticationMode = other.AuthenticationMode;
+        }
+
         public sealed override bool IsAzure => true;
 
         public string ResourceGroupName { get; set; }
 
-        public string ServerFullName { get; private set; }
+        public string ServerFullName { get; internal set; }
 
         public AzureAuthenticationMode AuthenticationMode { get; set; }
+
+        public new AzureSqlContext Clone() => (AzureSqlContext) CloneCore();
+
+        protected override SqlContext CloneCore() => new AzureSqlContext(this);
 
         protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
         {

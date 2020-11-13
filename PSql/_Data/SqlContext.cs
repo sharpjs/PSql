@@ -25,12 +25,46 @@ namespace PSql
     ///   Information necessary to connect to a SQL Server or compatible
     ///   database.
     /// </summary>
-    public class SqlContext
+    public class SqlContext : ICloneable
     {
         protected const string
             LocalServerName    = ".",
             MasterDatabaseName = "master";
- 
+
+        /// <summary>
+        ///   Initializes a new <see cref="SqlContext"/> instance with default
+        ///   property values.
+        /// </summary>
+        public SqlContext() { }
+
+        /// <summary>
+        ///   Initializes a new <see cref="SqlContext"/> instance by copying
+        ///   property values from the specified instance.
+        /// </summary>
+        /// <param name="other">
+        ///   The instance from which to copy property values.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="other"/> is <c>null</c>.
+        /// </exception>
+        public SqlContext(SqlContext other)
+        {
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
+            ServerName                         = other.ServerName;
+            DatabaseName                       = other.DatabaseName;
+            Credential                         = other.Credential;
+            EncryptionMode                     = other.EncryptionMode;
+            ConnectTimeout                     = other.ConnectTimeout;
+            ClientName                         = other.ClientName;
+            ApplicationName                    = other.ApplicationName;
+            ApplicationIntent                  = other.ApplicationIntent;
+            ExposeCredentialInConnectionString = other.ExposeCredentialInConnectionString;
+            EnableConnectionPooling            = other.EnableConnectionPooling;
+            EnableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
+        }
+
         public string ServerName { get; set; }
 
         public string DatabaseName { get; set; }
@@ -58,6 +92,12 @@ namespace PSql
         public AzureSqlContext AsAzure => this as AzureSqlContext;
 
         public bool IsLocal => GetIsLocal();
+
+        public SqlContext Clone() => CloneCore();
+
+        object ICloneable.Clone() => CloneCore();
+
+        protected virtual SqlContext CloneCore() => new SqlContext(this);
 
         internal SqlConnection CreateConnection(string databaseName)
         {
