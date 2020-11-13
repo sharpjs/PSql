@@ -17,7 +17,7 @@
   -->
 
   <PropertyGroup>
-    <Description>Unit tests for PSql</Description>
+    <Description>Automated tests for PSql</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
   </PropertyGroup>

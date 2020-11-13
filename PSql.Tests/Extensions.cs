@@ -1,5 +1,6 @@
 using System;
 using System.Security;
+using System.Security.Cryptography;
 
 namespace PSql
 {
@@ -24,6 +25,26 @@ namespace PSql
                 secure.Dispose();
                 throw;
             }
+        }
+
+        public static SecureString GeneratePassword()
+        {
+            const string Chars  = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,";
+            const int    Length = 24;
+
+            Span<byte> bytes = stackalloc byte[Length];
+            RandomNumberGenerator.Fill(bytes);
+
+            var password = new SecureString();
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                var n = bytes[i] & 0b0011_1111;
+                var c = Chars[n];
+                password.AppendChar(c);
+            }
+
+            return password;
         }
     }
 }
