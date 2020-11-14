@@ -1,30 +1,18 @@
 using System;
+using System.Net;
 using System.Security;
 using System.Security.Cryptography;
 
 namespace PSql
 {
-    internal static class Extensions
+    internal static class SecureStringHelpers
     {
-        public static SecureString Secure(this string self)
+        public static SecureString Secure(this string s)
         {
-            if (self is null)
-                throw new ArgumentNullException(nameof(self));
+            if (s is null)
+                throw new ArgumentNullException(nameof(s));
 
-            var secure = new SecureString();
-
-            try
-            {
-                foreach (var c in self)
-                    secure.AppendChar(c);
-
-                return secure;
-            }
-            catch
-            {
-                secure.Dispose();
-                throw;
-            }
+            return new NetworkCredential("", s).SecurePassword;
         }
 
         public static SecureString GeneratePassword()
