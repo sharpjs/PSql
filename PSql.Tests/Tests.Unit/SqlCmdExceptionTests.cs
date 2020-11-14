@@ -16,7 +16,7 @@
 
 using NUnit.Framework;
 
-namespace PSql
+namespace PSql.Tests.Unit
 {
     [TestFixture]
     [Parallelizable(ParallelScope.All)]

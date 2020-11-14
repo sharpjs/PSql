@@ -24,7 +24,7 @@ using NUnit.Framework;
 
 #nullable enable
 
-namespace PSql
+namespace PSql.Tests
 {
     internal static class ScriptExecutor
     {

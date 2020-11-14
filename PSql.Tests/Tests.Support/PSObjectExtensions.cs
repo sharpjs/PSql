@@ -21,7 +21,7 @@ using FluentAssertions;
 
 #nullable enable
 
-namespace PSql
+namespace PSql.Tests
 {
     internal static class PSObjectExtensions
     {

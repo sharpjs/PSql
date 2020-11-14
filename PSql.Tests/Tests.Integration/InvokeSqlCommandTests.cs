@@ -21,13 +21,14 @@ using System.Management.Automation;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
-using static System.Data.SqlTypes.SqlCompareOptions;
-using static PSql.ScriptExecutor;
 
 #nullable enable
 
-namespace PSql
+namespace PSql.Tests.Integration
 {
+    using static ScriptExecutor;
+    using static SqlCompareOptions;
+
     [TestFixture]
     [Parallelizable(ParallelScope.All)]
     public class InvokeSqlCommandTests

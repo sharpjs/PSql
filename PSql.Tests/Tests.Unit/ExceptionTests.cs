@@ -22,7 +22,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using static System.Reflection.BindingFlags;
 
-namespace PSql
+namespace PSql.Tests.Unit
 {
     public abstract class ExceptionTests<T>
         where T : Exception

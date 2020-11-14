@@ -19,7 +19,7 @@ using System.IO;
 using System.Text;
 using IO = System.IO;
 
-namespace PSql
+namespace PSql.Tests
 {
     internal class TemporaryFile : IDisposable
     {
