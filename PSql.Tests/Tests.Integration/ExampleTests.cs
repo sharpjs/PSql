@@ -34,7 +34,7 @@ namespace PSql.Tests.Integration
             ");
         }
 
-        private static SqlServer Server => IntegrationTestsSetup.SqlServer;
+        private static SqlServer Server => IntegrationTestsSetup.SqlServer!;
 
         private readonly string Prelude = Invariant($@"
             $Credential = [PSCredential]::new(

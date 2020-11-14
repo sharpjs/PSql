@@ -18,8 +18,6 @@ using System;
 using FluentAssertions;
 using NUnit.Framework;
 
-#nullable enable
-
 namespace PSql.Tests.Unit
 {
     [TestFixture]

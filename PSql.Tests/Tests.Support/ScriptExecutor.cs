@@ -22,8 +22,6 @@ using System.Management.Automation.Runspaces;
 using Microsoft.PowerShell;
 using NUnit.Framework;
 
-#nullable enable
-
 namespace PSql.Tests
 {
     internal static class ScriptExecutor

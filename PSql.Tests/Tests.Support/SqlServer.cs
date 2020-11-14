@@ -22,8 +22,6 @@ using System.Text;
 using FluentAssertions;
 using Newtonsoft.Json;
 
-#nullable enable
-
 namespace PSql.Tests
 {
     using static SecureStringHelpers;

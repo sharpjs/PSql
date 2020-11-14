@@ -34,7 +34,7 @@ namespace PSql.Tests.Unit
         [Test]
         public virtual void Construct_Default()
         {
-            var exception = (T) Activator.CreateInstance(typeof(T));
+            var exception = (T) Activator.CreateInstance(typeof(T))!;
 
             exception.Message       .Should().NotBeNullOrWhiteSpace();
             exception.InnerException.Should().BeNull();
@@ -43,7 +43,7 @@ namespace PSql.Tests.Unit
         [Test]
         public virtual void Construct_Message()
         {
-            var exception = (T) Activator.CreateInstance(typeof(T), ArcaneMessage);
+            var exception = (T) Activator.CreateInstance(typeof(T), ArcaneMessage)!;
 
             exception.Message       .Should().BeSameAs(ArcaneMessage);
             exception.InnerException.Should().BeNull();
@@ -52,7 +52,7 @@ namespace PSql.Tests.Unit
         [Test]
         public virtual void Construct_Message_Null()
         {
-            var exception = (T) Activator.CreateInstance(typeof(T), null as string);
+            var exception = (T) Activator.CreateInstance(typeof(T), null as string)!;
 
             exception.Message       .Should().NotBeNullOrWhiteSpace();
             exception.InnerException.Should().BeNull();
@@ -62,7 +62,7 @@ namespace PSql.Tests.Unit
         public virtual void Construct_MessageAndInnerException()
         {
             var innerException = new InvalidProgramException();
-            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, innerException);
+            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, innerException)!;
 
             exception.Message       .Should().BeSameAs(ArcaneMessage);
             exception.InnerException.Should().BeSameAs(innerException);
@@ -72,7 +72,7 @@ namespace PSql.Tests.Unit
         public virtual void Construct_MessageAndInnerException_NullMessage()
         {
             var innerException = new InvalidProgramException();
-            var exception      = (T) Activator.CreateInstance(typeof(T), null as string, innerException);
+            var exception      = (T) Activator.CreateInstance(typeof(T), null as string, innerException)!;
 
             exception.Message       .Should().NotBeNullOrWhiteSpace();
             exception.InnerException.Should().BeSameAs(innerException);
@@ -82,7 +82,7 @@ namespace PSql.Tests.Unit
         public virtual void Construct_MessageAndInnerException_NullInnerException()
         {
             var innerException = new InvalidProgramException();
-            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, null as Exception);
+            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, null as Exception)!;
 
             exception.Message       .Should().BeSameAs(ArcaneMessage);
             exception.InnerException.Should().BeNull();
@@ -110,7 +110,7 @@ namespace PSql.Tests.Unit
                 typeof(T).FullName
             );
 
-            constructor.IsFamily.Should().BeTrue(
+            constructor!.IsFamily.Should().BeTrue(
                 "exception type {0} deserialization constructor must be protected; " +
                 "see notes in the test for further information",
                 typeof(T).FullName
@@ -121,7 +121,7 @@ namespace PSql.Tests.Unit
         public virtual void SerializeThenDeserialize() // tests protected serialization constructor
         {
             var innerException = new InvalidProgramException();
-            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, innerException);
+            var exception      = (T) Activator.CreateInstance(typeof(T), ArcaneMessage, innerException)!;
 
             var deserialized   = Roundtrip(exception);
 

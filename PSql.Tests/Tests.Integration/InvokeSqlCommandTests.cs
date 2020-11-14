@@ -22,8 +22,6 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
 
-#nullable enable
-
 namespace PSql.Tests.Integration
 {
     using static ScriptExecutor;

@@ -16,8 +16,6 @@
 
 using NUnit.Framework;
 
-#nullable enable
-
 namespace PSql.Tests.Integration
 {
     [SetUpFixture]

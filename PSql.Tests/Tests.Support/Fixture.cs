@@ -1,6 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <!--
+/*
     Copyright 2020 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
@@ -14,22 +12,8 @@
     WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
     ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-  -->
+*/
 
-  <PropertyGroup>
-    <Description>Tests for PSql</Description>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>PSql</RootNamespace>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+using NUnit.Framework;
 
-  <ItemGroup>
-    <ProjectReference Include="..\PSql\PSql.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.3" />
-    <PackageReference Include="Subatomix.Testing" Version="1.0.0-rc.1" />
-  </ItemGroup>
-
-</Project>
+[assembly: Parallelizable(ParallelScope.All)]
