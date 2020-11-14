@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 #nullable enable
 
-namespace PSql.Testing
+namespace PSql
 {
     [TestFixture]
     public class StringExtensionsTests
