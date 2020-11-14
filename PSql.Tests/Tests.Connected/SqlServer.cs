@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.Management.Automation;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace PSql.Tests.Connected
 {
-    using static Extensions;
+    using static SecureStringHelpers;
 
     internal class SqlServer : IDisposable
     {
@@ -20,13 +20,13 @@ namespace PSql.Tests.Connected
 
         public SqlServer()
         {
-            Credential = new PSCredential("sa", GeneratePassword());
+            Credential = new NetworkCredential("sa", GeneratePassword());
 
             var id = Run(
                 "docker", "run", "-d", "--rm",
                 "-P",
                 "-e", "ACCEPT_EULA="           + "Y",
-                "-e", "MSSQL_SA_PASSWORD="     + Credential.GetNetworkCredential().Password,
+                "-e", "MSSQL_SA_PASSWORD="     + Credential.Password,
                 "-e", "MSSQL_COLLATION="       + Collation,
                 "-e", "MSSQL_MEMORY_LIMIT_MB=" + MemoryLimitMb,
                 "mcr.microsoft.com/mssql/server:2019-latest"
@@ -59,7 +59,7 @@ namespace PSql.Tests.Connected
 
         public int Port { get; }
 
-        public PSCredential Credential { get; }
+        public NetworkCredential Credential { get; }
 
         internal static string Run(string program, params string[] args)
         {
