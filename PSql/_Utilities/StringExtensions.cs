@@ -14,11 +14,13 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#nullable enable
+
 namespace PSql
 {
     internal static class StringExtensions
     {
-        internal static string NullIfEmpty(this string s)
+        internal static string? NullIfEmpty(this string? s)
             => string.IsNullOrEmpty(s) ? null : s;
     }
 }
