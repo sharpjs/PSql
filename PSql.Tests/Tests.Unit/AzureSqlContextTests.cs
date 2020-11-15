@@ -33,6 +33,8 @@ namespace PSql.Tests.Unit
             context.ResourceGroupName                  .Should().BeNull();
             context.ServerName                         .Should().BeNull();
             context.ServerFullName                     .Should().BeNull();
+            context.ServerPort                         .Should().BeNull();
+            context.InstanceName                       .Should().BeNull();
             context.DatabaseName                       .Should().BeNull();
             context.AuthenticationMode                 .Should().Be(AzureAuthenticationMode.Default);
             context.Credential                         .Should().BeNull();
@@ -56,6 +58,8 @@ namespace PSql.Tests.Unit
                 ResourceGroupName                  = "resource-group",
                 ServerName                         = "server",
                 ServerFullName                     = "server.example.com",
+                ServerPort                         = 1234,
+                InstanceName                       = "instance",
                 DatabaseName                       = "database",
                 AuthenticationMode                 = AzureAuthenticationMode.SqlPassword,
                 Credential                         = credential,
@@ -76,6 +80,8 @@ namespace PSql.Tests.Unit
             context.ResourceGroupName                  .Should().Be("resource-group");
             context.ServerName                         .Should().Be("server");
             context.ServerFullName                     .Should().Be("server.example.com");
+            context.ServerPort                         .Should().Be(1234);
+            context.InstanceName                       .Should().Be("instance");
             context.DatabaseName                       .Should().Be("database");
             context.AuthenticationMode                 .Should().Be(AzureAuthenticationMode.SqlPassword);
             context.Credential                         .Should().BeSameAs(credential);

@@ -31,6 +31,8 @@ namespace PSql.Tests.Unit
             var context = new SqlContext();
 
             context.ServerName                         .Should().BeNull();
+            context.ServerPort                         .Should().BeNull();
+            context.InstanceName                       .Should().BeNull();
             context.DatabaseName                       .Should().BeNull();
             context.Credential                         .Should().BeNull();
             context.EncryptionMode                     .Should().Be(EncryptionMode.Default);
@@ -51,6 +53,8 @@ namespace PSql.Tests.Unit
             var original = new SqlContext
             {
                 ServerName                         = "server",
+                ServerPort                         = 1234,
+                InstanceName                       = "instance",
                 DatabaseName                       = "database",
                 Credential                         = credential,
                 EncryptionMode                     = EncryptionMode.Full,
@@ -68,6 +72,8 @@ namespace PSql.Tests.Unit
             context.Should().NotBeNull().And.NotBeSameAs(original);
 
             context.ServerName                         .Should().Be("server");
+            context.ServerPort                         .Should().Be(1234);
+            context.InstanceName                       .Should().Be("instance");
             context.DatabaseName                       .Should().Be("database");
             context.Credential                         .Should().BeSameAs(credential);
             context.EncryptionMode                     .Should().Be(EncryptionMode.Full);

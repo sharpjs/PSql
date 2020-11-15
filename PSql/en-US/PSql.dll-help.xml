@@ -843,6 +843,32 @@
         </dev:possibleValues>
       </command:parameter>
 
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Port">
+        <maml:name>ServerPort</maml:name>
+        <maml:description>
+          <maml:para>The remote TCP port of the database server.</maml:para>
+          <maml:para>If not specified, the underlying ADO.NET implementation will use a default port, typically 1433.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">ushort</command:parameterValue>
+        <dev:type>
+          <maml:name>System.UInt16</maml:name>
+        </dev:type>
+        <dev:defaultValue>None (underlying default)</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Instance">
+        <maml:name>InstanceName</maml:name>
+        <maml:description>
+          <maml:para>The name of the database engine instance.</maml:para>
+          <maml:para>If not specified, connection attempts will target the default instance.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None (default instance)</dev:defaultValue>
+      </command:parameter>
+
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Client">
         <maml:name>ClientName</maml:name>
         <maml:description>

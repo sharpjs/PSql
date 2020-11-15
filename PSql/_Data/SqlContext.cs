@@ -15,12 +15,16 @@
 */
 
 using System;
+using System.Globalization;
 using System.Management.Automation;
 using System.Net;
+using System.Text;
 using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
+    using static FormattableString;
+
     /// <summary>
     ///   Information necessary to connect to a SQL Server or compatible
     ///   database.
@@ -53,6 +57,8 @@ namespace PSql
                 throw new ArgumentNullException(nameof(other));
 
             ServerName                         = other.ServerName;
+            ServerPort                         = other.ServerPort;
+            InstanceName                       = other.InstanceName;
             DatabaseName                       = other.DatabaseName;
             Credential                         = other.Credential;
             EncryptionMode                     = other.EncryptionMode;
@@ -66,6 +72,10 @@ namespace PSql
         }
 
         public string ServerName { get; set; }
+
+        public ushort? ServerPort { get; set; }
+
+        public string InstanceName { get; set; }
 
         public string DatabaseName { get; set; }
 
@@ -116,23 +126,12 @@ namespace PSql
                 : new SqlConnection(connectionString, credential);
         }
 
-        protected virtual void BuildConnectionString(SqlConnectionStringBuilder builder)
+        protected void BuildConnectionString(SqlConnectionStringBuilder builder)
         {
-            // Server
-            if (!string.IsNullOrEmpty(ServerName))
-                builder.DataSource = ServerName;
-            else
-                builder.DataSource = LocalServerName;
-
-            // Database
-            if (!string.IsNullOrEmpty(DatabaseName))
-                builder.InitialCatalog = DatabaseName;
-            //else
-            //  server determines database
-
-            // Security
-            ConfigureAuthentication (builder);
-            ConfigureEncryption     (builder);
+            ConfigureServerName          (builder);
+            ConfigureDefaultDatabaseName (builder);
+            ConfigureAuthentication      (builder);
+            ConfigureEncryption          (builder);
 
             // Timeout
             if (ConnectTimeout.HasValue)
@@ -154,6 +153,34 @@ namespace PSql
             builder.PersistSecurityInfo      = ExposeCredentialInConnectionString;
             builder.MultipleActiveResultSets = EnableMultipleActiveResultSets;
             builder.Pooling                  = EnableConnectionPooling;
+        }
+
+        protected virtual void ConfigureServerName(SqlConnectionStringBuilder builder)
+        {
+            var dataSource = ServerName.NullIfEmpty() ?? LocalServerName;
+
+            if (ServerPort.HasValue || InstanceName.HasContent())
+            {
+                var s = new StringBuilder(dataSource);
+
+                if (ServerPort.HasValue)
+                    s.Append(',').Append(ServerPort.Value.ToString(CultureInfo.InvariantCulture));
+
+                if (InstanceName.HasContent())
+                    s.Append('\\').Append(InstanceName);
+
+                dataSource = s.ToString();
+            }
+
+            builder.DataSource = dataSource;
+        }
+
+        protected virtual void ConfigureDefaultDatabaseName(SqlConnectionStringBuilder builder)
+        {
+            if (!string.IsNullOrEmpty(DatabaseName))
+                builder.InitialCatalog = DatabaseName;
+            //else
+            //  server determines database
         }
 
         protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
@@ -196,12 +223,13 @@ namespace PSql
 
         private bool GetIsLocal()
         {
-            if (string.IsNullOrEmpty(ServerName))
+            if (ServerName is null)
                 return true;
 
             var comparer = StringComparer.OrdinalIgnoreCase;
 
-            return comparer.Equals(ServerName, LocalServerName)
+            return comparer.Equals(ServerName, string.Empty)
+                || comparer.Equals(ServerName, LocalServerName)
                 || comparer.Equals(ServerName, "(local)")
                 || comparer.Equals(ServerName, "localhost")
                 || comparer.Equals(ServerName, Dns.GetHostName());

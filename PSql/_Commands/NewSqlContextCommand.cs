@@ -68,6 +68,18 @@ namespace PSql
         [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
         public EncryptionMode EncryptionMode { get; set; }
 
+        // -ServerPort
+        [Alias("Port")]
+        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
+        [ValidateRange((ushort) 1, (ushort) 65535)]
+        public ushort ServerPort { get; set; }
+
+        // -InstanceName
+        [Alias("Instance")]
+        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
+        public string InstanceName { get; set; }
+
         // -ReadOnlyIntent
         [Alias("ReadOnly")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -102,7 +114,7 @@ namespace PSql
         // -MultipleActiveResultSets
         [Alias("Mars")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter MultipleActiveResultSets { get; set; }  = true;
+        public SwitchParameter MultipleActiveResultSets { get; set; } = true;
 
         protected override void ProcessRecord()
         {
@@ -116,6 +128,8 @@ namespace PSql
                 : Credential;
 
             context.ServerName        = ServerName;
+            context.ServerPort        = ServerPort;
+            context.InstanceName      = InstanceName;
             context.DatabaseName      = DatabaseName;
             context.Credential        = credential;
             context.ConnectTimeout    = ConnectTimeout;

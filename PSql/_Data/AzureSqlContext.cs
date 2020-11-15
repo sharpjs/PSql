@@ -67,13 +67,16 @@ namespace PSql
 
         protected override SqlContext CloneCore() => new AzureSqlContext(this);
 
-        protected override void BuildConnectionString(SqlConnectionStringBuilder builder)
+        protected override void ConfigureServerName(SqlConnectionStringBuilder builder)
         {
-            base.BuildConnectionString(builder);
-
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
+        }
 
-            if (string.IsNullOrEmpty(DatabaseName))
+        protected override void ConfigureDefaultDatabaseName(SqlConnectionStringBuilder builder)
+        {
+            if (!string.IsNullOrEmpty(DatabaseName))
+                builder.InitialCatalog = DatabaseName;
+            else
                 builder.InitialCatalog = MasterDatabaseName;
         }
 
