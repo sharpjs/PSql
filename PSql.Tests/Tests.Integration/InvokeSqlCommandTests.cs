@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Management.Automation;
@@ -24,7 +25,7 @@ using NUnit.Framework;
 
 namespace PSql.Tests.Integration
 {
-    using static ScriptExecutor;
+    using static FormattableString;
     using static SqlCompareOptions;
 
     [TestFixture]
@@ -1036,5 +1037,24 @@ namespace PSql.Tests.Integration
 
         private const string
             GreenlandicCulture = "kl-GL";
+
+        private static SqlServer Server
+            => IntegrationTestsSetup.SqlServer!;
+
+        private readonly string Prelude = Invariant($@"
+            $Credential = [PSCredential]::new(
+                ('{Server.Credential.UserName}'),
+                ('{Server.Credential.Password}' | ConvertTo-SecureString -AsPlainText -Force)
+            )
+            #
+            $Context = New-SqlContext -ServerPort {Server.Port} -Credential $Credential
+            #
+            function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
+        ").Unindent();
+
+        private (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
+        {
+            return ScriptExecutor.Execute(Prelude + script.Unindent());
+        }
     }
 }
