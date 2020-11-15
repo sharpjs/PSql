@@ -34,7 +34,7 @@ namespace PSql.Tests.Integration
             ");
         }
 
-        private static SqlServer Server => IntegrationTestsSetup.SqlServer!;
+        private static SqlServerContainer Server => IntegrationTestsSetup._container!;
 
         private readonly string Prelude = Invariant($@"
             $Credential = [PSCredential]::new(
@@ -42,7 +42,7 @@ namespace PSql.Tests.Integration
                 ""{Server.Credential.Password}""
             )
             $Context = New-SqlContext `
-                -ServerName .,{Server.Port} `
+                -ServerName .,3341 `
                 -Credential $Credential
         ").Unindent();
 
