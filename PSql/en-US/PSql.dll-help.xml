@@ -590,7 +590,15 @@
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>EncryptionMode</maml:name>
-          <command:parameterValue required="true">{ Default | None }</command:parameterValue>
+          <command:parameterValue required="true">{ Default | None | Unverified | Full }</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>ServerPort</maml:name>
+          <command:parameterValue required="true">ushort</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
+          <maml:name>InstanceName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>ReadOnlyIntent</maml:name>
@@ -699,14 +707,15 @@
         <maml:name>ServerName</maml:name>
         <maml:description>
           <maml:para>The name of the database server.</maml:para>
-          <maml:para>When both -Azure and -ResourceGroupName are specified, this parameter specifies the Azure resource name of the virtual database server.</maml:para>
-          <maml:para>Otherwise, this parameter specifies the DNS name of the database server, optionally suffixed by a backslash and a database engine instance name.  Examples: db.example.com, db.example.com\instance2</maml:para>
+          <maml:para>When the -Azure switch is used, this parameter is required and specifies the DNS name of the Azure SQL Database endpoint.  Example: myserver.database.windows.net</maml:para>
+          <maml:para>When both -Azure and -ResourceGroupName are used, this parameter is required and specifies the Azure resource name of the virtual database server.  Example: myserver</maml:para>
+          <maml:para>Otherwise, this parameter is optional and specifies the DNS name of the database server.  The values '.' and '(local)' are recognized as aliases for the local machine.  If not specified, connection attempts will target the local machine.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
           <maml:name>System.String</maml:name>
         </dev:type>
-        <dev:defaultValue>None with -Azure; otherwise, a value specifying the default instance on the local machine</dev:defaultValue>
+        <dev:defaultValue>None with -Azure; otherwise, the local machine</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="2" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Database">
@@ -719,7 +728,7 @@
         <dev:type>
           <maml:name>System.String</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>None (default database of the authenticated user)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="3" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
@@ -732,7 +741,7 @@
         <dev:type>
           <maml:name>System.Management.Automation.PSCredential</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>None (integrated authentication)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Auth">
@@ -744,7 +753,7 @@
         <dev:type>
           <maml:name>PSql.AuthenticationMode</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>Default</dev:defaultValue>
         <dev:possibleValues>
           <dev:possibleValue>
             <dev:value>Default</dev:value>
@@ -806,7 +815,7 @@
         <dev:type>
           <maml:name>PSql.EncryptionMode</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>Default</dev:defaultValue>
         <dev:possibleValues>
           <dev:possibleValue>
             <dev:value>Default</dev:value>
@@ -873,36 +882,39 @@
         <maml:name>ClientName</maml:name>
         <maml:description>
           <maml:para>The name of the client device.</maml:para>
+          <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
           <maml:name>System.String</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>None (underlying default)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Application">
         <maml:name>ApplicationName</maml:name>
         <maml:description>
           <maml:para>The name of the client application.</maml:para>
+          <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
           <maml:name>System.String</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>None (underlying default)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Timeout">
         <maml:name>ConnectTimeout</maml:name>
         <maml:description>
           <maml:para>The duration after which a connection attempt times out.</maml:para>
+          <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>
         <dev:type>
           <maml:name>System.TimeSpan</maml:name>
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>None (underlying default)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
