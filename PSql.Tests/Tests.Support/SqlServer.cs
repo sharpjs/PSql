@@ -20,6 +20,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using Newtonsoft.Json;
 
 namespace PSql.Tests
@@ -28,6 +29,9 @@ namespace PSql.Tests
 
     internal class SqlServer : IDisposable
     {
+        const int
+            StartWaitTime = 60; // seconds
+
         const string
             Collation     = "Latin1_General_100_CI_AI_SC_UTF8",
             MemoryLimitMb = "2048";
@@ -35,7 +39,33 @@ namespace PSql.Tests
         public SqlServer()
         {
             Credential = new NetworkCredential("sa", GeneratePassword());
+            Id         = StartContainer();
 
+            try
+            {
+                WaitForContainerReady();
+                Port = GetContainerHostPort();
+            }
+            catch
+            {
+                StopContainer();
+                throw;
+            }
+        }
+
+        public virtual void Dispose()
+        {
+            StopContainer();
+        }
+
+        public string Id { get; }
+
+        public ushort Port { get; }
+
+        public NetworkCredential Credential { get; }
+
+        private string StartContainer()
+        {
             var id = Run(
                 "docker", "run", "-d", "--rm",
                 "-P",
@@ -46,34 +76,56 @@ namespace PSql.Tests
                 "mcr.microsoft.com/mssql/server:2019-latest"
             );
 
-            Id = id.TrimEnd();
-            Id.Should().NotBeEmpty();
+            id = id.TrimEnd();
+            id.Should().NotBeEmpty("docker run should output a container id");
 
-            try
-            {
-                var json = Run("docker", "inspect", Id);
-                var info = (dynamic) JsonConvert.DeserializeObject(json)!;
+            return id;
+        }
 
-                Port = info[0].NetworkSettings.Ports["1433/tcp"][0].HostPort;
-                Port.Should().BeInRange(1, 65535);
-            }
-            catch
+        private void WaitForContainerReady()
+        {
+            var deadline = DateTime.UtcNow + StartWaitTime.Seconds();
+
+            for(;;)
             {
-                Dispose();
-                throw;
+                var (status, output) = TryRun(
+                    "docker", "exec", Id,
+                    "/opt/mssql-tools/bin/sqlcmd",
+                    "-S", ".",
+                    "-U", "sa",
+                    "-P", Credential.Password,
+                    "-Q", "PRINT 'OK';"
+                );
+
+                if (status == 0)
+                    return;
+
+                if (DateTime.UtcNow < deadline)
+                    continue;
+
+                throw new TimeoutException(
+                    "The SQL Server container did not become ready within the expected time."
+                );
             }
         }
 
-        public virtual void Dispose()
+        private ushort GetContainerHostPort()
+        {
+            var json = Run("docker", "inspect", Id);
+            var info = (dynamic) JsonConvert.DeserializeObject(json)!;
+            var port = (ushort) info[0].NetworkSettings.Ports["1433/tcp"][0].HostPort;
+
+            port.Should().BeInRange(1, 65535,
+                "docker inspect should show container port 1433/tcp mapped to a valid host port"
+            );
+
+            return port;
+        }
+
+        private void StopContainer()
         {
             Run("docker", "kill", Id);
         }
-
-        public string Id { get; }
-
-        public int Port { get; }
-
-        public NetworkCredential Credential { get; }
 
         internal static string Run(string program, params string[] args)
         {
