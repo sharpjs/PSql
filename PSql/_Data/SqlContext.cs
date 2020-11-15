@@ -109,7 +109,7 @@ namespace PSql
 
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
-        internal SqlConnection CreateConnection(string databaseName)
+        internal SqlConnection CreateConnection(string databaseName = null)
         {
             var builder = new SqlConnectionStringBuilder();
 
