@@ -67,7 +67,7 @@ namespace PSql.Tests.Integration
             else if (TcpPort.IsListening(DefaultServerPort))
             {
                 // Scenario B
-                _container              = new SqlServerContainer(DefaultServerPort);
+                _container              = new SqlServerContainer(AlternateServerPort);
                 AlternateServerPassword = _container.Credential.Password;
             }
             else
