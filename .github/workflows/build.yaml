@@ -23,8 +23,26 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    steps:
 
+    services:
+      sql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+          - 1433:1433
+          - 3341:1433
+        env:
+          ACCEPT_EULA: true
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+          MSSQL_COLLATION: Latin1_General_100_CI_AI_SC_UTF8
+          MSSQL_MEMORY_LIMIT_MB: 1024
+        options: >
+          --health-cmd '/opt/mssql-tools/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -Q "PRINT HOST_NAME();"'
+          --health-start-period 20s
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 2
+
+    steps:
       - name: Check Out Code
         uses: actions/checkout@v2
 
@@ -55,6 +73,8 @@ jobs:
           dotnet test --no-build -c Release
           --settings Coverlet.runsettings
           --results-directory:${{ runner.temp }}/coverage/raw
+        env:
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
 
       - name: Prepare Coverage Report
         uses: danielpalme/ReportGenerator-GitHub-Action@4.7.1
