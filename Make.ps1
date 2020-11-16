@@ -112,7 +112,7 @@ function Export-CoverageReport {
         "reportgenerator"
         "-reports:coverage\raw\**\coverage.opencover.xml"
         "-targetdir:coverage"
-        "-reporttypes:Cobertura;HtmlInline_AzurePipelines_Dark;Badges;TeamCitySummary"
+        "-reporttypes:Cobertura;HtmlInline;Badges;TeamCitySummary"
         "-verbosity:Warning"
     )
 }

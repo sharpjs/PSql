@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="**" Exclude=".git;PSql*\**;dist\**;coverage\**;$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(MSBuildThisFile)" />
+    <None Include="**" Exclude="PSql*\**;dist\**;coverage\**;$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(MSBuildThisFile)" />
     <None Include=".*\**" Exclude=".git\**;.vs\**" />
   </ItemGroup>
 
