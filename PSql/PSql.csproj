@@ -34,6 +34,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemDefinitionGroup>
+    <None CopyToOutputDirectory="PreserveNewest"/>
+  </ItemDefinitionGroup>
+
   <ItemGroup>
     <None Update="Properties\**" CopyToOutputDirectory="Never" />
   </ItemGroup>
