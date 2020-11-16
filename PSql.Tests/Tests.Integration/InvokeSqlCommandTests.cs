@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Management.Automation;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
@@ -982,7 +983,8 @@ namespace PSql.Tests.Integration
         [Test]
         public void ProjectHierarchyId_UseClrTypes()
         {
-            // hierarchyid is not supported by .NET Standard or Core
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Assert.Inconclusive("hierarchyid seems to be unsupported on non-Windows OSes");
 
             var (objects, exception) = Execute(@"
                 Invoke-Sql ""
@@ -1002,7 +1004,8 @@ namespace PSql.Tests.Integration
         [Test]
         public void ProjectHierarchyId_UseSqlTypes()
         {
-            // hierarchyid is not supported by .NET Standard or Core
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Assert.Inconclusive("hierarchyid seems to be unsupported on non-Windows OSes");
 
             var (objects, exception) = Execute(@"
                 Invoke-Sql -UseSqlTypes ""
@@ -1042,7 +1045,7 @@ namespace PSql.Tests.Integration
         private readonly string Prelude = Invariant($@"
             $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText -Force
             $Credential = New-Object PSCredential sa, $Password
-            $Context = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
+            $Context    = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
             function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
         ").Unindent();
 
