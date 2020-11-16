@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Runtime.InteropServices;
 using Microsoft.PowerShell;
 using NUnit.Framework;
 
@@ -41,7 +42,8 @@ namespace PSql.Tests
         {
             var state = InitialSessionState.CreateDefault();
 
-            state.ExecutionPolicy = ExecutionPolicy.RemoteSigned;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                state.ExecutionPolicy = ExecutionPolicy.RemoteSigned;
 
             state.Variables.Add(new SessionStateVariableEntry(
                 "ErrorActionPreference", "Stop", description: null
