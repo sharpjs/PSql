@@ -1040,13 +1040,9 @@ namespace PSql.Tests.Integration
             GreenlandicCulture = "kl-GL";
 
         private readonly string Prelude = Invariant($@"
-            $Credential = [PSCredential]::new(
-                ('sa'),
-                ('{S.AlternateServerPassword}' | ConvertTo-SecureString -AsPlainText -Force)
-            )
-            #
+            $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText -Force
+            $Credential = New-Object PSCredential sa, $Password
             $Context = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
-            #
             function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
         ").Unindent();
 
