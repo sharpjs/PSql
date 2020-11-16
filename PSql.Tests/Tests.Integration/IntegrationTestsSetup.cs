@@ -32,7 +32,7 @@ namespace PSql.Tests.Integration
         internal static string? DefaultServerPassword   { get; private set; }
         internal static string? AlternateServerPassword { get; private set; }
 
-        internal static SqlServerContainer? _container;
+        private static SqlServerContainer? _container;
 
         [OneTimeSetUp]
         public static void SetUp()

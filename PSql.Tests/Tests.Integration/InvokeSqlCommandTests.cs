@@ -27,6 +27,7 @@ namespace PSql.Tests.Integration
 {
     using static FormattableString;
     using static SqlCompareOptions;
+    using S = IntegrationTestsSetup;
 
     [TestFixture]
     [Parallelizable(ParallelScope.All)]
@@ -1038,16 +1039,13 @@ namespace PSql.Tests.Integration
         private const string
             GreenlandicCulture = "kl-GL";
 
-        private static SqlServerContainer Server
-            => IntegrationTestsSetup._container!;
-
         private readonly string Prelude = Invariant($@"
             $Credential = [PSCredential]::new(
-                ('{Server.Credential.UserName}'),
-                ('{Server.Credential.Password}' | ConvertTo-SecureString -AsPlainText -Force)
+                ('sa'),
+                ('{S.AlternateServerPassword}' | ConvertTo-SecureString -AsPlainText -Force)
             )
             #
-            $Context = New-SqlContext -ServerPort 3341 -Credential $Credential
+            $Context = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
             #
             function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
         ").Unindent();

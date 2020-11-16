@@ -20,6 +20,7 @@ using NUnit.Framework;
 namespace PSql.Tests.Integration
 {
     using static FormattableString;
+    using S = IntegrationTestsSetup;
 
     [TestFixture]
     public class ExampleTests
@@ -34,15 +35,13 @@ namespace PSql.Tests.Integration
             ");
         }
 
-        private static SqlServerContainer Server => IntegrationTestsSetup._container!;
-
         private readonly string Prelude = Invariant($@"
             $Credential = [PSCredential]::new(
-                ""{Server.Credential.UserName}"",
-                ""{Server.Credential.Password}""
+                ('sa'),
+                ('{S.AlternateServerPassword}' | ConvertTo-SecureString -AsPlainText -Force)
             )
             $Context = New-SqlContext `
-                -ServerName .,3341 `
+                -ServerName .,{S.AlternateServerPort} `
                 -Credential $Credential
         ").Unindent();
 
