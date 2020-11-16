@@ -163,11 +163,11 @@ namespace PSql
             {
                 var s = new StringBuilder(dataSource);
 
-                if (ServerPort.HasValue)
-                    s.Append(',').Append(ServerPort.Value.ToString(CultureInfo.InvariantCulture));
-
                 if (InstanceName.HasContent())
                     s.Append('\\').Append(InstanceName);
+
+                if (ServerPort.HasValue)
+                    s.Append(',').Append(ServerPort.Value.ToString(CultureInfo.InvariantCulture));
 
                 dataSource = s.ToString();
             }
