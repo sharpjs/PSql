@@ -35,7 +35,7 @@ jobs:
           MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
           MSSQL_COLLATION: Latin1_General_100_CI_AI_SC_UTF8
           MSSQL_MEMORY_LIMIT_MB: 1024
-        options: >
+        options: >-
           --health-cmd "/opt/mssql-tools/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -Q 'PRINT HOST_NAME();'"
           --health-start-period 20s
           --health-interval 15s
