@@ -34,12 +34,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemDefinitionGroup>
-    <None CopyToOutputDirectory="PreserveNewest"/>
-  </ItemDefinitionGroup>
-
-  <ItemGroup>
-    <None Update="Properties\**" CopyToOutputDirectory="Never" />
-  </ItemGroup>
+  <Target Name="FixupPsd1" DependsOnTargets="GeneratePsd1" BeforeTargets="AssignTargetPaths" />
 
 </Project>
