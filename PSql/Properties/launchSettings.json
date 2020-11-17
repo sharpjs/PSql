@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "PS Core": {
+    "PowerShell": {
       "commandName": "Executable",
       "executablePath": "pwsh",
       "commandLineArgs": "-NoLogo -NoProfile -NoExit -Command \"Import-Module .\\PSql.psd1; Set-PSReadLineOption -EditMode Emacs; function prompt { 'PS> ' }\"",
