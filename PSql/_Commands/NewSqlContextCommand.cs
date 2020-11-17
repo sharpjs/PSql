@@ -72,7 +72,7 @@ namespace PSql
         [Alias("Port")]
         [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
         [ValidateRange((ushort) 1, (ushort) 65535)]
-        public ushort ServerPort { get; set; }
+        public ushort? ServerPort { get; set; }
 
         // -InstanceName
         [Alias("Instance")]
