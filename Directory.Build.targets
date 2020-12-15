@@ -42,18 +42,12 @@
 
   <!-- Versioning -->
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="0.0.0-pre.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.0-rc.1" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- <inheritdoc/> support -->
   <ItemGroup>
-    <PackageReference Include="SauceControl.InheritDoc" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="SauceControl.InheritDoc" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- SourceLink https://github.com/dotnet/sourcelink/blob/master/README.md -->
