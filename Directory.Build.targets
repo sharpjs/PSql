@@ -42,7 +42,7 @@
 
   <!-- Versioning -->
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.0-rc.1" PrivateAssets="All" />
+    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- <inheritdoc/> support -->
