@@ -24,14 +24,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
-    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0-pre.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>build</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Management.Automation" Version="7.0.3">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.0" />
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0-pre04" PrivateAssets="All" />
+    <PackageReference Include="System.Management.Automation" Version="7.0.3" PrivateAssets="All" />
   </ItemGroup>
 
   <Target Name="FixupPsd1" DependsOnTargets="GeneratePsd1" BeforeTargets="AssignTargetPaths" />
