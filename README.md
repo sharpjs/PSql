@@ -2,6 +2,8 @@
 
 Cmdlets for SQL Server and Azure SQL databases.
 
+![SELECT * FROM YourTable;](https://raw.githubusercontent.com/sharpjs/PSql/master/misc/what-does-it-do.png)
+
 ## Status
 
 [![Build](https://github.com/sharpjs/PSql/workflows/Build/badge.svg)](https://github.com/sharpjs/PSql/actions)
@@ -151,7 +153,7 @@ By default, `Invoke-Sql` wraps SQL batches in [an error-handling shim](https://g
 The wrapper improves the diagnostic experience by printing the batch that
 caused an error.  Here is an example:
 
-TODO: Picture of error handling output.
+![Example showing a divide-by-zero error](https://raw.githubusercontent.com/sharpjs/PSql/master/misc/psql-error-handling.png)
 
 There are a few known scenarios in which the error-handling wrapper can *cause*
 an error, requiring the use of a workaround.  The scenarios are:
@@ -160,13 +162,13 @@ an error, requiring the use of a workaround.  The scenarios are:
   begins a transaction but does not commit it (or vice versa), the batch will
   fail with an error.
 
-  TODO: Picture
+  ![Example of BEGIN TRANSACTION without COMMIT TRANSACTION](https://raw.githubusercontent.com/sharpjs/PSql/master/misc/begin-transaction-error.png)
 
 - **Multi-batch temporary tables.**  If a batch creates a temporary table, the
   temporary table is destroyed at the end of the batch.  The temporary table is
   not visible to subsequent batches.
 
-  TODO: Picture
+  ![Example of temporary table not found in subsequent batch](https://raw.githubusercontent.com/sharpjs/PSql/master/misc/temp-table-error.png)
 
 There are two ways to work around these known issues:
 
