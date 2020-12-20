@@ -5,10 +5,11 @@ Cmdlets for SQL Server and Azure SQL databases.
 ## Status
 
 [![Build](https://github.com/sharpjs/PSql/workflows/Build/badge.svg)](https://github.com/sharpjs/PSql/actions)
+[![NuGet](https://img.shields.io/powershellgallery/v/PSql.svg)](https://www.powershellgallery.com/packages/PSql)
+[![NuGet](https://img.shields.io/powershellgallery/dt/PSql.svg)](https://www.powershellgallery.com/packages/PSql)
 
-This is a new C# rewrite of a previous script module already used in production
-code.  PSql is moving slowly towards a 2.0 release, which will occur when
-documentation and test coverage is complete.
+2.0 nearing release.  This is a new C# rewrite of a previous script module
+already used in production code.
 
 ## Installation
 
@@ -59,7 +60,7 @@ The core function of PSql is to run T-SQL scripts.  It can be this easy:
 Invoke-Sql "PRINT 'Hello, world.'" -Database master
 ```
 
-Or, using pipes:
+Or, using a pipe:
 
 ```powershell
 "SELECT * FROM sys.schemas" | Invoke-Sql -Database master
@@ -117,14 +118,91 @@ connection closes.  When those must persist across multiple uses of
 ```powershell
 $connection = Connect-Sql -Context $context
 try {
-  Invoke-Sql "..." -Connection $connection
+    Invoke-Sql "..." -Connection $connection
 }
 finally {
-  Disconnect-Sql $connection
+    Disconnect-Sql $connection
 }
 ```
 
-TODO: Describe SQLCMD compatibility.
+### SQLCMD Compatibility
+
+`Invoke-Sql` supports a limited set of preprocessing features intended to be
+compatible with the [`sqlcmd`](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility)
+utility:
+
+Example | Description
+:-- | :--
+`GO` | Ends the current SQL batch and begins a new one.
+`$(Foo)` | Replaced with the value of the sqlcmd variable `Foo`.
+`:setvar Foo Bar`<br/>`:setvar Foo "Bar"` | Sets the value of the sqlcmd variable `Foo` to `Bar`.<br/>Enclose the value in double-quotes (`"`) if it contains whitespace.
+`:r Foo.sql`<br/>`:r "Foo.sql"` | Replaced with the preprocessed contents of the file `Foo.sql`.<br/>Enclose the path in double-quotes (`"`) if it contains whitespace.<br/>Paths are relative to the current directory.
+
+Preprocessor directives are case-insensitive.  The `GO`, `:setvar`, and `:r`
+directives must appear at the beginning of a line, and no other content may
+appear on that line.  `$(…)` may appear anywhere, including inside other
+preprocessor directives.
+
+To disable `Invoke-Sql` preprocessing, use the `-NoPreprocessing` switch.
+
+### Error Handling
+
+By default, `Invoke-Sql` wraps SQL batches in [an error-handling shim](https://github.com/sharpjs/PSql/blob/master/PSql/_Utilities/SqlErrorHandling.cs#L67-L120).
+The wrapper improves the diagnostic experience by printing the batch that
+caused an error.  Here is an example:
+
+TODO: Picture of error handling output.
+
+There are a few known scenarios in which the error-handling wrapper can *cause*
+an error, requiring the use of a workaround.  The scenarios are:
+
+- **Multi-batch transactions.**  Transactions cannot span batches.  If a batch
+  begins a transaction but does not commit it (or vice versa), the batch will
+  fail with an error.
+
+  TODO: Picture
+
+- **Multi-batch temporary tables.**  If a batch creates a temporary table, the
+  temporary table is destroyed at the end of the batch.  The temporary table is
+  not visible to subsequent batches.
+
+  TODO: Picture
+
+There are two ways to work around these known issues:
+
+- **Pass the `-NoErrorHandling` switch** to `Invoke-Sql`.  When this switch is
+  used, the error-handling wrapper is omitted.  SQL batches are executed bare.
+  No enhanced error-handling is performed.
+
+- **Include this magic comment** on any line in the batch:
+
+  ```sql
+  --# NOWRAP
+  ```
+
+  The magic comment must appear at the beginning of the line, and no other
+  content may appear on that line.  The comment causes `Invoke-Sql` to place
+  the batch's code verbatim into the error-handling wrapper's `TRY`/`CATCH`
+  block, rather than within an `EXECUTE` statement.  This prevents the issues
+  described above while preserving the enhanced diagnostics provided by the
+  wrapper.  The drawback is that script hygiene is no longer perfect: an error
+  in the batch might interfere with the wrapper itself, preventing the
+  error-handling from working as intended.
+
+  To prevent nasty surprises with `--# NOWRAP`, use it only when required, and
+  keep the batches using it as small as possible.  Examples:
+
+  ```sql
+  --# NOWRAP
+  BEGIN TRANSACTION;
+  GO
+  ```
+
+  ```sql
+  --# NOWRAP
+  CREATE TABLE #T (X int NOT NULL);
+  GO
+  ```
 
 ## Contributors
 
