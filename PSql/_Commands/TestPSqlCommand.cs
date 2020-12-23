@@ -16,8 +16,6 @@
 
 using System.Management.Automation;
 
-#nullable enable
-
 namespace PSql
 {
     [Cmdlet(VerbsDiagnostic.Test, nameof(PSql))]

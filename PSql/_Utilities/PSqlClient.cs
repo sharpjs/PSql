@@ -20,8 +20,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Path = System.IO.Path;
 
-#nullable enable
-
 namespace PSql
 {
     using static RuntimeInformation;

@@ -1,7 +1,5 @@
 using System;
 
-#nullable enable
-
 namespace PSql
 {
     public class SqlConnection : IDisposable
@@ -24,8 +22,8 @@ namespace PSql
                 )
                 : client.Connect(
                     connectionString,
-                    credential.UserName,
-                    credential.Password,
+                    credential!.UserName,
+                    credential!.Password,
                     writeInformation,
                     writeWarning
                 );

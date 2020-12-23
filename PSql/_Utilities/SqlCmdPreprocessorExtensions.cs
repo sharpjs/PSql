@@ -33,8 +33,11 @@ namespace PSql
 
             var variables = preprocessor.Variables;
 
-            foreach (DictionaryEntry entry in entries)
+            foreach (var obj in entries)
             {
+                if (obj is not DictionaryEntry entry)
+                    continue;
+
                 if (entry.Key is null)
                     continue;
 

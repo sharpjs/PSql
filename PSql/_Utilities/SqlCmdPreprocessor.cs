@@ -27,7 +27,7 @@ namespace PSql
     internal class SqlCmdPreprocessor
     {
         private readonly Dictionary<string, string> _variables;
-        private          StringBuilder              _builder;
+        private          StringBuilder?             _builder;
 
         public SqlCmdPreprocessor()
         {
@@ -37,7 +37,7 @@ namespace PSql
         public IDictionary<string, string> Variables
             => _variables;
 
-        public IEnumerable<string> Process(string text, string name = null)
+        public IEnumerable<string> Process(string text, string? name = null)
         {
             if (text == null)
                 throw new ArgumentNullException(nameof(text));
@@ -48,13 +48,16 @@ namespace PSql
             return ProcessCore(input);
         }
 
-        private IEnumerable<string> ProcessCore(Input input)
+        private IEnumerable<string> ProcessCore(Input? input)
         {
             string batch;
 
             do
             {
-                (batch, input) = GetNextBatch(input);
+                // NULLS: On first iteration, input was null-checked by calling
+                // method.  On subsequent iterations, input was checked by the
+                // `do` condition.
+                (batch, input) = GetNextBatch(input!);
 
                 if (batch.Length != 0)
                     yield return batch;
@@ -63,7 +66,7 @@ namespace PSql
         }
 
         // Verbatim mode - reuse input string if possible
-        private (string, Input) GetNextBatch(Input input)
+        private (string, Input?) GetNextBatch(Input input)
         {
             var start = input.Index;
 
@@ -124,7 +127,7 @@ namespace PSql
         }
 
         // Builder mode - assemble batch in a StringBuilder
-        private (string, Input) BuildNextBatch(Input input, int start, Match match)
+        private (string, Input?) BuildNextBatch(Input input, int start, Match match)
         {
             var builder = InitializeBuilder(start, match.Index, input.Length);
 
@@ -261,7 +264,9 @@ namespace PSql
 
         private void PerformVariableReplacement(string text)
         {
-            PerformVariableReplacement(_builder, text);
+            // NULLS: InitializeBuilder is called before this method is used,
+            // so _builder will not be null.
+            PerformVariableReplacement(_builder!, text);
         }
 
         private void PerformVariableReplacement(StringBuilder builder, string text)
@@ -345,7 +350,7 @@ namespace PSql
 
         private class Input
         {
-            public Input(string name, string text, Input parent = null)
+            public Input(string name, string text, Input? parent = null)
             {
                 Name   = name ?? throw new ArgumentNullException(nameof(name));
                 Text   = text ?? throw new ArgumentNullException(nameof(text));
@@ -355,7 +360,7 @@ namespace PSql
             public string Name   { get; }
             public string Text   { get; }
             public int    Index  { get; private set; }
-            public Input  Parent { get; }
+            public Input? Parent { get; }
 
             public Match NextToken()
             {

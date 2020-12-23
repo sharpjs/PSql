@@ -17,6 +17,9 @@
 using System.Collections;
 using System.Management.Automation;
 
+// PowerShell parameters anger the nullability checker
+#nullable disable
+
 namespace PSql
 {
     [Cmdlet(VerbsData.Expand, "SqlCmdDirectives")]

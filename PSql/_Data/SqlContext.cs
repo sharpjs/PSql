@@ -70,23 +70,23 @@ namespace PSql
             EnableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
         }
 
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
         public ushort? ServerPort { get; set; }
 
-        public string InstanceName { get; set; }
+        public string? InstanceName { get; set; }
 
-        public string DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }
 
-        public PSCredential Credential { get; set; }
+        public PSCredential? Credential { get; set; }
 
         public EncryptionMode EncryptionMode { get; set; }
 
         public TimeSpan? ConnectTimeout { get; set; }
 
-        public string ClientName { get; set; }
+        public string? ClientName { get; set; }
 
-        public string ApplicationName { get; set; }
+        public string? ApplicationName { get; set; }
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
@@ -98,7 +98,7 @@ namespace PSql
 
         public virtual bool IsAzure => false;
 
-        public AzureSqlContext AsAzure => this as AzureSqlContext;
+        public AzureSqlContext? AsAzure => this as AzureSqlContext;
 
         public bool IsLocal => GetIsLocal();
 
@@ -108,7 +108,7 @@ namespace PSql
 
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
-        internal string GetConnectionString(string databaseName = null)
+        internal string GetConnectionString(string? databaseName = null)
         {
             var builder = PSqlClient.Instance.CreateConnectionStringBuilder();
 

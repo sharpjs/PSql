@@ -56,9 +56,9 @@ namespace PSql
 
         public sealed override bool IsAzure => true;
 
-        public string ResourceGroupName { get; set; }
+        public string? ResourceGroupName { get; set; }
 
-        public string ServerFullName { get; internal set; }
+        public string? ServerFullName { get; internal set; }
 
         public AzureAuthenticationMode AuthenticationMode { get; set; }
 
@@ -133,7 +133,7 @@ namespace PSql
                 .Create("param ($x) Get-AzSqlServer @x -ea Stop")
                 .Invoke(new Dictionary<string, object>
                 {
-                    ["ResourceGroupName"] = ResourceGroupName,
+                    ["ResourceGroupName"] = ResourceGroupName!, // null-checked above
                     ["ServerName"]        = ServerName,
                 })
                 .FirstOrDefault()

@@ -14,10 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-
-#nullable enable
-
 namespace PSql
 {
     internal static class StringExtensions
