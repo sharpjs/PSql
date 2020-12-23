@@ -44,7 +44,7 @@
     AliasesToExport      = @()
     DscResourcesToExport = @()
     CmdletsToExport      = @(
-        #"New-SqlContext"
+        "New-SqlContext"
         #"Connect-Sql"
         #"Disconnect-Sql"
         "Expand-SqlCmdDirectives"

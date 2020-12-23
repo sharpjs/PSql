@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -17,10 +16,14 @@
 
 using System;
 using System.Management.Automation;
-using static Microsoft.Data.SqlClient.ApplicationIntent;
+
+// PowerShell parameters anger the nullability checker
+#nullable disable
 
 namespace PSql
 {
+    using static ApplicationIntent;
+
     [Cmdlet(VerbsCommon.New, nameof(SqlContext), DefaultParameterSetName = GenericName)]
     [OutputType(typeof(SqlContext))]
     public class NewSqlContextCommand : Cmdlet
@@ -146,4 +149,3 @@ namespace PSql
         }
     }
 }
-#endif
