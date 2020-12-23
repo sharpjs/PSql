@@ -14,7 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using System.Management.Automation;
 
 #nullable enable
@@ -26,15 +25,12 @@ namespace PSql
     {
         protected override void ProcessRecord()
         {
-            var client = PSqlClient.CreateObject("PSqlClient",
-                new Action <string>                  (s => WriteHost(s)),
-                new Action <string>                  (WriteWarning),
-                new Action <object>                  (WriteObject),
-                new Func   <object>                  (() => new PSObject()),
-                new Action <object, string, object?> (AddProperty)
-            );
+            var csb = PSqlClient.Instance.CreateConnectionStringBuilder();
+
+            csb.DataSource = "example.com";
 
             WriteHost("Hello.");
+            WriteObject(csb);
         }
 
         private static void AddProperty(object obj, string name, object? value)

@@ -34,6 +34,7 @@ namespace PSql
         private static string              LoadPath    { get; }
         private static AssemblyLoadContext LoadContext { get; }
         private static Assembly            Assembly    { get; }
+        public  static dynamic             Instance    { get; }
 
         static PSqlClient()
         {
@@ -46,6 +47,8 @@ namespace PSql
 
             LoadMicrosoftDataSqlClientAssembly();
             Assembly = LoadAssembly(AssemblyPath);
+
+            Instance = CreateObject(nameof(PSqlClient));
         }
 
         private static void LoadMicrosoftDataSqlClientAssembly()
@@ -60,19 +63,6 @@ namespace PSql
 
             // Load MDS DLL
             LoadAssembly(path);
-        }
-
-        internal static dynamic CreateObject(string typeName, params object?[]? arguments)
-        {
-            // NULLS: CreateInstance returns null only for valueless instances
-            // of Nullable<T>, which cannot happen here.
-            return Activator.CreateInstance(GetType(typeName), arguments)!;
-        }
-
-        internal static Type GetType(string name)
-        {
-            // NULLS: Does not return null when trowOnError is true.
-            return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
         }
 
         private static Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
@@ -103,6 +93,19 @@ namespace PSql
         {
             return path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
                 || path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Type GetType(string name)
+        {
+            // NULLS: Does not return null when trowOnError is true.
+            return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
+        }
+
+        private static dynamic CreateObject(string typeName, params object?[]? arguments)
+        {
+            // NULLS: CreateInstance returns null only for valueless instances
+            // of Nullable<T>, which cannot happen here.
+            return Activator.CreateInstance(GetType(typeName), arguments)!;
         }
     }
 }
