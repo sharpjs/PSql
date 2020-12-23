@@ -55,7 +55,13 @@ namespace PSql
             );
 
             // Load SNI DLL
-            NativeLibrary.Load(sniDllPath);
+            // BUG: Still does not honor the AssemblyLoadContext in .NET Core 3.1
+            // https://github.com/dotnet/runtime/issues/13819
+            NativeLibrary.Load(
+                sniDllPath,
+                typeof(SniLoader).Assembly,
+                DllImportSearchPath.AssemblyDirectory
+            );
         }
     }
 }
