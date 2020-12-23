@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -16,7 +15,6 @@
 */
 
 using System.Management.Automation;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -26,12 +24,12 @@ namespace PSql
     {
         // -Context
         [Parameter(Position = 0, ValueFromPipeline = true)]
-        public SqlContext Context { get; set; }
+        public SqlContext? Context { get; set; }
 
         // -DatabaseName
         [Parameter]
         [Alias("Database")]
-        public string DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }
 
         protected override void ProcessRecord()
         {
@@ -41,4 +39,3 @@ namespace PSql
         }
     }
 }
-#endif

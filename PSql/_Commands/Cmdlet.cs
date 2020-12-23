@@ -61,14 +61,15 @@ namespace PSql
             WriteInformation(data, HostTag);
         }
 
-        private protected (SqlConnection, bool owned)
-            EnsureConnection(SqlConnection connection, SqlContext context, string databaseName)
+        private protected (SqlConnection, bool owned) EnsureConnection(
+            SqlConnection? connection,
+            SqlContext?    context,
+            string?        databaseName)
         {
             if (connection != null)
                 return (connection, false);
 
-            if (context == null)
-                context = new SqlContext { DatabaseName = databaseName };
+            context ??= new SqlContext { DatabaseName = databaseName };
 
             return (new SqlConnection(this, context), true);
         }

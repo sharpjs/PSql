@@ -45,7 +45,7 @@
     DscResourcesToExport = @()
     CmdletsToExport      = @(
         "New-SqlContext"
-        #"Connect-Sql"
+        "Connect-Sql"
         #"Disconnect-Sql"
         "Expand-SqlCmdDirectives"
         #"Invoke-Sql"
