@@ -232,20 +232,5 @@ namespace PSql
                 || comparer.Equals(ServerName, "localhost")
                 || comparer.Equals(ServerName, Dns.GetHostName());
         }
-
-#if ISOLATED
-        private SqlCredential GetCredential()
-        {
-            if (Credential.IsNullOrEmpty())
-                return null; // using integrated security
-
-            // Prevent error that occurs if password is not marked read-only
-            var password = Credential.Password;
-            if (!password.IsReadOnly())
-                (password = password.Copy()).MakeReadOnly();
-
-            return new SqlCredential(Credential.UserName, password);
-        }
-#endif
     }
 }

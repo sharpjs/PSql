@@ -49,7 +49,6 @@
         "Disconnect-Sql"
         "Expand-SqlCmdDirectives"
         "Invoke-Sql"
-        "Test-PSql"
     )
 
     # Discoverability and URLs
