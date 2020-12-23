@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -20,7 +19,6 @@ using System.Globalization;
 using System.Management.Automation;
 using System.Net;
 using System.Text;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -100,9 +98,11 @@ namespace PSql
 
         public virtual bool IsAzure => false;
 
+#if ISOLATED
         public AzureSqlContext AsAzure => this as AzureSqlContext;
 
         public bool IsLocal => GetIsLocal();
+#endif
 
         public SqlContext Clone() => CloneCore();
 
@@ -110,6 +110,7 @@ namespace PSql
 
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
+#if ISOLATED
         internal SqlConnection CreateConnection(string databaseName = null)
         {
             var builder = new SqlConnectionStringBuilder();
@@ -248,6 +249,6 @@ namespace PSql
 
             return new SqlCredential(Credential.UserName, password);
         }
+#endif
     }
 }
-#endif
