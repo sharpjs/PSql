@@ -15,7 +15,7 @@ namespace PSql
     {
         private readonly dynamic _connection;
 
-        internal SqlConnection(Cmdlet cmdlet, SqlContext context)
+        internal SqlConnection(SqlContext context, Cmdlet cmdlet)
         {
             if (cmdlet is null)
                 throw new ArgumentNullException(nameof(cmdlet));

@@ -71,7 +71,7 @@ namespace PSql
 
             context ??= new SqlContext { DatabaseName = databaseName };
 
-            return (new SqlConnection(this, context), true);
+            return (new SqlConnection(context, this), true);
         }
     }
 }
