@@ -44,11 +44,11 @@
     AliasesToExport      = @()
     DscResourcesToExport = @()
     CmdletsToExport      = @(
-        "New-SqlContext"
-        "Connect-Sql"
-        "Disconnect-Sql"
+        #"New-SqlContext"
+        #"Connect-Sql"
+        #"Disconnect-Sql"
         "Expand-SqlCmdDirectives"
-        "Invoke-Sql"
+        #"Invoke-Sql"
         "Test-PSql"
     )
 

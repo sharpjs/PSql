@@ -16,10 +16,15 @@
 
 using System;
 using System.Data;
+using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using Microsoft.Data.SqlClient;
+using Path = System.IO.Path;
 
 namespace PSql
 {
+    using static RuntimeInformation;
+
     /// <summary>
     ///   Top-level interface between PSql and PSql.Client.
     /// </summary>
@@ -53,8 +58,7 @@ namespace PSql
             SetProperty = setProperty
                 ?? throw new ArgumentNullException(nameof(setProperty));
 
-            // Not sure if we'll need this now
-            //SniLoader.Load();
+            SniLoader.Load();
 
             // Test that we can create one
             using var connection = new SqlConnection("Server=.;Database=master;Integrated Security=True");

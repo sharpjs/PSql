@@ -16,6 +16,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Path = System.IO.Path;
 
@@ -23,6 +24,8 @@ using Path = System.IO.Path;
 
 namespace PSql
 {
+    using static RuntimeInformation;
+
     internal static class PSqlClient
     {
         private const string
@@ -41,7 +44,22 @@ namespace PSql
             LoadContext = new AssemblyLoadContext(nameof(PSqlClient));
             LoadContext.Resolving += OnResolving;
 
+            LoadMicrosoftDataSqlClientAssembly();
             Assembly = LoadAssembly(AssemblyPath);
+        }
+
+        private static void LoadMicrosoftDataSqlClientAssembly()
+        {
+            // Get runtime identifier
+            var rid = IsOSPlatform(OSPlatform.Windows) ? "win" : "unix";
+
+            // Get path to MDS DLL
+            var path = Path.Combine(
+                "runtimes", rid, "lib", "netcoreapp3.1", "Microsoft.Data.SqlClient.dll"
+            );
+
+            // Load MDS DLL
+            LoadAssembly(path);
         }
 
         internal static dynamic CreateObject(string typeName, params object?[]? arguments)

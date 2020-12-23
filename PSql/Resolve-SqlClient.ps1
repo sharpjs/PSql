@@ -1,3 +1,4 @@
+<#
 @(
     # Required for basic usage
     if (-not ('Microsoft.Data.SqlClient.SqlConnection' -as [type])) {
@@ -11,3 +12,4 @@
     }
 ) `
 | ForEach-Object { Add-Type -Path $_ }
+#>

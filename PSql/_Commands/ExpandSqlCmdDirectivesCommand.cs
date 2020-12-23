@@ -21,7 +21,7 @@ namespace PSql
 {
     [Cmdlet(VerbsData.Expand, "SqlCmdDirectives")]
     [OutputType(typeof(string[]))]
-    public class ExpandSqlCmdDirectivesCommand : Cmdlet
+    public class ExpandSqlCmdDirectivesCommand : Cmdlet2
     {
         // -Sql
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]

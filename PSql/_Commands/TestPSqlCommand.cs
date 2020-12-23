@@ -22,7 +22,7 @@ using System.Management.Automation;
 namespace PSql
 {
     [Cmdlet(VerbsDiagnostic.Test, nameof(PSql))]
-    public class TestPSqlCommand : Cmdlet
+    public class TestPSqlCommand : Cmdlet2
     {
         protected override void ProcessRecord()
         {

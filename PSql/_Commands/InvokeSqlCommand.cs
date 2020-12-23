@@ -1,3 +1,4 @@
+#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -157,3 +158,4 @@ namespace PSql
         }
     }
 }
+#endif
