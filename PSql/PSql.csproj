@@ -24,6 +24,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj">
+      <!-- https://docs.microsoft.com/en-ca/archive/blogs/kirillosenkov/how-to-have-a-project-reference-without-referencing-the-actual-binary -->
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.0" />
     <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="System.Management.Automation" Version="7.0.3" PrivateAssets="All" />
