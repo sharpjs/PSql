@@ -98,11 +98,9 @@ namespace PSql
 
         public virtual bool IsAzure => false;
 
-#if ISOLATED
         public AzureSqlContext AsAzure => this as AzureSqlContext;
 
         public bool IsLocal => GetIsLocal();
-#endif
 
         public SqlContext Clone() => CloneCore();
 
