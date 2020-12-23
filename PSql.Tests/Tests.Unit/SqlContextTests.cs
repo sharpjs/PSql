@@ -17,7 +17,6 @@
 using System.Management.Automation;
 using FluentAssertions;
 using FluentAssertions.Extensions;
-using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 
 namespace PSql.Tests.Unit
