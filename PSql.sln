@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".root", ".root.targets", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql", "PSql\PSql.csproj", "{107453D0-4728-4073-BC78-F1C8383C6975}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSql.Client", "PSql.Client\PSql.Client.csproj", "{195E5B60-8F88-4635-B2FF-8DE51EA41B0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Client", "PSql.Client\PSql.Client.csproj", "{195E5B60-8F88-4635-B2FF-8DE51EA41B0E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSql.Tests", "PSql.Tests\PSql.Tests.csproj", "{38B3B33E-3BB2-46A6-90A5-496C910C4A9E}"
 EndProject
