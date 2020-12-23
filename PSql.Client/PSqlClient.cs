@@ -15,7 +15,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Runtime.InteropServices;
+using System.Security;
 using Microsoft.Data.SqlClient;
 
 namespace PSql
@@ -25,50 +28,153 @@ namespace PSql
     /// </summary>
     public class PSqlClient
     {
-        private Action <string>                   WriteInformation { get; }
-        private Action <string>                   WriteWarning     { get; }
-        private Action <object>                   WriteOutput      { get; }
-        private Func   <object>                   CreateObject     { get; }
-        private Action <object, string, object?>  SetProperty      { get; }
-
-        public PSqlClient(
-            Action <string>                  writeInformation,
-            Action <string>                  writeWarning,
-            Action <object>                  writeOutput,
-            Func   <object>                  createObject,
-            Action <object, string, object?> setProperty)
+        public PSqlClient()
         {
-            WriteInformation = writeInformation
-                ?? throw new ArgumentNullException(nameof(writeInformation));
+            SniLoader.Load();
+        }
 
-            WriteWarning = writeWarning
-                ?? throw new ArgumentNullException(nameof(writeWarning));
+        public SqlConnectionStringBuilder CreateConnectionStringBuilder()
+            => new SqlConnectionStringBuilder();
 
-            WriteOutput = writeOutput
-                ?? throw new ArgumentNullException(nameof(writeOutput));
+        public SqlConnection Connect(
+            string         connectionString,
+            Action<string> writeInformation,
+            Action<string> writeWarning)
+        {
+            return ConnectCore(
+                new SqlConnection(connectionString),
+                writeInformation,
+                writeWarning
+            );
+        }
 
-            CreateObject = createObject
-                ?? throw new ArgumentNullException(nameof(createObject));
+        public SqlConnection Connect(
+            string         connectionString,
+            string         username,
+            SecureString   password,
+            Action<string> writeInformation,
+            Action<string> writeWarning)
+        {
+            if (password is null)
+                throw new ArgumentNullException(nameof(password));
 
-            SetProperty = setProperty
-                ?? throw new ArgumentNullException(nameof(setProperty));
+            if (!password.IsReadOnly())
+                (password = password.Copy()).MakeReadOnly();
 
-            // Not sure if we'll need this now
-            //SniLoader.Load();
+            var credential = new SqlCredential(username, password);
 
-            // Test that we can create one
-            using var connection = new SqlConnection("Server=.;Database=master;Integrated Security=True");
-            connection.Open();
+            return ConnectCore(
+                new SqlConnection(connectionString, credential),
+                writeInformation,
+                writeWarning
+            );
+        }
 
-            using var command = connection.CreateCommand();
-            command.Connection  = connection;
-            command.CommandType = CommandType.Text;
-            command.CommandText = "SELECT name FROM sys.types;";
+        private SqlConnection ConnectCore(
+            SqlConnection  connection,
+            Action<string> writeInformation,
+            Action<string> writeWarning)
+        {
+            var info = null as ConnectionInfo;
 
-            using var reader = command.ExecuteReader();
+            try
+            {
+                info = ConnectionInfo.Get(connection);
 
-            while (reader.Read())
-                reader.GetString(reader.GetOrdinal("name"));
+                connection.FireInfoMessageEventOnUserErrors = true;
+                connection.InfoMessage += (sender, e) =>
+                {
+                    if (sender is SqlConnection c)
+                        HandleMessage(c, e.Errors, writeInformation, writeWarning);
+                };
+
+                connection.Open();
+
+                return connection;
+            }
+            catch
+            {
+                if (info != null)
+                    info.IsDisconnecting = true;
+
+                connection?.Dispose();
+                throw;
+            }
+        }
+
+        private void HandleMessage(
+            SqlConnection      connection,
+            SqlErrorCollection errors,
+            Action<string>     writeInformation,
+            Action<string>     writeWarning)
+        {
+            const int MaxInformationalSeverity = 10;
+
+            foreach (SqlError? error in errors)
+            {
+                if (error is null)
+                {
+                    // Do nothing
+                }
+                else if (error.Class <= MaxInformationalSeverity)
+                {
+                    // Output as normal text
+                    writeInformation(error.Message);
+                }
+                else
+                {
+                    // Output as warning
+                    writeWarning(Format(error));
+
+                    // Mark current command as failed
+                    ConnectionInfo.Get(connection).HasErrors = true;
+                }
+            }
+        }
+
+        private static string Format(SqlError error)
+        {
+            const string NonProcedureLocationName = "(batch)";
+
+            var procedure
+                =  error.Procedure.NullIfEmpty()
+                ?? NonProcedureLocationName;
+
+            return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
+        }
+
+        public bool HasErrors(SqlConnection connection)
+        {
+            return ConnectionInfo.Get(connection).HasErrors;
+        }
+
+        public void ClearErrors(SqlConnection connection)
+        {
+            ConnectionInfo.Get(connection).HasErrors = false;
+        }
+
+        public void SetDisconnecting(SqlConnection connection)
+        {
+            // Indicate that disconnection is expected
+            ConnectionInfo.Get(connection).IsDisconnecting = true;
+        }
+
+        public IEnumerator<object> ExecuteAndProject(
+            SqlCommand                      command,
+            Func<object>                    createObject,
+            Action<object, string, object?> setProperty,
+            bool                            useSqlTypes = false)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (command.Connection.State == ConnectionState.Closed)
+                command.Connection.Open();
+
+            var reader = command.ExecuteReader();
+            // dispose if error
+
+            return new ObjectResultSet(reader, createObject, setProperty, useSqlTypes);
         }
     }
 }

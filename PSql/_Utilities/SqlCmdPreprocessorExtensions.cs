@@ -23,7 +23,7 @@ namespace PSql
     internal static class SqlCmdPreprocessorExtensions
     {
         public static SqlCmdPreprocessor WithVariables(
-            this SqlCmdPreprocessor preprocessor, IDictionary entries)
+            this SqlCmdPreprocessor preprocessor, IDictionary? entries)
         {
             if (preprocessor is null)
                 throw new ArgumentNullException(nameof(preprocessor));
@@ -33,8 +33,11 @@ namespace PSql
 
             var variables = preprocessor.Variables;
 
-            foreach (DictionaryEntry entry in entries)
+            foreach (var obj in entries)
             {
+                if (obj is not DictionaryEntry entry)
+                    continue;
+
                 if (entry.Key is null)
                     continue;
 

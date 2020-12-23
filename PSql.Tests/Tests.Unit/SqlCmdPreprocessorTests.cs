@@ -37,7 +37,7 @@ namespace PSql.Tests.Unit
         public void Process_NullText()
         {
             new SqlCmdPreprocessor()
-                .Invoking(p => p.Process(null))
+                .Invoking(p => p.Process(null!))
                 .Should().Throw<ArgumentNullException>()
                 .Where(e => e.ParamName == "text");
         }

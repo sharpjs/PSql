@@ -14,28 +14,11 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System.Management.Automation;
-
 namespace PSql
 {
-    [Cmdlet(VerbsCommunications.Connect, "Sql")]
-    [OutputType(typeof(SqlConnection))]
-    public class ConnectSqlCommand : Cmdlet
+    internal static class StringExtensions
     {
-        // -Context
-        [Parameter(Position = 0, ValueFromPipeline = true)]
-        public SqlContext? Context { get; set; }
-
-        // -DatabaseName
-        [Parameter]
-        [Alias("Database")]
-        public string? DatabaseName { get; set; }
-
-        protected override void ProcessRecord()
-        {
-            (var connection, _) = EnsureConnection(null, Context, DatabaseName);
-
-            WriteObject(connection);
-        }
+        internal static string? NullIfEmpty(this string? s)
+            => string.IsNullOrEmpty(s) ? null : s;
     }
 }

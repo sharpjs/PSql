@@ -46,19 +46,15 @@ namespace PSql
                 return; // no
 
             // Get path to SNI DLL
-            var sniDllPath = Path.Combine(
-                Path.GetDirectoryName(typeof(SniLoader).Assembly.Location) ?? "",
-                "runtimes",
-                rid,
-                "native",
-                "Microsoft.Data.SqlClient.SNI.dll"
+            var path = Path.Combine(
+                "runtimes", rid, "native", "Microsoft.Data.SqlClient.SNI.dll"
             );
 
             // Load SNI DLL
             // BUG: Still does not honor the AssemblyLoadContext in .NET Core 3.1
             // https://github.com/dotnet/runtime/issues/13819
             NativeLibrary.Load(
-                sniDllPath,
+                path,
                 typeof(SniLoader).Assembly,
                 DllImportSearchPath.AssemblyDirectory
             );

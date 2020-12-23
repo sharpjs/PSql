@@ -17,8 +17,6 @@
 using System;
 using System.Text;
 
-#nullable enable
-
 namespace PSql
 {
     using static Math;

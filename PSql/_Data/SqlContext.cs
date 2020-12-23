@@ -19,12 +19,9 @@ using System.Globalization;
 using System.Management.Automation;
 using System.Net;
 using System.Text;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
-    using static FormattableString;
-
     /// <summary>
     ///   Information necessary to connect to a SQL Server or compatible
     ///   database.
@@ -71,23 +68,23 @@ namespace PSql
             EnableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
         }
 
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
         public ushort? ServerPort { get; set; }
 
-        public string InstanceName { get; set; }
+        public string? InstanceName { get; set; }
 
-        public string DatabaseName { get; set; }
+        public string? DatabaseName { get; set; }
 
-        public PSCredential Credential { get; set; }
+        public PSCredential? Credential { get; set; }
 
         public EncryptionMode EncryptionMode { get; set; }
 
         public TimeSpan? ConnectTimeout { get; set; }
 
-        public string ClientName { get; set; }
+        public string? ClientName { get; set; }
 
-        public string ApplicationName { get; set; }
+        public string? ApplicationName { get; set; }
 
         public ApplicationIntent ApplicationIntent { get; set; }
 
@@ -99,7 +96,7 @@ namespace PSql
 
         public virtual bool IsAzure => false;
 
-        public AzureSqlContext AsAzure => this as AzureSqlContext;
+        public AzureSqlContext? AsAzure => this as AzureSqlContext;
 
         public bool IsLocal => GetIsLocal();
 
@@ -109,24 +106,19 @@ namespace PSql
 
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
-        internal SqlConnection CreateConnection(string databaseName = null)
+        internal string GetConnectionString(string? databaseName = null)
         {
-            var builder = new SqlConnectionStringBuilder();
+            var builder = PSqlClient.Instance.CreateConnectionStringBuilder();
 
             BuildConnectionString(builder);
 
             if (databaseName != null)
                 builder.InitialCatalog = databaseName;
 
-            var connectionString = builder.ToString();
-            var credential       = GetCredential();
-
-            return credential == null
-                ? new SqlConnection(connectionString)
-                : new SqlConnection(connectionString, credential);
+            return builder.ToString();
         }
 
-        protected void BuildConnectionString(SqlConnectionStringBuilder builder)
+        protected void BuildConnectionString(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             ConfigureServerName          (builder);
             ConfigureDefaultDatabaseName (builder);
@@ -155,7 +147,8 @@ namespace PSql
             builder.Pooling                  = EnableConnectionPooling;
         }
 
-        protected virtual void ConfigureServerName(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureServerName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             var dataSource = ServerName.NullIfEmpty() ?? LocalServerName;
 
@@ -175,7 +168,8 @@ namespace PSql
             builder.DataSource = dataSource;
         }
 
-        protected virtual void ConfigureDefaultDatabaseName(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureDefaultDatabaseName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             if (!string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = DatabaseName;
@@ -183,7 +177,8 @@ namespace PSql
             //  server determines database
         }
 
-        protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureAuthentication(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             // Authentication
             if (Credential.IsNullOrEmpty())
@@ -192,7 +187,8 @@ namespace PSql
             //  will provide credential as a SqlCredential object
         }
 
-        protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureEncryption(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             var (useEncryption, useServerIdentityCheck)
                 = TranslateEncryptionMode(EncryptionMode);
@@ -233,19 +229,6 @@ namespace PSql
                 || comparer.Equals(ServerName, "(local)")
                 || comparer.Equals(ServerName, "localhost")
                 || comparer.Equals(ServerName, Dns.GetHostName());
-        }
-
-        private SqlCredential GetCredential()
-        {
-            if (Credential.IsNullOrEmpty())
-                return null; // using integrated security
-
-            // Prevent error that occurs if password is not marked read-only
-            var password = Credential.Password;
-            if (!password.IsReadOnly())
-                (password = password.Copy()).MakeReadOnly();
-
-            return new SqlCredential(Credential.UserName, password);
         }
     }
 }

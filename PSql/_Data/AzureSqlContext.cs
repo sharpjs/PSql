@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -57,9 +56,9 @@ namespace PSql
 
         public sealed override bool IsAzure => true;
 
-        public string ResourceGroupName { get; set; }
+        public string? ResourceGroupName { get; set; }
 
-        public string ServerFullName { get; internal set; }
+        public string? ServerFullName { get; internal set; }
 
         public AzureAuthenticationMode AuthenticationMode { get; set; }
 
@@ -67,12 +66,12 @@ namespace PSql
 
         protected override SqlContext CloneCore() => new AzureSqlContext(this);
 
-        protected override void ConfigureServerName(SqlConnectionStringBuilder builder)
+        protected override void ConfigureServerName(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
         }
 
-        protected override void ConfigureDefaultDatabaseName(SqlConnectionStringBuilder builder)
+        protected override void ConfigureDefaultDatabaseName(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             if (!string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = DatabaseName;
@@ -80,32 +79,32 @@ namespace PSql
                 builder.InitialCatalog = MasterDatabaseName;
         }
 
-        protected override void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        protected override void ConfigureAuthentication(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
-            var auth = (SqlAuthenticationMethod) AuthenticationMode;
+            var mode = AuthenticationMode;
 
-            switch (auth)
+            switch (mode)
             {
-                case SqlAuthenticationMethod.NotSpecified when Credential != null:
-                    auth = SqlAuthenticationMethod.SqlPassword;
+                case AzureAuthenticationMode.Default when Credential != null:
+                    mode = AzureAuthenticationMode.SqlPassword;
                     break;
 
-                case SqlAuthenticationMethod.NotSpecified:
-                    auth = SqlAuthenticationMethod.ActiveDirectoryIntegrated;
+                case AzureAuthenticationMode.Default:
+                    mode = AzureAuthenticationMode.AadIntegrated;
                     break;
 
-                case SqlAuthenticationMethod.SqlPassword:
-                case SqlAuthenticationMethod.ActiveDirectoryPassword:
-                case SqlAuthenticationMethod.ActiveDirectoryServicePrincipal:
+                case AzureAuthenticationMode.SqlPassword:
+                case AzureAuthenticationMode.AadPassword:
+                case AzureAuthenticationMode.AadServicePrincipal:
                     if (Credential.IsNullOrEmpty())
                         throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
                     break;
             }
 
-            builder.Authentication = auth;
+            builder.Authentication = mode;
         }
 
-        protected override void ConfigureEncryption(SqlConnectionStringBuilder builder)
+        protected override void ConfigureEncryption(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             // Encryption is required for connections to Azure SQL Database
             builder.Encrypt = true;
@@ -134,7 +133,7 @@ namespace PSql
                 .Create("param ($x) Get-AzSqlServer @x -ea Stop")
                 .Invoke(new Dictionary<string, object>
                 {
-                    ["ResourceGroupName"] = ResourceGroupName,
+                    ["ResourceGroupName"] = ResourceGroupName!, // null-checked above
                     ["ServerName"]        = ServerName,
                 })
                 .FirstOrDefault()

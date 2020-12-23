@@ -16,13 +16,14 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Path = System.IO.Path;
 
-#nullable enable
-
 namespace PSql
 {
+    using static RuntimeInformation;
+
     internal static class PSqlClient
     {
         private const string
@@ -31,6 +32,7 @@ namespace PSql
         private static string              LoadPath    { get; }
         private static AssemblyLoadContext LoadContext { get; }
         private static Assembly            Assembly    { get; }
+        public  static dynamic             Instance    { get; }
 
         static PSqlClient()
         {
@@ -41,20 +43,24 @@ namespace PSql
             LoadContext = new AssemblyLoadContext(nameof(PSqlClient));
             LoadContext.Resolving += OnResolving;
 
+            LoadMicrosoftDataSqlClientAssembly();
             Assembly = LoadAssembly(AssemblyPath);
+
+            Instance = CreateObject(nameof(PSqlClient));
         }
 
-        internal static dynamic CreateObject(string typeName, params object?[]? arguments)
+        private static void LoadMicrosoftDataSqlClientAssembly()
         {
-            // NULLS: CreateInstance returns null only for valueless instances
-            // of Nullable<T>, which cannot happen here.
-            return Activator.CreateInstance(GetType(typeName), arguments)!;
-        }
+            // Get runtime identifier
+            var rid = IsOSPlatform(OSPlatform.Windows) ? "win" : "unix";
 
-        internal static Type GetType(string name)
-        {
-            // NULLS: Does not return null when trowOnError is true.
-            return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
+            // Get path to MDS DLL
+            var path = Path.Combine(
+                "runtimes", rid, "lib", "netcoreapp3.1", "Microsoft.Data.SqlClient.dll"
+            );
+
+            // Load MDS DLL
+            LoadAssembly(path);
         }
 
         private static Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
@@ -85,6 +91,19 @@ namespace PSql
         {
             return path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
                 || path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Type GetType(string name)
+        {
+            // NULLS: Does not return null when trowOnError is true.
+            return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
+        }
+
+        private static dynamic CreateObject(string typeName, params object?[]? arguments)
+        {
+            // NULLS: CreateInstance returns null only for valueless instances
+            // of Nullable<T>, which cannot happen here.
+            return Activator.CreateInstance(GetType(typeName), arguments)!;
         }
     }
 }
