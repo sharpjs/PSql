@@ -1,12 +1,14 @@
 using System;
 
+#nullable enable
+
 namespace PSql
 {
     public class SqlConnection : IDisposable
     {
         private readonly dynamic _connection;
 
-        internal SqlConnection(Cmdlet2 cmdlet, SqlContext context)
+        internal SqlConnection(Cmdlet cmdlet, SqlContext context)
         {
             var client           = PSqlClient.Instance;
             var connectionString = context.GetConnectionString();
