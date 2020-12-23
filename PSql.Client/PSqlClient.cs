@@ -74,5 +74,8 @@ namespace PSql
             while (reader.Read())
                 reader.GetString(reader.GetOrdinal("name"));
         }
+
+        public SqlConnectionStringBuilder CreateSqlConnectionStringBuilder()
+            => new SqlConnectionStringBuilder();
     }
 }
