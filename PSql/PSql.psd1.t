@@ -46,7 +46,7 @@
     CmdletsToExport      = @(
         "New-SqlContext"
         "Connect-Sql"
-        #"Disconnect-Sql"
+        "Disconnect-Sql"
         "Expand-SqlCmdDirectives"
         #"Invoke-Sql"
         "Test-PSql"
