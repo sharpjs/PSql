@@ -22,8 +22,6 @@ using System.Text;
 
 namespace PSql
 {
-    using static FormattableString;
-
     /// <summary>
     ///   Information necessary to connect to a SQL Server or compatible
     ///   database.
