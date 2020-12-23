@@ -24,17 +24,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj">
-      <!-- https://docs.microsoft.com/en-ca/archive/blogs/kirillosenkov/how-to-have-a-project-reference-without-referencing-the-actual-binary -->
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </ProjectReference>
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="System.Management.Automation" Version="7.0.3" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="System.Management.Automation" Version="7.0.3" PrivateAssets="All" />
+    <None Include="..\PSql.Client\bin\$(Configuration)\$(TargetFramework)\**" Visible="false" />
   </ItemGroup>
 
   <Target Name="FixupPsd1" DependsOnTargets="GeneratePsd1" BeforeTargets="AssignTargetPaths" />
