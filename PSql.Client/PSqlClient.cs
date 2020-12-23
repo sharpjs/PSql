@@ -151,5 +151,11 @@ namespace PSql
 
             return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
         }
+
+        public void SetDisconnecting(SqlConnection connection)
+        {
+            // Indicate that disconnection is expected
+            ConnectionInfo.Get(connection).IsDisconnecting = true;
+        }
     }
 }

@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -16,7 +15,6 @@
 */
 
 using System.Management.Automation;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -26,25 +24,21 @@ namespace PSql
     {
         // -Connection
         [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]
-        public SqlConnection[] Connection { get; set; }
+        public SqlConnection?[]? Connection { get; set; }
 
         protected override void ProcessRecord()
         {
             var connections = Connection;
-            if (connections == null)
+            if (connections is null)
                 return;
 
             foreach (var connection in connections)
             {
-                if (connection == null)
+                if (connection is null)
                     continue;
-
-                // Indicate that disconnection is expected
-                ConnectionInfo.Get(connection).IsDisconnecting = true;
 
                 connection.Dispose();
             }
         }
     }
 }
-#endif

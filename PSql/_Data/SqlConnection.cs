@@ -37,8 +37,13 @@ namespace PSql
 
         protected virtual void Dispose(bool managed)
         {
-            if (managed)
-                _connection.Dispose();
+            if (!managed)
+                return;
+
+            // Indicate that disconnection is expected
+            PSqlClient.Instance.SetDisconnecting(_connection);
+
+            _connection.Dispose();
         }
     }
 }
