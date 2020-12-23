@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -19,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -53,7 +51,9 @@ namespace PSql
         {
             ResourceGroupName  = other.ResourceGroupName;
             ServerFullName     = other.ServerFullName;
+#if ISOLATED
             AuthenticationMode = other.AuthenticationMode;
+#endif
         }
 
         public sealed override bool IsAzure => true;
@@ -62,12 +62,15 @@ namespace PSql
 
         public string ServerFullName { get; internal set; }
 
+#if ISOLATED
         public AzureAuthenticationMode AuthenticationMode { get; set; }
+#endif
 
         public new AzureSqlContext Clone() => (AzureSqlContext) CloneCore();
 
         protected override SqlContext CloneCore() => new AzureSqlContext(this);
 
+#if ISOLATED
         protected override void ConfigureServerName(SqlConnectionStringBuilder builder)
         {
             builder.DataSource = ServerFullName ?? ResolveServerFullName();
@@ -151,6 +154,6 @@ namespace PSql
 
             return ServerFullName = value;
         }
+#endif
     }
 }
-#endif
