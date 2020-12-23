@@ -48,7 +48,7 @@
         "Connect-Sql"
         "Disconnect-Sql"
         "Expand-SqlCmdDirectives"
-        #"Invoke-Sql"
+        "Invoke-Sql"
         "Test-PSql"
     )
 

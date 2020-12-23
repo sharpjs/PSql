@@ -23,7 +23,7 @@ namespace PSql
     internal static class SqlCmdPreprocessorExtensions
     {
         public static SqlCmdPreprocessor WithVariables(
-            this SqlCmdPreprocessor preprocessor, IDictionary entries)
+            this SqlCmdPreprocessor preprocessor, IDictionary? entries)
         {
             if (preprocessor is null)
                 throw new ArgumentNullException(nameof(preprocessor));

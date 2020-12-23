@@ -60,12 +60,30 @@ namespace PSql
             => (int) _connection.State == (int) ConnectionState.Open;
 
         /// <summary>
+        ///   Gets a value indicating whether or not errors have been logged
+        ///   on the connection.
+        /// </summary>
+        public bool HasErrors
+            => PSqlClient.Instance.HasErrors(_connection);
+
+        /// <summary>
         ///   Closes the connection and frees resources owned by it.
         /// </summary>
         public void Dispose()
         {
             Dispose(managed: true);
             GC.SuppressFinalize(this);
+        }
+
+        internal void ClearErrors()
+        {
+            // Clear any failures from prior command
+            PSqlClient.Instance.ClearErrors(_connection);
+        }
+
+        internal SqlCommand CreateCommand(Cmdlet cmdlet)
+        {
+            return new SqlCommand(_connection, cmdlet);
         }
 
         private protected virtual void Dispose(bool managed)

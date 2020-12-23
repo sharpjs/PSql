@@ -15,28 +15,19 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Runtime.InteropServices;
-using System.Runtime.Loader;
 using System.Security;
 using Microsoft.Data.SqlClient;
-using Path = System.IO.Path;
 
 namespace PSql
 {
-    using static RuntimeInformation;
-
     /// <summary>
     ///   Top-level interface between PSql and PSql.Client.
     /// </summary>
     public class PSqlClient
     {
-        // private Action <string>                   WriteInformation { get; }
-        // private Action <string>                   WriteWarning     { get; }
-        // private Action <object>                   WriteOutput      { get; }
-        // private Func   <object>                   CreateObject     { get; }
-        // private Action <object, string, object?>  SetProperty      { get; }
-
         public PSqlClient()
         {
             SniLoader.Load();
@@ -152,10 +143,38 @@ namespace PSql
             return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
         }
 
+        public bool HasErrors(SqlConnection connection)
+        {
+            return ConnectionInfo.Get(connection).HasErrors;
+        }
+
+        public void ClearErrors(SqlConnection connection)
+        {
+            ConnectionInfo.Get(connection).HasErrors = false;
+        }
+
         public void SetDisconnecting(SqlConnection connection)
         {
             // Indicate that disconnection is expected
             ConnectionInfo.Get(connection).IsDisconnecting = true;
+        }
+
+        public IEnumerator<object> ExecuteAndProject(
+            SqlCommand                      command,
+            Func<object>                    createObject,
+            Action<object, string, object?> setProperty,
+            bool                            useSqlTypes = false)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (command.Connection.State == ConnectionState.Closed)
+                command.Connection.Open();
+
+            var reader = command.ExecuteReader();
+            // dispose if error
+
+            return new ObjectResultSet(reader, createObject, setProperty, useSqlTypes);
         }
     }
 }

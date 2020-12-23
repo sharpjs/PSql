@@ -1,4 +1,3 @@
-#if ISOLATED
 /*
     Copyright 2020 Jeffrey Sharp
 
@@ -21,7 +20,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Management.Automation;
-using Microsoft.Data.SqlClient;
 
 namespace PSql
 {
@@ -29,13 +27,15 @@ namespace PSql
     [OutputType(typeof(PSObject[]))]
     public class InvokeSqlCommand : ConnectedCmdlet
     {
+#nullable disable warnings // Guaranteed by PowerShell
         // -Sql
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
         public string[] Sql { get; set; }
+#nullable restore
 
         // -Define
         [Parameter(Position = 1)]
-        public Hashtable Define { get; set; }
+        public Hashtable? Define { get; set; }
 
         // -NoPreprocessing
         [Parameter]
@@ -54,8 +54,10 @@ namespace PSql
         [Parameter]
         public TimeSpan? Timeout { get; set; }
 
+#nullable disable warnings // Initialized in BeginProcessing, called by PowerShell
         private SqlCmdPreprocessor _preprocessor;
         private SqlCommand         _command;
+#nullable restore
 
         private bool ShouldUsePreprocessing
             => !NoPreprocessing;
@@ -68,14 +70,10 @@ namespace PSql
             // Will open a connection if one is not already open
             base.BeginProcessing();
 
-            // Clear any failures from prior command
-            ConnectionInfo.Get(Connection).HasErrors = false;
+            Connection.ClearErrors();
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
-
-            _command             = Connection.CreateCommand();
-            _command.Connection  = Connection;
-            _command.CommandType = CommandType.Text;
+            _command      = Connection.CreateCommand(this);
 
             if (Timeout.HasValue)
                 _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
@@ -142,7 +140,7 @@ namespace PSql
 
         private void ReportErrors()
         {
-            if (ConnectionInfo.Get(Connection).HasErrors)
+            if (Connection.HasErrors)
                 throw new DataException("An error occurred while executing the SQL batch.");
         }
 
@@ -151,11 +149,10 @@ namespace PSql
             if (managed)
             {
                 _command?.Dispose();
-                _command = null;
+                _command = null!;
             }
 
             base.Dispose(managed);
         }
     }
 }
-#endif
