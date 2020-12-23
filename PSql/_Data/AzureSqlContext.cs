@@ -51,9 +51,7 @@ namespace PSql
         {
             ResourceGroupName  = other.ResourceGroupName;
             ServerFullName     = other.ServerFullName;
-#if ISOLATED
             AuthenticationMode = other.AuthenticationMode;
-#endif
         }
 
         public sealed override bool IsAzure => true;
@@ -62,9 +60,7 @@ namespace PSql
 
         public string ServerFullName { get; internal set; }
 
-#if ISOLATED
         public AzureAuthenticationMode AuthenticationMode { get; set; }
-#endif
 
         public new AzureSqlContext Clone() => (AzureSqlContext) CloneCore();
 
