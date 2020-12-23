@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Data;
 using Microsoft.Data.SqlClient;
 
 namespace PSql
@@ -52,7 +53,22 @@ namespace PSql
             SetProperty = setProperty
                 ?? throw new ArgumentNullException(nameof(setProperty));
 
-            SniLoader.Load();
+            // Not sure if we'll need this now
+            //SniLoader.Load();
+
+            // Test that we can create one
+            using var connection = new SqlConnection("Server=.;Database=master;Integrated Security=True");
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.Connection  = connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "SELECT name FROM sys.types;";
+
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+                reader.GetString(reader.GetOrdinal("name"));
         }
     }
 }
