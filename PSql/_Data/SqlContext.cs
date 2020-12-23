@@ -127,8 +127,9 @@ namespace PSql
                 ? new SqlConnection(connectionString)
                 : new SqlConnection(connectionString, credential);
         }
+#endif
 
-        protected void BuildConnectionString(SqlConnectionStringBuilder builder)
+        protected void BuildConnectionString(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             ConfigureServerName          (builder);
             ConfigureDefaultDatabaseName (builder);
@@ -157,7 +158,8 @@ namespace PSql
             builder.Pooling                  = EnableConnectionPooling;
         }
 
-        protected virtual void ConfigureServerName(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureServerName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             var dataSource = ServerName.NullIfEmpty() ?? LocalServerName;
 
@@ -177,7 +179,8 @@ namespace PSql
             builder.DataSource = dataSource;
         }
 
-        protected virtual void ConfigureDefaultDatabaseName(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureDefaultDatabaseName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             if (!string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = DatabaseName;
@@ -185,7 +188,8 @@ namespace PSql
             //  server determines database
         }
 
-        protected virtual void ConfigureAuthentication(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureAuthentication(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             // Authentication
             if (Credential.IsNullOrEmpty())
@@ -194,7 +198,8 @@ namespace PSql
             //  will provide credential as a SqlCredential object
         }
 
-        protected virtual void ConfigureEncryption(SqlConnectionStringBuilder builder)
+        protected virtual void ConfigureEncryption(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             var (useEncryption, useServerIdentityCheck)
                 = TranslateEncryptionMode(EncryptionMode);
@@ -237,6 +242,7 @@ namespace PSql
                 || comparer.Equals(ServerName, Dns.GetHostName());
         }
 
+#if ISOLATED
         private SqlCredential GetCredential()
         {
             if (Credential.IsNullOrEmpty())
