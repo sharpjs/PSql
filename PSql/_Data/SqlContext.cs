@@ -108,24 +108,17 @@ namespace PSql
 
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
-#if ISOLATED
-        internal SqlConnection CreateConnection(string databaseName = null)
+        internal string GetConnectionString(string databaseName = null)
         {
-            var builder = new SqlConnectionStringBuilder();
+            var builder = PSqlClient.Instance.CreateConnectionStringBuilder();
 
             BuildConnectionString(builder);
 
             if (databaseName != null)
                 builder.InitialCatalog = databaseName;
 
-            var connectionString = builder.ToString();
-            var credential       = GetCredential();
-
-            return credential == null
-                ? new SqlConnection(connectionString)
-                : new SqlConnection(connectionString, credential);
+            return builder.ToString();
         }
-#endif
 
         protected void BuildConnectionString(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
