@@ -17,7 +17,7 @@
 using System;
 using System.Management.Automation;
 
-// PowerShell parameters anger the nullability checker
+// TODO: enable
 #nullable disable
 
 namespace PSql

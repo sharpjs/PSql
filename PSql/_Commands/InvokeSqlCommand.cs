@@ -52,10 +52,8 @@ namespace PSql
         [Parameter]
         public TimeSpan? Timeout { get; set; }
 
-#nullable disable warnings // Initialized in BeginProcessing, called by PowerShell
-        private SqlCmdPreprocessor _preprocessor;
-        private SqlCommand         _command;
-#nullable restore
+        private SqlCmdPreprocessor? _preprocessor;
+        private SqlCommand?         _command;
 
         private bool ShouldUsePreprocessing
             => !NoPreprocessing;
@@ -68,10 +66,13 @@ namespace PSql
             // Will open a connection if one is not already open
             base.BeginProcessing();
 
-            Connection.ClearErrors();
+            var connection = AssertWithinLifetime(Connection);
+
+            // Clear any errors left by previous commands on this connection
+            connection.ClearErrors();
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
-            _command      = Connection.CreateCommand(this);
+            _command      = connection.CreateCommand(this);
 
             if (Timeout.HasValue)
                 _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
@@ -104,7 +105,9 @@ namespace PSql
 
         private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
         {
-            return scripts.SelectMany(s => _preprocessor.Process(s));
+            var preprocessor = AssertWithinLifetime(_preprocessor);
+
+            return scripts.SelectMany(s => preprocessor.Process(s));
         }
 
         private void Execute(IEnumerable<string> batches)
@@ -115,9 +118,11 @@ namespace PSql
 
         private void Execute(string batch)
         {
-            _command.CommandText = batch;
+            var command = AssertWithinLifetime(_command);
 
-            foreach (var obj in _command.ExecuteAndProjectToPSObjects(UseSqlTypes))
+            command.CommandText = batch;
+
+            foreach (var obj in command.ExecuteAndProjectToPSObjects(UseSqlTypes))
                 WriteObject(obj);
         }
 
@@ -137,7 +142,9 @@ namespace PSql
 
         private void ReportErrors()
         {
-            if (Connection.HasErrors)
+            var connection = AssertWithinLifetime(Connection);
+
+            if (connection.HasErrors)
                 throw new DataException("An error occurred while executing the SQL batch.");
         }
 
@@ -146,7 +153,7 @@ namespace PSql
             if (managed)
             {
                 _command?.Dispose();
-                _command = null!;
+                _command = null;
             }
 
             base.Dispose(managed);

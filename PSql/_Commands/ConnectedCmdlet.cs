@@ -30,11 +30,9 @@ namespace PSql
             ConnectionName = nameof(Connection),
             ContextName    = nameof(Context);
 
-#nullable disable warnings // Guaranteed by BeginProcessing, called by PowerShell
         // -Connection
         [Parameter(ParameterSetName = ConnectionName, Mandatory = true)]
-        public SqlConnection Connection { get; set; }
-#nullable restore
+        public SqlConnection? Connection { get; set; }
 
         // -Context
         [Parameter(ParameterSetName = ContextName)]
@@ -73,7 +71,7 @@ namespace PSql
             if (_ownsConnection)
                 Connection?.Dispose();
 
-            Connection      = null!;
+            Connection      = null;
             _ownsConnection = false;
         }
     }
