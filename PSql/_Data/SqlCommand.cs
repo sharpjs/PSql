@@ -25,7 +25,7 @@ namespace PSql
     {
         private readonly dynamic _command;
 
-        public SqlCommand(dynamic connection, Cmdlet cmdlet)
+        internal SqlCommand(dynamic connection, Cmdlet cmdlet)
         {
             if (connection is null)
                 throw new ArgumentNullException(nameof(connection));
