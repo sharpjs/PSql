@@ -68,42 +68,154 @@ namespace PSql
             EnableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
         }
 
+        /// <summary>
+        ///   Gets or sets the name (DNS name or Azure resource name) of the
+        ///   database server.  The default is <c>null</c>.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     For <see cref="AzureSqlContext"/>, this property is required.
+        ///     If <see cref="AzureSqlContext.ResourceGroupName"/> is <c>null</c>,
+        ///     this property specifies the DNS name of the Azure SQL Database
+        ///     endpoint.  Example: <c>myserver.database.windows.net</c>.
+        ///     If <see cref="AzureSqlContext.ResourceGroupName"/> is not
+        ///     <c>null</c>, this property specifies the Azure resource name of
+        ///     the virtual database server.  Example: <c>myserver</c>.
+        ///   </para>
+        ///   <para>
+        ///     For non-Azure contexts, this parameter is optional and
+        ///     specifies the DNS name of the database server.  The values
+        ///     <c>.</c> and <c>(local)</c> are recognized as aliases for the
+        ///     local machine.  If not specified, connection attempts will
+        ///     target the local machine.
+        ///   </para>
+        /// </remarks>
         public string? ServerName { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the remote TCP port of the database server.  If
+        ///   <c>null</c>, the underlying ADO.NET implementation will use a
+        ///   default port, typically 1433.  The default is <c>null</c>.
+        /// </summary>
         public ushort? ServerPort { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the name of the database engine instance.  If
+        ///   <c>null</c>, connection attempts will target the default
+        ///   instance.  The default is <c>null</c>.
+        /// </summary>
         public string? InstanceName { get; set; }
 
+        /// <summary>
+        ///  Gets or sets the name of the database.  If <c>null</c>,
+        ///  connections will attempt to open in the default database of the
+        ///  authenticated user.  The default is <c>null</c>.
+        /// </summary>
         public string? DatabaseName { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the credential to use to authenticate with the
+        ///   database server.  The default is <c>null</c>.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     For <see cref="AzureSqlContext"/>, the use of this property
+        ///     depends on the authentication mode.  For details, see the
+        ///     <see cref="AzureSqlContext.AuthenticationMode"/> property.
+        ///   </para>
+        ///   <para>
+        ///     For non-Azure contexts, if <c>Credential</c> is not
+        ///     <c>null</c>, connections will use SQL password authentication.
+        ///     If this property is <c>null</c>, connections will use
+        ///     integrated authentication.
+        ///   </para>
+        /// </remarks>
         public PSCredential? Credential { get; set; }
 
+        /// <summary>
+        ///   Gets or sets a value that specifies the transport encryption to
+        ///   use for connections.  The default is
+        ///   <see cref="EncryptionMode.Default"/>.
+        /// </summary>
         public EncryptionMode EncryptionMode { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the duration after which a connection attempt times
+        ///   out.  If <c>null</c>, the underlying ADO.NET implementation
+        ///   default of 15 seconds is used.
+        /// </summary>
         public TimeSpan? ConnectTimeout { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the name of the client device.  If <c>null</c>, the
+        ///   underlying ADO.NET implementation will provide a default value.
+        /// </summary>
         public string? ClientName { get; set; }
 
+        /// <summary>
+        ///   Gets or sets the name of the client application.  If <c>null</c>,
+        ///   the underlying ADO.NET implementation will provide a default
+        ///   value.
+        /// </summary>
         public string? ApplicationName { get; set; }
 
+        /// <summary>
+        ///   Gets or sets a value that declares the kinds of operations that
+        ///   the client application intends to perform against databases.
+        /// </summary>
         public ApplicationIntent ApplicationIntent { get; set; }
 
+        /// <summary>
+        ///   Gets or sets whether the credential used for authentication
+        ///   should be exposed in the <see cref="SqlConnection.ConnectionString"/>
+        ///   property.  This is a potential security risk, so use only when
+        ///   necessary.
+        /// </summary>
         public bool ExposeCredentialInConnectionString { get; set; }
 
+        /// <summary>
+        ///   Gets or sets whether connections may be pooled to reduce setup
+        ///   and teardown time.  Pooling is useful when making many
+        ///   connections with identical connection strings.
+        /// </summary>
         public bool EnableConnectionPooling { get; set; }
 
+        /// <summary>
+        ///   Gets or sets whether connections support execution of multiple
+        ///   batches concurrently, with limitations.  For more information,
+        ///   see Multiple Active Result Sets (MARS):
+        ///   https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars
+        /// </summary>
         public bool EnableMultipleActiveResultSets { get; set; }
 
+        /// <summary>
+        ///   Gets whether the context is an <see cref="AzureSqlContext"/>.
+        /// </summary>
         public virtual bool IsAzure => false;
 
+        /// <summary>
+        ///   Gets the context cast to <see cref="AzureSqlContext"/>.  If the
+        ///   context is a non-Azure context, this property is <c>null</c>.
+        /// </summary>
         public AzureSqlContext? AsAzure => this as AzureSqlContext;
 
+        /// <summary>
+        ///   Gets whether the context connects to the local computer.
+        /// </summary>
         public bool IsLocal => GetIsLocal();
 
+        /// <summary>
+        ///    Creates a new object that is a copy of the current instance.
+        /// </summary>
         public SqlContext Clone() => CloneCore();
 
+        /// <inheritdoc/>
         object ICloneable.Clone() => CloneCore();
 
+        /// <summary>
+        ///    Creates a new object that is a copy of the current instance.
+        ///    Subclasses should override this method.
+        /// </summary>
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
         internal string GetConnectionString(string? databaseName = null)
@@ -180,7 +292,6 @@ namespace PSql
         protected virtual void ConfigureAuthentication(
             dynamic /*SqlConnectionStringBuilder*/ builder)
         {
-            // Authentication
             if (Credential.IsNullOrEmpty())
                 builder.IntegratedSecurity = true;
             //else
