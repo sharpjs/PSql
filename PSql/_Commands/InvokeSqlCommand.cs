@@ -27,11 +27,9 @@ namespace PSql
     [OutputType(typeof(PSObject[]))]
     public class InvokeSqlCommand : ConnectedCmdlet
     {
-#nullable disable warnings // Guaranteed by PowerShell
         // -Sql
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
-        public string[] Sql { get; set; }
-#nullable restore
+        public string?[]? Sql { get; set; }
 
         // -Define
         [Parameter(Position = 1)]
@@ -82,12 +80,11 @@ namespace PSql
         protected override void ProcessRecord()
         {
             // Check if scripts were provided at all
-            var scripts = (IEnumerable<string>) Sql;
-            if (scripts == null)
+            if (Sql is not IEnumerable<string?> items)
                 return;
 
             // No need to send empty scripts to server
-            scripts = ExcludeNullOrEmpty(scripts);
+            var scripts = ExcludeNullOrEmpty(items);
 
             // Add optional preprocessing
             if (ShouldUsePreprocessing)
@@ -100,9 +97,9 @@ namespace PSql
                 Execute(scripts);
         }
 
-        private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string> scripts)
+        private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string?> scripts)
         {
-            return scripts.Where(s => !string.IsNullOrEmpty(s));
+            return scripts.Where(s => !string.IsNullOrEmpty(s))!;
         }
 
         private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
