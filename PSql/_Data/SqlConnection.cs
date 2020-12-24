@@ -15,15 +15,15 @@ namespace PSql
     {
         private readonly dynamic _connection;
 
-        internal SqlConnection(SqlContext context, Cmdlet cmdlet)
+        internal SqlConnection(SqlContext? context, string? databaseName, Cmdlet cmdlet)
         {
             if (cmdlet is null)
                 throw new ArgumentNullException(nameof(cmdlet));
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+
+            context ??= new SqlContext();
 
             var client           = PSqlClient.Instance;
-            var connectionString = context.GetConnectionString();
+            var connectionString = context.GetConnectionString(databaseName);
             var credential       = context.Credential;
             var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
             var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));

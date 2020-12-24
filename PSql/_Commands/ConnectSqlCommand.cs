@@ -33,7 +33,7 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            (var connection, _) = EnsureConnection(null, Context, DatabaseName);
+            var connection = new SqlConnection(Context, DatabaseName, this);
 
             WriteObject(connection);
         }

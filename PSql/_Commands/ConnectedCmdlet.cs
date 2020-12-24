@@ -19,6 +19,8 @@ using System.Management.Automation;
 
 namespace PSql
 {
+    using static SqlConnectionHelper;
+
     /// <summary>
     ///   Base class for PSql cmdlets that use an open database connection.
     /// </summary>
@@ -48,9 +50,8 @@ namespace PSql
 
         protected override void BeginProcessing()
         {
-            base.BeginProcessing();
-
-            (Connection, _ownsConnection) = EnsureConnection(Connection, Context, DatabaseName);
+            (Connection, _ownsConnection)
+                = EnsureConnection(Connection, Context, DatabaseName, this);
         }
 
         ~ConnectedCmdlet()
@@ -66,13 +67,14 @@ namespace PSql
 
         protected virtual void Dispose(bool managed)
         {
-            if (managed && _ownsConnection)
-            {
-                // Disconnect
+            if (!managed)
+                return;
+
+            if (_ownsConnection)
                 Connection?.Dispose();
-                Connection = null!;
-                _ownsConnection = false;
-            }
+
+            Connection      = null!;
+            _ownsConnection = false;
         }
     }
 }
