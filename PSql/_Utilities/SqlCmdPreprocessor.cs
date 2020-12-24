@@ -249,9 +249,7 @@ namespace PSql
 
         private string ReplaceVariables(string text)
         {
-            // TODO: Make this fit better with existing code when more brain
-            // is available.  Right now brain is exhausted.
-
+            // TODO: Potential for optimization here
             var builder = new StringBuilder();
             PerformVariableReplacement(builder, text);
             return builder.ToString();
