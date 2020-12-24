@@ -50,7 +50,7 @@ namespace PSql
 
         private void ProcessScript(string script)
         {
-            // NULLS: Created in BeginProcessing()
+            // NULLS: _preprocessor created in BeginProcessing
             foreach (var batch in _preprocessor!.Process(script))
                 WriteObject(batch);
         }

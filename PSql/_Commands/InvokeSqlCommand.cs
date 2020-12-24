@@ -67,7 +67,7 @@ namespace PSql
             base.BeginProcessing();
 
             // Clear any errors left by previous commands on this connection
-            // NULLS: Created in call to base
+            // NULLS: Connection ensured not null by base.BeginProcessing
             Connection!.ClearErrors();
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
@@ -104,7 +104,7 @@ namespace PSql
 
         private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
         {
-            // NULLS: Created in BeginProcessing()
+            // NULLS: _preprocessor created in BeginProcessing
             return scripts.SelectMany(s => _preprocessor!.Process(s));
         }
 
@@ -116,7 +116,7 @@ namespace PSql
 
         private void Execute(string batch)
         {
-            // NULLS: Created in BeginProcessing()
+            // NULLS: _command created in BeginProcessing
             _command!.CommandText = batch;
 
             foreach (var obj in _command.ExecuteAndProjectToPSObjects(UseSqlTypes))
@@ -139,7 +139,7 @@ namespace PSql
 
         private void ReportErrors()
         {
-            // NULLS: Created in BeginProcessing()
+            // NULLS: Connection ensured not null by BeginProcessing
             if (Connection!.HasErrors)
                 throw new DataException("An error occurred while executing the SQL batch.");
         }

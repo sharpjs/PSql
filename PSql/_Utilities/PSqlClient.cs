@@ -95,7 +95,7 @@ namespace PSql
 
         private static Type GetType(string name)
         {
-            // NULLS: Does not return null when trowOnError is true.
+            // NULLS: Does not return null when throwOnError is true
             return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
         }
 
