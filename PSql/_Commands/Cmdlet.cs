@@ -60,5 +60,19 @@ namespace PSql
 
             WriteInformation(data, HostTag);
         }
+
+        protected static T AssertWithinLifetime<T>(T? obj)
+            where T : class
+        {
+            if (obj is not null)
+                return obj;
+
+            var message = string.Format(
+                "Attempted to access an object of type '{0}' outside of its lifetime scope.",
+                typeof(T).FullName
+            );
+
+            throw new InvalidOperationException(message);
+        }
     }
 }

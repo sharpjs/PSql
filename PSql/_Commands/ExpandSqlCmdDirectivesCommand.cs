@@ -17,9 +17,6 @@
 using System.Collections;
 using System.Management.Automation;
 
-// PowerShell parameters anger the nullability checker
-#nullable disable
-
 namespace PSql
 {
     [Cmdlet(VerbsData.Expand, "SqlCmdDirectives")]
@@ -28,13 +25,13 @@ namespace PSql
     {
         // -Sql
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
-        public string[] Sql { get; set; }
+        public string?[]? Sql { get; set; }
 
         // -Define
         [Parameter(Position = 1)]
-        public Hashtable Define { get; set; }
+        public Hashtable? Define { get; set; }
 
-        private SqlCmdPreprocessor _preprocessor;
+        private SqlCmdPreprocessor? _preprocessor;
 
         protected override void BeginProcessing()
         {
@@ -43,8 +40,7 @@ namespace PSql
 
         protected override void ProcessRecord()
         {
-            var scripts = Sql;
-            if (scripts == null)
+            if (Sql is not string?[] scripts)
                 return;
 
             foreach (var script in scripts)
@@ -54,7 +50,9 @@ namespace PSql
 
         private void ProcessScript(string script)
         {
-            foreach (var batch in _preprocessor.Process(script))
+            var preprocessor = AssertWithinLifetime(_preprocessor);
+
+            foreach (var batch in preprocessor.Process(script))
                 WriteObject(batch);
         }
     }
