@@ -72,7 +72,7 @@ namespace PSql
         ///   do not provide a web browser, using another device to perform
         ///   interactive authentication.
         /// </summary>
-        AadDeviceCodeFlow = 6, // ActiveDirectoryServicePrincipal
+        AadDeviceCodeFlow = 6, // ActiveDirectoryDeviceCodeFlow
 
         /// <summary>
         ///   Azure Active Directory managed identity authentication mode.  For
@@ -81,6 +81,6 @@ namespace PSql
         ///   the password is ignored.  For a system-assigned identity, the
         ///   the <see cref="SqlContext.Credential"/> should be null.
         /// </summary>
-        AadManagedIdentity = 7, // ActiveDirectoryServicePrincipal
+        AadManagedIdentity = 7, // ActiveDirectoryManagedIdentity
     }
 }

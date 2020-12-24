@@ -648,7 +648,7 @@
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>AuthenticationMode</maml:name>
-          <command:parameterValue required="true">{ Default | SqlPassword | AadPassword | AadIntegrated | AadInteractive | AadServicePrincipal }</command:parameterValue>
+          <command:parameterValue required="true">{ Default | SqlPassword | AadPassword | AadIntegrated | AadInteractive | AadServicePrincipal | AadDeviceCodeFlow | AadManagedIdentity }</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false">
           <maml:name>ReadOnlyIntent</maml:name>
@@ -803,7 +803,23 @@
               </maml:para>
             </maml:description>
           </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadDeviceCodeFlow</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory device code flow authentication mode.  Use this mode to connect to Azure SQL Database from devices that do not provide a web browser, using another device to perform interactive authentication.  -Credential is not required.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
         </dev:possibleValues>
+          <dev:possibleValue>
+            <dev:value>AadManagedIdentity</dev:value>
+            <maml:description>
+              <maml:para>
+                Azure Active Directory managed identity authentication mode.  For a user-assigned identity, -Credential is required and should match the object ID of the identity; the password is ignored.  For a system-assigned identity, -Credential should be omitted.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Encryption">
