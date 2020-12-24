@@ -50,9 +50,8 @@ namespace PSql
 
         private void ProcessScript(string script)
         {
-            var preprocessor = AssertWithinLifetime(_preprocessor);
-
-            foreach (var batch in preprocessor.Process(script))
+            // NULLS: Created in BeginProcessing()
+            foreach (var batch in _preprocessor!.Process(script))
                 WriteObject(batch);
         }
     }

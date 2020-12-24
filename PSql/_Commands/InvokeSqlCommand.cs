@@ -66,13 +66,12 @@ namespace PSql
             // Will open a connection if one is not already open
             base.BeginProcessing();
 
-            var connection = AssertWithinLifetime(Connection);
-
             // Clear any errors left by previous commands on this connection
-            connection.ClearErrors();
+            // NULLS: Created in call to base
+            Connection!.ClearErrors();
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
-            _command      = connection.CreateCommand(this);
+            _command      = Connection.CreateCommand(this);
 
             if (Timeout.HasValue)
                 _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
@@ -105,9 +104,8 @@ namespace PSql
 
         private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
         {
-            var preprocessor = AssertWithinLifetime(_preprocessor);
-
-            return scripts.SelectMany(s => preprocessor.Process(s));
+            // NULLS: Created in BeginProcessing()
+            return scripts.SelectMany(s => _preprocessor!.Process(s));
         }
 
         private void Execute(IEnumerable<string> batches)
@@ -118,11 +116,10 @@ namespace PSql
 
         private void Execute(string batch)
         {
-            var command = AssertWithinLifetime(_command);
+            // NULLS: Created in BeginProcessing()
+            _command!.CommandText = batch;
 
-            command.CommandText = batch;
-
-            foreach (var obj in command.ExecuteAndProjectToPSObjects(UseSqlTypes))
+            foreach (var obj in _command.ExecuteAndProjectToPSObjects(UseSqlTypes))
                 WriteObject(obj);
         }
 
@@ -142,9 +139,8 @@ namespace PSql
 
         private void ReportErrors()
         {
-            var connection = AssertWithinLifetime(Connection);
-
-            if (connection.HasErrors)
+            // NULLS: Created in BeginProcessing()
+            if (Connection!.HasErrors)
                 throw new DataException("An error occurred while executing the SQL batch.");
         }
 
