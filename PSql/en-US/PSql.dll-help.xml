@@ -895,6 +895,18 @@
         <dev:defaultValue>None (default instance)</dev:defaultValue>
       </command:parameter>
 
+      <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="ReadOnly">
+        <maml:name>ReadOnlyIntent</maml:name>
+        <maml:description>
+          <maml:para>Specifies that the client intends to perform only reads.  The server might optimize connections for a read-only workload.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Client">
         <maml:name>ClientName</maml:name>
         <maml:description>
