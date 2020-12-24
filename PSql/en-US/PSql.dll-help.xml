@@ -735,13 +735,14 @@
         <maml:name>Credential</maml:name>
         <maml:description>
           <maml:para>The credential to use to authenticate with the database server.</maml:para>
-          <maml:para>If not specified, connections will attempt to use integrated authentication.</maml:para>
+          <maml:para>When the -Azure switch is used, the use of the credential depends on the -AuthenticationMode parameter.</maml:para>
+          <maml:para>Otherwise, connections will present the credential for SQL password authentication.  If -Credential is not specified, connections will attempt to use integrated authentication.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSCredential</command:parameterValue>
         <dev:type>
           <maml:name>System.Management.Automation.PSCredential</maml:name>
         </dev:type>
-        <dev:defaultValue>None (integrated authentication)</dev:defaultValue>
+        <dev:defaultValue>None (mode-dependent with -Azure; otherwise, integrated authentication)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Auth">
@@ -767,7 +768,7 @@
             <dev:value>SqlPassword</dev:value>
             <maml:description>
               <maml:para>
-                SQL authentication mode.  -Credential is required and should match the name and password stored for a server login or contained database user.
+                SQL password authentication mode.  -Credential is required and should match the name and password stored for a server login or contained database user.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -924,13 +925,13 @@
         <maml:name>ConnectTimeout</maml:name>
         <maml:description>
           <maml:para>The duration after which a connection attempt times out.</maml:para>
-          <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
+          <maml:para>If not specified, the underlying ADO.NET implementation default of 15 seconds is used.</maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>
         <dev:type>
           <maml:name>System.TimeSpan</maml:name>
         </dev:type>
-        <dev:defaultValue>None (underlying default)</dev:defaultValue>
+        <dev:defaultValue>None (underlying default of 15 seconds)</dev:defaultValue>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="none">
@@ -961,7 +962,7 @@
         <maml:name>MultipleActiveResultSets</maml:name>
         <maml:description>
           <maml:para>Specifies that connections support execution of multiple batches concurrently, with limitations.</maml:para>
-          <maml:para>For more informatino, see Multiple Active Result Sets (MARS): https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars .</maml:para>
+          <maml:para>For more information, see Multiple Active Result Sets (MARS): https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars .</maml:para>
         </maml:description>
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
         <dev:type>
