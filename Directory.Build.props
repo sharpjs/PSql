@@ -42,7 +42,7 @@
   <!-- Build properties -->
   <PropertyGroup>
     <LangVersion>9.0</LangVersion>
-    <!--<Nullable>enable</Nullable>-->
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!-- Packaging properties -->

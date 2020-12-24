@@ -21,7 +21,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RuntimeIdentifiers>win-arm;win-arm64;win-x64;win-x86;unix</RuntimeIdentifiers>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
