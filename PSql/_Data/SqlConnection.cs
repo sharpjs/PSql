@@ -27,10 +27,37 @@ namespace PSql
     ///   This type is a proxy for
     ///   <c>Microsoft.Data.SqlClient.SqlConnection.</c>
     /// </remarks>
-    public class SqlConnection : IDisposable // ~> M.D.S.SqlConnection
+    public class SqlConnection : IDisposable
     {
-        private readonly dynamic _connection;
+        private readonly dynamic _connection; // M.D.S.SqlConnection
 
+        /// <summary>
+        ///   Creates a new <see cref="SqlConnection"/> instance for the
+        ///   specified context and database name, logging server messages
+        ///   via the specified cmdlet.
+        /// </summary>
+        /// <param name="context">
+        ///   An object containing information necessary to connect to a
+        ///   database.  If not provided, the constructor will use a context
+        ///   with default property values.
+        /// </param>
+        /// <param name="databaseName">
+        ///   The name of the database to which to connect.  If not provided,
+        ///   the constructor connects to the default database for the context.
+        /// </param>
+        /// <param name="cmdlet">
+        ///   The cmdlet whose
+        ///     <see cref="Cmdlet.WriteHost(string, bool, ConsoleColor?, ConsoleColor?)"/>
+        ///   and
+        ///     <see cref="System.Management.Automation.Cmdlet.WriteWarning(string)"/>
+        ///   methods will be used to print messges received from the server.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="cmdlet"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="System.Data.Common.DbException">
+        ///   A connection-level error occurred while opening the connection.
+        /// </exception>
         internal SqlConnection(SqlContext? context, string? databaseName, Cmdlet cmdlet)
         {
             if (cmdlet is null)
@@ -83,6 +110,31 @@ namespace PSql
             => PSqlClient.Instance.HasErrors(_connection);
 
         /// <summary>
+        ///   Sets <see cref="HasErrors"/> to <c>false</c>, forgetting about
+        ///   any errors prevously logged on the connection.
+        /// </summary>
+        internal void ClearErrors()
+        {
+            PSqlClient.Instance.ClearErrors(_connection);
+        }
+
+        /// <summary>
+        ///   Creates a new <see cref="SqlCommand"/> instance that can execute
+        ///   commands on the connection and will output result objects via
+        ///   the specified cmdlet.
+        /// </summary>
+        /// <param name="cmdlet">
+        ///   The cmdlet whose
+        ///   <see cref="System.Management.Automation.Cmdlet.WriteObject(object)"/>
+        ///   method will be used to print result objects produced by the
+        ///   command.
+        /// </param>
+        internal SqlCommand CreateCommand(Cmdlet cmdlet)
+        {
+            return new SqlCommand(_connection, cmdlet);
+        }
+
+        /// <summary>
         ///   Closes the connection and frees resources owned by it.
         /// </summary>
         public void Dispose()
@@ -91,26 +143,23 @@ namespace PSql
             GC.SuppressFinalize(this);
         }
 
-        internal void ClearErrors()
+        /// <summary>
+        ///   Closes the connection and frees resources owned by it.
+        /// </summary>
+        /// <param name="managed">
+        ///   Whether to dispose managed resources.  Unmanaged are always
+        ///   disposed.
+        /// </param>
+        protected virtual void Dispose(bool managed)
         {
-            // Clear any failures from prior command
-            PSqlClient.Instance.ClearErrors(_connection);
-        }
+            if (managed)
+            {
+                // Indicate that disconnection is expected
+                PSqlClient.Instance.SetDisconnecting(_connection);
 
-        internal SqlCommand CreateCommand(Cmdlet cmdlet)
-        {
-            return new SqlCommand(_connection, cmdlet);
-        }
-
-        private protected virtual void Dispose(bool managed)
-        {
-            if (!managed)
-                return;
-
-            // Indicate that disconnection is expected
-            PSqlClient.Instance.SetDisconnecting(_connection);
-
-            _connection.Dispose();
+                // Disconect
+                _connection.Dispose();
+            }
         }
     }
 }

@@ -24,22 +24,31 @@ namespace PSql
         /// <summary>
         ///   Returns the specified shared <see cref="SqlConnection"/> instance
         ///   if provided, or creates a new, owned instance using the specified
-        ///   context and database name.
+        ///   context, database name, and cmdlet.
         /// </summary>
         /// <param name="connection">
         ///   The shared connection.  If provided, the method returns this
         ///   connection.
         /// </param>
         /// <param name="context">
-        ///   An object containing information necessary to connect to a SQL
-        ///   Server or compatible database if <paramref name="connection"/> is
-        ///   <c>null</c>.  If not provided, the method will use a context with
-        ///   default property values as necessary.
+        ///   An object containing information necessary to connect to a
+        ///   database if <paramref name="connection"/> is <c>null</c>.  If not
+        ///   provided, the method will use a context with default property
+        ///   values as necessary.
         /// </param>
         /// <param name="databaseName">
         ///   The name of the database to which to connect if
         ///   <paramref name="connection"/> is <c>null</c>.  If not provided,
         ///   the method connects to the default database for the context.
+        /// </param>
+        /// <param name="cmdlet">
+        ///   A cmdlet whose
+        ///     <see cref="Cmdlet.WriteHost(string, bool, ConsoleColor?, ConsoleColor?)"/>
+        ///   and
+        ///     <see cref="System.Management.Automation.Cmdlet.WriteWarning(string)"/>
+        ///   methods will be used to print messges received from the server
+        ///   over the new connection created if <paramref name="connection"/>
+        ///   is <c>null</c>.
         /// </param>
         /// <returns>
         ///   A tuple consisting of the resulting connection and a value that

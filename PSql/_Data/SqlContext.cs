@@ -23,8 +23,8 @@ using System.Text;
 namespace PSql
 {
     /// <summary>
-    ///   Information necessary to connect to a SQL Server or compatible
-    ///   database.
+    ///   Information necessary to connect to SQL Server, Azure SQL Database,
+    ///   or compatible product.
     /// </summary>
     public class SqlContext : ICloneable
     {
