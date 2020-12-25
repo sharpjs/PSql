@@ -306,7 +306,6 @@ namespace PSql
                 command.Connection.Open();
 
             var reader = command.ExecuteReader();
-            // dispose if error
 
             return new ObjectResultSet(reader, createObject, setProperty, useSqlTypes);
         }
