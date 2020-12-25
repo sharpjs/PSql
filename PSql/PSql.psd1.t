@@ -32,7 +32,7 @@
     #RequiredAssemblies  = @(...)
 
     # Initialization
-    ScriptsToProcess  = @( 'Resolve-SqlClient.ps1' )
+    #ScriptsToProcess = @(...)
     #TypesToProcess   = @(...)
     #FormatsToProcess = @(...)
     #NestedModules    = @(...)
