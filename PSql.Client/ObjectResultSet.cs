@@ -22,7 +22,7 @@ namespace PSql
 {
     using static FormattableString;
 
-    public sealed class ObjectResultSet : IEnumerator<object>
+    internal sealed class ObjectResultSet : IEnumerator<object>
     {
         private readonly SqlDataReader                    _reader;
         private readonly Func   <object>                  _createObject;
