@@ -90,11 +90,27 @@ namespace PSql
         internal IEnumerator<object> ExecuteAndProjectToPSObjects(SwitchParameter useSqlTypes)
         {
             return PSqlClient.Instance.ExecuteAndProject(
-                _command,
-                new Func   <object>                  (() => new PSObject()),
-                new Action <object, string, object?> ((o, n, v) => ((PSObject) o).Properties.Add(new PSNoteProperty(n, v))),
-                useSqlTypes
+                _command, ObjectCreator, PropertySetter, useSqlTypes
             );
+        }
+
+        private static readonly Func<object>
+            ObjectCreator = CreateObject;
+
+        private static readonly Action<object, string, object?>
+            PropertySetter = AddProperty;
+
+        private static object CreateObject()
+        {
+            return new PSObject();
+        }
+
+        private static void AddProperty(object obj, string name, object? value)
+        {
+            var target   = (PSObject) obj;
+            var property = new PSNoteProperty(name, value);
+
+            target.Properties.Add(property);
         }
 
         /// <summary>
