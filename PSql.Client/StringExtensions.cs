@@ -18,11 +18,7 @@ namespace PSql
 {
     internal static class StringExtensions
     {
-        // This extension is present in both PSql and PSql.Client.  To prevent
-        // the name from being ambiguous in the test project (which references
-        // both), add some arbitrary suffix here.
-
-        internal static string? NullIfEmpty_(this string? s)
+        internal static string? NullIfEmpty(this string? s)
             => string.IsNullOrEmpty(s) ? null : s;
     }
 }

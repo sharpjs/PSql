@@ -70,7 +70,7 @@ namespace PSql
             const string NonProcedureLocationName = "(batch)";
 
             var procedure
-                =  error.Procedure.NullIfEmpty_()
+                =  error.Procedure.NullIfEmpty()
                 ?? NonProcedureLocationName;
 
             return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
