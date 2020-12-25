@@ -148,15 +148,9 @@ namespace PSql
             {
                 info = ConnectionInfo.Get(connection);
 
-                connection.FireInfoMessageEventOnUserErrors = true;
-                connection.InfoMessage += (sender, e) =>
-                {
-                    if (sender is SqlConnection c)
-                        HandleMessage(c, e.Errors, writeInformation, writeWarning);
-                };
+                SqlConnectionLogger.Use(connection, writeInformation, writeWarning);
 
                 connection.Open();
-
                 return connection;
             }
             catch
@@ -167,47 +161,6 @@ namespace PSql
                 connection?.Dispose();
                 throw;
             }
-        }
-
-        private void HandleMessage(
-            SqlConnection      connection,
-            SqlErrorCollection errors,
-            Action<string>     writeInformation,
-            Action<string>     writeWarning)
-        {
-            const int MaxInformationalSeverity = 10;
-
-            foreach (SqlError? error in errors)
-            {
-                if (error is null)
-                {
-                    // Do nothing
-                }
-                else if (error.Class <= MaxInformationalSeverity)
-                {
-                    // Output as normal text
-                    writeInformation(error.Message);
-                }
-                else
-                {
-                    // Output as warning
-                    writeWarning(Format(error));
-
-                    // Mark current command as failed
-                    ConnectionInfo.Get(connection).HasErrors = true;
-                }
-            }
-        }
-
-        private static string Format(SqlError error)
-        {
-            const string NonProcedureLocationName = "(batch)";
-
-            var procedure
-                =  error.Procedure.NullIfEmpty()
-                ?? NonProcedureLocationName;
-
-            return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
         }
 
         /// <summary>
