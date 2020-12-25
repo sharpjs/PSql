@@ -28,6 +28,9 @@ namespace PSql
     /// </summary>
     public class SqlContext : ICloneable
     {
+        // Connection string defaults are here:
+        // https://github.com/dotnet/SqlClient/blob/v2.1.1/src/Microsoft.Data.SqlClient/netcore/src/Microsoft/Data/Common/DbConnectionStringCommon.cs#L690-L731
+
         protected const string
             LocalServerName    = ".",
             MasterDatabaseName = "master";
