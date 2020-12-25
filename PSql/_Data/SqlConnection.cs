@@ -103,8 +103,8 @@ namespace PSql
             => (int) _connection.State == (int) ConnectionState.Open;
 
         /// <summary>
-        ///   Gets a value indicating whether or not errors have been logged
-        ///   on the connection.
+        ///   Gets a value indicating whether errors have been logged on the
+        ///   connection.
         /// </summary>
         public bool HasErrors
             => PSqlClient.Instance.HasErrors(_connection);

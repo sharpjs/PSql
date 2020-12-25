@@ -32,14 +32,40 @@ namespace PSql
             SniLoader.Load();
         }
 
+        /// <summary>
+        ///   Creates a new <see cref="SqlConnectionStringBuilder"/> instance.
+        /// </summary>
         public SqlConnectionStringBuilder CreateConnectionStringBuilder()
             => new SqlConnectionStringBuilder();
 
+        /// <summary>
+        ///   Creates and opens a new <see cref="SqlConnection"/> instance
+        ///   using the specified connection string, logging server messages
+        ///   via the specified delegates.
+        /// </summary>
+        /// <param name="connectionString">
+        ///   Gets the connection string used to create this connection.  The
+        ///   connection string includes server name, database name, and other
+        ///   parameters that control the initial opening of the connection.
+        /// </param>
+        /// <param name="writeInformation">
+        ///   Delegate that logs server informational messages.
+        /// </param>
+        /// <param name="writeWarning">
+        ///   Delegate that logs server warning or error messages.
+        /// </param>
         public SqlConnection Connect(
             string         connectionString,
             Action<string> writeInformation,
             Action<string> writeWarning)
         {
+            if (connectionString is null)
+                throw new ArgumentNullException(nameof(connectionString));
+            if (writeInformation is null)
+                throw new ArgumentNullException(nameof(writeInformation));
+            if (writeWarning is null)
+                throw new ArgumentNullException(nameof(writeWarning));
+
             return ConnectCore(
                 new SqlConnection(connectionString),
                 writeInformation,
@@ -47,6 +73,28 @@ namespace PSql
             );
         }
 
+        /// <summary>
+        ///   Creates and opens a new <see cref="SqlConnection"/> instance
+        ///   using the specified connection string and credential, logging
+        ///   server messages via the specified delegates.
+        /// </summary>
+        /// <param name="connectionString">
+        ///   Gets the connection string used to create this connection.  The
+        ///   connection string includes server name, database name, and other
+        ///   parameters that control the initial opening of the connection.
+        /// </param>
+        /// <param name="username">
+        ///   The username to present for authentication.
+        /// </param>
+        /// <param name="password">
+        ///   The password to present for authentication.
+        /// </param>
+        /// <param name="writeInformation">
+        ///   Delegate that logs server informational messages.
+        /// </param>
+        /// <param name="writeWarning">
+        ///   Delegate that logs server warning or error messages.
+        /// </param>
         public SqlConnection Connect(
             string         connectionString,
             string         username,
@@ -54,8 +102,16 @@ namespace PSql
             Action<string> writeInformation,
             Action<string> writeWarning)
         {
+            if (connectionString is null)
+                throw new ArgumentNullException(nameof(connectionString));
+            if (username is null)
+                throw new ArgumentNullException(nameof(username));
             if (password is null)
                 throw new ArgumentNullException(nameof(password));
+            if (writeInformation is null)
+                throw new ArgumentNullException(nameof(writeInformation));
+            if (writeWarning is null)
+                throw new ArgumentNullException(nameof(writeWarning));
 
             if (!password.IsReadOnly())
                 (password = password.Copy()).MakeReadOnly();
@@ -142,22 +198,71 @@ namespace PSql
             return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
         }
 
+        /// <summary>
+        ///   Returns a value indicating whether errors have been logged on the
+        ///   specified connection.
+        /// </summary>
+        /// <param name="connection">
+        ///   The connection to check.
+        /// </param>
         public bool HasErrors(SqlConnection connection)
         {
             return ConnectionInfo.Get(connection).HasErrors;
         }
 
+        /// <summary>
+        ///   Clears any errors prevously logged on the specified connection.
+        /// </summary>
+        /// <param name="connection">
+        ///   The connection for which to clear error state.
+        /// </param>
         public void ClearErrors(SqlConnection connection)
         {
             ConnectionInfo.Get(connection).HasErrors = false;
         }
 
+        /// <summary>
+        ///   Indicates that the specified connection is expected to
+        ///   disconnect.
+        /// </summary>
+        /// <param name="connection">
+        ///   The connection that is expected to disconnect.
+        /// </param>
         public void SetDisconnecting(SqlConnection connection)
         {
-            // Indicate that disconnection is expected
             ConnectionInfo.Get(connection).IsDisconnecting = true;
         }
 
+        /// <summary>
+        ///   Executes the specified <see cref="SqlCommand"/> and projects
+        ///   results to objects using the specified delegates.
+        /// </summary>
+        /// <param name="command">
+        ///   The command to execute.
+        /// </param>
+        /// <param name="createObject">
+        ///   Delegate that creates a result object.
+        /// </param>
+        /// <param name="setProperty">
+        ///   Delegate that sets a property on a result object.
+        /// </param>
+        /// <param name="useSqlTypes">
+        ///   <c>false</c> to project fields using CLR types from the
+        ///     <see cref="System"/> namespace, such as <see cref="int"/>.
+        ///   <c>true</c> to project fields using SQL types from the
+        ///     <see cref="System.Data.SqlTypes"/> namespace, such as
+        ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
+        /// </param>
+        /// <returns>
+        ///   A sequence of objects created by executing
+        ///     <paramref name="command"/>
+        ///   and projecting each result row to an object using
+        ///     <paramref name="createObject"/>,
+        ///     <paramref name="setProperty"/>, and
+        ///     <paramref name="useSqlTypes"/>,
+        ///   in the order produced by the command.  If the command produces no
+        ///   result rows, this method returns an empty sequence.
+        /// </returns>
         public IEnumerator<object> ExecuteAndProject(
             SqlCommand                      command,
             Func<object>                    createObject,
