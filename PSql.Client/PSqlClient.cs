@@ -54,6 +54,11 @@ namespace PSql
         /// <param name="writeWarning">
         ///   Delegate that logs server warning or error messages.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="connectionString"/>,
+        ///   <paramref name="writeInformation"/>, and/or
+        ///   <paramref name="writeWarning"/> is <c>null</c>.
+        /// </exception>
         public SqlConnection Connect(
             string         connectionString,
             Action<string> writeInformation,
@@ -95,6 +100,13 @@ namespace PSql
         /// <param name="writeWarning">
         ///   Delegate that logs server warning or error messages.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="connectionString"/>,
+        ///   <paramref name="username"/>,
+        ///   <paramref name="password"/>,
+        ///   <paramref name="writeInformation"/>, and/or
+        ///   <paramref name="writeWarning"/> is <c>null</c>.
+        /// </exception>
         public SqlConnection Connect(
             string         connectionString,
             string         username,
@@ -205,6 +217,9 @@ namespace PSql
         /// <param name="connection">
         ///   The connection to check.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="connection"/> is <c>null</c>.
+        /// </exception>
         public bool HasErrors(SqlConnection connection)
         {
             return ConnectionInfo.Get(connection).HasErrors;
@@ -216,6 +231,9 @@ namespace PSql
         /// <param name="connection">
         ///   The connection for which to clear error state.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="connection"/> is <c>null</c>.
+        /// </exception>
         public void ClearErrors(SqlConnection connection)
         {
             ConnectionInfo.Get(connection).HasErrors = false;
@@ -228,6 +246,9 @@ namespace PSql
         /// <param name="connection">
         ///   The connection that is expected to disconnect.
         /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="connection"/> is <c>null</c>.
+        /// </exception>
         public void SetDisconnecting(SqlConnection connection)
         {
             ConnectionInfo.Get(connection).IsDisconnecting = true;
@@ -263,6 +284,11 @@ namespace PSql
         ///   in the order produced by the command.  If the command produces no
         ///   result rows, this method returns an empty sequence.
         /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///   <paramref name="command"/>,
+        ///   <paramref name="createObject"/>, and/or
+        ///   <paramref name="setProperty"/> is <c>null</c>.
+        /// </exception>
         public IEnumerator<object> ExecuteAndProject(
             SqlCommand                      command,
             Func<object>                    createObject,
@@ -271,6 +297,10 @@ namespace PSql
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+            if (createObject is null)
+                throw new ArgumentNullException(nameof(createObject));
+            if (setProperty is null)
+                throw new ArgumentNullException(nameof(setProperty));
 
             if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
