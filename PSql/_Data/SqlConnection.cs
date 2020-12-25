@@ -120,18 +120,11 @@ namespace PSql
 
         /// <summary>
         ///   Creates a new <see cref="SqlCommand"/> instance that can execute
-        ///   commands on the connection and will output result objects via
-        ///   the specified cmdlet.
+        ///   commands on the connection.
         /// </summary>
-        /// <param name="cmdlet">
-        ///   The cmdlet whose
-        ///   <see cref="System.Management.Automation.Cmdlet.WriteObject(object)"/>
-        ///   method will be used to print result objects produced by the
-        ///   command.
-        /// </param>
-        internal SqlCommand CreateCommand(Cmdlet cmdlet)
+        internal SqlCommand CreateCommand()
         {
-            return new SqlCommand(_connection, cmdlet);
+            return new SqlCommand(_connection);
         }
 
         /// <summary>

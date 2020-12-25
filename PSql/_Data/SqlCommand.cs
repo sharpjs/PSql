@@ -35,27 +35,18 @@ namespace PSql
 
         /// <summary>
         ///   Creates a new <see cref="SqlCommand"/> that can execute commands
-        ///   on the specified connection and will output result objects via
-        ///   the specified cmdlet.
+        ///   on the specified connection.
         /// </summary>
         /// <param name="connection">
         ///   The connection on which to execute commands.
         /// </param>
-        /// <param name="cmdlet">
-        ///   The cmdlet whose
-        ///   <see cref="System.Management.Automation.Cmdlet.WriteObject(object)"/>
-        ///   method will be used to print result objects.
-        /// </param>
         /// <exception cref="ArgumentNullException">
-        ///   <paramref name="connection"/> and/or <paramref name="cmdlet"/> is
-        ///   <c>null</c>.
+        ///   <paramref name="connection"/> is <c>null</c>.
         /// </exception>
-        internal SqlCommand(dynamic /*SqlConnection*/ connection, Cmdlet cmdlet)
+        internal SqlCommand(dynamic /*SqlConnection*/ connection)
         {
             if (connection is null)
                 throw new ArgumentNullException(nameof(connection));
-            if (cmdlet is null)
-                throw new ArgumentNullException(nameof(cmdlet));
 
             _command             = connection.CreateCommand();
             _command.Connection  = connection;

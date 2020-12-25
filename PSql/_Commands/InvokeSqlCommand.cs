@@ -71,7 +71,7 @@ namespace PSql
             Connection!.ClearErrors();
 
             _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
-            _command      = Connection.CreateCommand(this);
+            _command      = Connection.CreateCommand();
 
             if (Timeout.HasValue)
                 _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
