@@ -27,7 +27,7 @@ namespace PSql
     /// </summary>
     public class PSqlClient
     {
-        public PSqlClient()
+        static PSqlClient()
         {
             SniLoader.Load();
         }
