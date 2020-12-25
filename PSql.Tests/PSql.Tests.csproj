@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PSql\PSql.csproj" />
+    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>
