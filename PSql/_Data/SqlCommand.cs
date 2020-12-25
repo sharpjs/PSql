@@ -87,7 +87,7 @@ namespace PSql
         ///     <see cref="System.Data.SqlTypes"/> namespace, such as
         ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
         /// </param>
-        internal IEnumerator<object> ExecuteAndProjectToPSObjects(SwitchParameter useSqlTypes)
+        internal IEnumerator<object> ExecuteAndProjectToObjects(SwitchParameter useSqlTypes)
         {
             return PSqlClient.Instance.ExecuteAndProject(
                 _command, ObjectCreator, PropertySetter, useSqlTypes

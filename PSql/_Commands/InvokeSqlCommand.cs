@@ -119,7 +119,7 @@ namespace PSql
             // NULLS: _command created in BeginProcessing
             _command!.CommandText = batch;
 
-            foreach (var obj in _command.ExecuteAndProjectToPSObjects(UseSqlTypes))
+            foreach (var obj in _command.ExecuteAndProjectToObjects(UseSqlTypes))
                 WriteObject(obj);
         }
 
