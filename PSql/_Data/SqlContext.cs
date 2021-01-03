@@ -270,7 +270,6 @@ namespace PSql
                 builder.ApplicationIntent = ApplicationIntent;
 
             // Other
-            builder.PersistSecurityInfo      = ExposeCredentialInConnectionString;
             builder.MultipleActiveResultSets = EnableMultipleActiveResultSets;
             builder.Pooling                  = EnableConnectionPooling;
         }
@@ -309,7 +308,15 @@ namespace PSql
             dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             if (Credential.IsNullOrEmpty())
+            {
                 builder.IntegratedSecurity = true;
+            }
+            else if (ExposeCredentialInConnectionString)
+            {
+                builder.UserID              = Credential!.UserName;
+                builder.Password            = Credential!.GetNetworkCredential().Password;
+                builder.PersistSecurityInfo = true;
+            }
             //else
             //  will provide credential as a SqlCredential object
         }

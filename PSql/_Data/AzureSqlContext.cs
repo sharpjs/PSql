@@ -102,6 +102,13 @@ namespace PSql
             }
 
             builder.Authentication = mode;
+
+            if (!Credential.IsNullOrEmpty() && ExposeCredentialInConnectionString)
+            {
+                builder.UserID              = Credential!.UserName;
+                builder.Password            = Credential!.GetNetworkCredential().Password;
+                builder.PersistSecurityInfo = true;
+            }
         }
 
         protected override void ConfigureEncryption(dynamic /*SqlConnectionStringBuilder*/ builder)

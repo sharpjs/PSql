@@ -71,16 +71,20 @@ namespace PSql
             var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
             var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));
 
-            _connection = credential.IsNullOrEmpty()
+            var passCredentialSeparately
+                =  !credential.IsNullOrEmpty()
+                && !context.ExposeCredentialInConnectionString;
+
+            _connection = passCredentialSeparately
                 ? client.Connect(
                     connectionString,
+                    credential!.UserName,
+                    credential!.Password,
                     writeInformation,
                     writeWarning
                 )
                 : client.Connect(
                     connectionString,
-                    credential!.UserName,
-                    credential!.Password,
                     writeInformation,
                     writeWarning
                 );
