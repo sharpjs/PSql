@@ -269,9 +269,13 @@ namespace PSql
             if (ApplicationIntent != ApplicationIntent.ReadWrite)
                 builder.ApplicationIntent = ApplicationIntent;
 
-            // Other
-            builder.MultipleActiveResultSets = EnableMultipleActiveResultSets;
-            builder.Pooling                  = EnableConnectionPooling;
+            // Enable Multiple Active Result Sets
+            if (EnableMultipleActiveResultSets)
+                builder.MultipleActiveResultSets = true;
+
+            // Enable Connection Pooling
+            if (!EnableConnectionPooling)
+                builder.Pooling = false;
         }
 
         protected virtual void ConfigureServerName(
