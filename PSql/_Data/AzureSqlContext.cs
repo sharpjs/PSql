@@ -85,12 +85,12 @@ namespace PSql
 
             switch (mode)
             {
-                case AzureAuthenticationMode.Default when Credential != null:
-                    mode = AzureAuthenticationMode.SqlPassword;
+                case AzureAuthenticationMode.Default when Credential.IsNullOrEmpty():
+                    mode = AzureAuthenticationMode.AadIntegrated;
                     break;
 
                 case AzureAuthenticationMode.Default:
-                    mode = AzureAuthenticationMode.AadIntegrated;
+                    mode = AzureAuthenticationMode.SqlPassword;
                     break;
 
                 case AzureAuthenticationMode.SqlPassword:
