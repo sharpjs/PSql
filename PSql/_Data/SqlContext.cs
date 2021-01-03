@@ -221,7 +221,20 @@ namespace PSql
         /// </summary>
         protected virtual SqlContext CloneCore() => new SqlContext(this);
 
-        internal string GetConnectionString(string? databaseName = null)
+        /// <summary>
+        ///   Gets a connection string built from the property values of the
+        ///   current context, optionally with the specified database name.
+        /// </summary>
+        /// <param name="databaseName">
+        ///   The name of the database to specify in the connection string.
+        ///   If not <c>null</c>, this parameter overrides the value of the
+        ///   <see cref="DatabaseName"/> property.
+        /// </param>
+        /// <returns>
+        ///   A connection string built from the property values of the current
+        ///   context and, if specified, <paramref name="databaseName"/>.
+        /// </returns>
+        public string GetConnectionString(string? databaseName = null)
         {
             var builder = PSqlClient.Instance.CreateConnectionStringBuilder();
 
