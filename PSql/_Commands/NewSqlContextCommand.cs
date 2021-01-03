@@ -118,7 +118,7 @@ namespace PSql
         // -MultipleActiveResultSets
         [Alias("Mars")]
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter MultipleActiveResultSets { get; set; } = true;
+        public SwitchParameter MultipleActiveResultSets { get; set; }
 
         protected override void ProcessRecord()
         {
