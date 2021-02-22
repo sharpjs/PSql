@@ -101,7 +101,7 @@ namespace PSql
                     break;
             }
 
-            builder.Authentication = mode;
+            builder.Authentication = PSqlClient.Instance.GetAuthenticationMethod((int) mode);
 
             if (!Credential.IsNullOrEmpty() && ExposeCredentialInConnectionString)
             {

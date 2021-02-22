@@ -39,6 +39,16 @@ namespace PSql
             => new SqlConnectionStringBuilder();
 
         /// <summary>
+        ///   Casts the specified integer value to
+        ///   <see cref="SqlAuthenticationMethod"/>.
+        /// </summary>
+        /// <param name="value">
+        ///   The value to cast.
+        /// </param>
+        public SqlAuthenticationMethod GetAuthenticationMethod(int value)
+            => (SqlAuthenticationMethod) value;
+
+        /// <summary>
         ///   Creates and opens a new <see cref="SqlConnection"/> instance
         ///   using the specified connection string, logging server messages
         ///   via the specified delegates.
