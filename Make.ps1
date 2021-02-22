@@ -5,7 +5,7 @@
 .DESCRIPTION
     This script is similar to a makefile.
 
-    Copyright 2020 Jeffrey Sharp
+    Copyright 2021 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
