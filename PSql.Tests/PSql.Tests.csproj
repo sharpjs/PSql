@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.3" />
-    <PackageReference Include="Subatomix.Testing" Version="1.0.0" />
+    <PackageReference Include="Subatomix.Testing" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
