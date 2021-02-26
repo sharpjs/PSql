@@ -61,23 +61,28 @@ namespace PSql
             AuthenticationMode = other.AuthenticationMode;
         }
 
+        /// <inheritdoc/>
         public sealed override bool IsAzure => true;
 
+        /// <summary>
+        ///   Gets or sets the name of the resource group containing the
+        ///   database server.  The default is <c>null</c>.
+        /// </summary>
         public string? ResourceGroupName { get; set; }
 
+        /// <summary>
+        ///   Gets the DNS name of the database server.  The value is
+        ///   <c>null</c> until the context is used to create a connection
+        ///   string.
+        /// </summary>
         public string? ServerFullName { get; internal set; }
 
-        public AzureAuthenticationMode AuthenticationMode { get; set; }
-
         /// <summary>
-        ///   Creates a new object that is a copy of the current instance,
-        ///   optionally with the specified database name.
+        ///   Gets or sets the method used to authenticate with the database
+        ///   server.  The default is
+        ///   <see cref="AzureAuthenticationMode.Default"/>.
         /// </summary>
-        /// <param name="databaseName">
-        ///   The name of the database to set on the copy.  If <c>null</c>, the
-        ///   copy will retain the database name of the current instance.  The
-        ///   default is <c>null</c>.
-        /// </param>
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         /// <inheritdoc cref="SqlContext.Clone(string?)" />
         public new AzureSqlContext Clone(string? databaseName = null)
