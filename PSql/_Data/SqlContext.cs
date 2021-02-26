@@ -43,15 +43,21 @@ namespace PSql
 
         /// <summary>
         ///   Initializes a new <see cref="SqlContext"/> instance by copying
-        ///   property values from the specified instance.
+        ///   property values from the specified instance, and optionally with
+        ///   the specified database name.
         /// </summary>
         /// <param name="other">
         ///   The instance from which to copy property values.
         /// </param>
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.  If <c>null</c>, the
+        ///   copy will retain the database name of <paramref name="other"/>.
+        ///   The default is <c>null</c>.
+        /// </param>
         /// <exception cref="ArgumentNullException">
         ///   <paramref name="other"/> is <c>null</c>.
         /// </exception>
-        public SqlContext(SqlContext other)
+        public SqlContext(SqlContext other, string? databaseName = null)
         {
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
@@ -59,7 +65,7 @@ namespace PSql
             ServerName                         = other.ServerName;
             ServerPort                         = other.ServerPort;
             InstanceName                       = other.InstanceName;
-            DatabaseName                       = other.DatabaseName;
+            DatabaseName                       = databaseName ?? other.DatabaseName;
             Credential                         = other.Credential;
             EncryptionMode                     = other.EncryptionMode;
             ConnectTimeout                     = other.ConnectTimeout;
@@ -208,18 +214,33 @@ namespace PSql
         public bool IsLocal => GetIsLocal();
 
         /// <summary>
-        ///    Creates a new object that is a copy of the current instance.
+        ///   Creates a new object that is a copy of the current instance,
+        ///   optionally with the specified database name.
         /// </summary>
-        public SqlContext Clone() => CloneCore();
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.  If <c>null</c>, the
+        ///   copy will retain the database name of the current instance.  The
+        ///   default is <c>null</c>.
+        /// </param>
+        public SqlContext Clone(string? databaseName = null)
+            => CloneCore(databaseName);
 
         /// <inheritdoc/>
-        object ICloneable.Clone() => CloneCore();
+        object ICloneable.Clone()
+            => CloneCore();
 
         /// <summary>
-        ///    Creates a new object that is a copy of the current instance.
-        ///    Subclasses should override this method.
+        ///   Creates a new object that is a copy of the current instance,
+        ///   optionally with the specified database name.  Subclasses should
+        ///   override this method.
         /// </summary>
-        protected virtual SqlContext CloneCore() => new SqlContext(this);
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.  If <c>null</c>, the
+        ///   copy will retain the database name of the current instance.  The
+        ///   default is <c>null</c>.
+        /// </param>
+        protected virtual SqlContext CloneCore(string? databaseName = null)
+            => new SqlContext(this, databaseName);
 
         /// <summary>
         ///   Gets a connection string built from the property values of the

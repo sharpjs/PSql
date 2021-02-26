@@ -45,7 +45,9 @@ namespace PSql.Tests.Unit
         }
 
         [Test]
-        public void Clone_Typed()
+        [TestCase(null,       "database")]
+        [TestCase("other-db", "other-db")]
+        public void Clone_Typed(string? cloneDatabaseName, string expectedDatabaseName)
         {
             var credential = new PSCredential("username", "password".Secure());
 
@@ -66,14 +68,14 @@ namespace PSql.Tests.Unit
                 EnableMultipleActiveResultSets     = true,
             };
 
-            var context = original.Clone();
+            var context = original.Clone(cloneDatabaseName);
 
             context.Should().NotBeNull().And.NotBeSameAs(original);
 
             context.ServerName                         .Should().Be("server");
             context.ServerPort                         .Should().Be(1234);
             context.InstanceName                       .Should().Be("instance");
-            context.DatabaseName                       .Should().Be("database");
+            context.DatabaseName                       .Should().Be(expectedDatabaseName);
             context.Credential                         .Should().BeSameAs(credential);
             context.EncryptionMode                     .Should().Be(EncryptionMode.Full);
             context.ConnectTimeout                     .Should().Be(42.Seconds());
