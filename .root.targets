@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets/2.0.17">
+﻿<Project Sdk="Microsoft.Build.NoTargets/3.0.4">
   <!-- https://github.com/microsoft/MSBuildSdks/tree/master/src/NoTargets -->
 
   <!--
@@ -22,7 +22,6 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <GenerateDependencyFile>false</GenerateDependencyFile>
     <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
     <IsPublishable>false</IsPublishable>
     <IsPackable>false</IsPackable>
