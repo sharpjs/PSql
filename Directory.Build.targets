@@ -22,7 +22,7 @@
     https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
   -->
 
-  <ItemGroup Condition="$(IsPackable)">
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <None Include="..\icon.png" Link="Properties\icon.png"
           Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
     <None Include="..\LICENSE.txt" Link="Properties\LICENSE.txt"
