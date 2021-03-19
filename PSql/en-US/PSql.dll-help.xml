@@ -812,7 +812,6 @@
               </maml:para>
             </maml:description>
           </dev:possibleValue>
-        </dev:possibleValues>
           <dev:possibleValue>
             <dev:value>AadManagedIdentity</dev:value>
             <maml:description>
@@ -821,6 +820,7 @@
               </maml:para>
             </maml:description>
           </dev:possibleValue>
+        </dev:possibleValues>
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="True (ByPropertyName)" globbing="false" aliases="Encryption">
