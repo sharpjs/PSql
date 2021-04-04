@@ -23,6 +23,8 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <IsPublishable>false</IsPublishable>
     <IsPackable>false</IsPackable>
     <SetGitHubActionsVersion>true</SetGitHubActionsVersion>
