@@ -1042,14 +1042,14 @@ namespace PSql.Tests.Integration
         private const string
             GreenlandicCulture = "kl-GL";
 
-        private readonly string Prelude = Invariant($@"
+        private static readonly string Prelude = Invariant($@"
             $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText -Force
             $Credential = New-Object PSCredential sa, $Password
             $Context    = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
             function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
         ").Unindent();
 
-        private (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
+        private static (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
         {
             return ScriptExecutor.Execute(Prelude + script.Unindent());
         }
