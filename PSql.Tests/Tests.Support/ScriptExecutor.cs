@@ -25,15 +25,17 @@ using NUnit.Framework;
 
 namespace PSql.Tests
 {
+    using static FormattableString;
+
     internal static class ScriptExecutor
     {
         private static readonly InitialSessionState
             InitialState = CreateInitialSessionState();
 
         private static readonly string
-            ScriptPreamble = $@"
-                cd ""{TestPath.EscapeForDoubleQuoteString()}""
-            ";
+            ScriptPreamble = Invariant($@"
+                Set-Location ""{TestPath.EscapeForDoubleQuoteString()}""
+            ").Unindent();
 
         private static string
             TestPath => TestContext.CurrentContext.TestDirectory;
@@ -61,7 +63,7 @@ namespace PSql.Tests
             if (script is null)
                 throw new ArgumentNullException(nameof(script));
 
-            script = ScriptPreamble + script;
+            script = ScriptPreamble + script.Unindent();
 
             var output    = new List<PSObject?>();
             var exception = null as Exception;
