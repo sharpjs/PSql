@@ -385,6 +385,8 @@ namespace PSql
                 || comparer.Equals(ServerName, LocalServerName)
                 || comparer.Equals(ServerName, "(local)")
                 || comparer.Equals(ServerName, "localhost")
+                || comparer.Equals(ServerName, "127.0.0.1")
+                || comparer.Equals(ServerName, "::1")
                 || comparer.Equals(ServerName, Dns.GetHostName());
         }
     }
