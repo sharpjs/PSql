@@ -4,6 +4,7 @@ bin/
 /dist/
 /coverage/
 /Stamp.props
+*.psd1
 
 # Visual Studio
 .vs/
