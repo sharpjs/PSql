@@ -26,126 +26,177 @@ namespace PSql
 
     [Cmdlet(VerbsCommon.New, nameof(SqlContext), DefaultParameterSetName = GenericName)]
     [OutputType(typeof(SqlContext))]
-    public class NewSqlContextCommand : Cmdlet
+    public class NewSqlContextCommand : PSCmdlet
     {
         private const string
             GenericName = "Generic",
-            AzureName   = "Azure";
+            AzureName   = "Azure",
+            CloneName   = "Clone";
 
         // -Azure
-        [Parameter(ParameterSetName = AzureName, Position = 0, Mandatory = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName, Mandatory = true)]
         public SwitchParameter Azure { get; set; }
+
+        // -Source
+        [Parameter(ParameterSetName = CloneName, Mandatory = true, ValueFromPipeline = true)]
+        [ValidateNotNull]
+        public SqlContext Source { get; set; }
 
         // -ResourceGroupName
         [Alias("ResourceGroup")]
-        [Parameter(ParameterSetName = AzureName, ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter(ParameterSetName = AzureName)]
+        [Parameter(ParameterSetName = CloneName)]
         public string ResourceGroupName { get; set; }
 
         // -ServerName
         [Alias("Server")]
-        [Parameter(ParameterSetName = GenericName, Position = 0,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 1, Mandatory = true, ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter(ParameterSetName = GenericName, Position = 0)]
+        [Parameter(ParameterSetName = AzureName,   Position = 0, Mandatory = true)]
+        [Parameter(ParameterSetName = CloneName,   Position = 0)]
+        [AllowNull]
         public string ServerName { get; set; }
 
         // -DatabaseName
         [Alias("Database")]
-        [Parameter(ParameterSetName = GenericName, Position = 1,                   ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter(ParameterSetName = GenericName, Position = 1)]
+        [Parameter(ParameterSetName = AzureName,   Position = 1, Mandatory = true)]
+        [Parameter(ParameterSetName = CloneName,   Position = 1)]
+        [AllowNull]
         public string DatabaseName { get; set; }
 
         // -Credential
-        [Parameter(ParameterSetName = GenericName, Position = 2, ValueFromPipelineByPropertyName = true)]
-        [Parameter(ParameterSetName = AzureName,   Position = 3, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName, Position = 2)]
+        [Parameter(ParameterSetName = AzureName,   Position = 2)]
+        [Parameter(ParameterSetName = CloneName,   Position = 2)]
         [Credential]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
         // -AuthenticationMode
         [Alias("Auth")]
-        [Parameter(ParameterSetName = AzureName, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = AzureName)]
+        [Parameter(ParameterSetName = CloneName)]
         public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         // -EncryptionMode
         [Alias("Encryption")]
-        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName)]
+        [Parameter(ParameterSetName = CloneName)]
         public EncryptionMode EncryptionMode { get; set; }
 
         // -ServerPort
         [Alias("Port")]
-        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
+        [Parameter(ParameterSetName = GenericName)]
+        [Parameter(ParameterSetName = CloneName)]
         [ValidateRange((ushort) 1, (ushort) 65535)]
         public ushort? ServerPort { get; set; }
 
         // -InstanceName
         [Alias("Instance")]
-        [Parameter(ParameterSetName = GenericName, ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter(ParameterSetName = GenericName)]
+        [Parameter(ParameterSetName = CloneName)]
+        //[ValidateNotNullOrEmpty]
         public string InstanceName { get; set; }
 
         // -ReadOnlyIntent
         [Alias("ReadOnly")]
-        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [Parameter()]
         public SwitchParameter ReadOnlyIntent { get; set; }
 
         // -ClientName
         [Alias("Client")]
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter()]
+        [AllowNull]
         public string ClientName { get; set; }
 
         // -ApplicationName
         [Alias("Application")]
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        [ValidateNotNullOrEmpty]
+        [Parameter()]
+        [AllowNull]
         public string ApplicationName { get; set; }
 
         // -ConnectTimeout
         [Alias("Timeout")]
-        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [Parameter()]
         [ValidateRange("0:00:00", "24855.03:14:07")]
         public TimeSpan? ConnectTimeout { get; set; }
 
         // -ExposeCredentialInConnectionString
-        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [Parameter()]
         public SwitchParameter ExposeCredentialInConnectionString { get; set; }
 
         // -Pooling
-        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [Parameter()]
         public SwitchParameter Pooling { get; set; }
 
         // -MultipleActiveResultSets
         [Alias("Mars")]
-        [Parameter(ValueFromPipelineByPropertyName = true)]
+        [Parameter()]
         public SwitchParameter MultipleActiveResultSets { get; set; }
 
         protected override void ProcessRecord()
         {
-            var context = Azure.IsPresent
-                ? new AzureSqlContext { ResourceGroupName  = ResourceGroupName  ,
-                                        AuthenticationMode = AuthenticationMode }
-                : new SqlContext      { EncryptionMode     = EncryptionMode     };
+            var context = Source?.Clone() ?? CreateContext();
 
-            var credential = Credential.IsNullOrEmpty()
-                ? null
-                : Credential;
+            if (context is AzureSqlContext azureContext)
+            {
+                if (HasArgument(nameof(ResourceGroupName)))
+                    azureContext.ResourceGroupName = ResourceGroupName;
 
-            context.ServerName        = ServerName;
-            context.ServerPort        = ServerPort;
-            context.InstanceName      = InstanceName;
-            context.DatabaseName      = DatabaseName;
-            context.Credential        = credential;
-            context.ConnectTimeout    = ConnectTimeout;
-            context.ClientName        = ClientName;
-            context.ApplicationName   = ApplicationName;
-            context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
+                if (HasArgument(nameof(AuthenticationMode)))
+                    azureContext.AuthenticationMode = AuthenticationMode;
+            }
+            else // (context is not AzureSqlContext)
+            {
+                if (HasArgument(nameof(EncryptionMode)))
+                    context.EncryptionMode = EncryptionMode;
+            }
 
-            context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
-            context.EnableConnectionPooling            = Pooling;
-            context.EnableMultipleActiveResultSets     = MultipleActiveResultSets;
+            if (HasArgument(nameof(ServerName)))
+                context.ServerName = ServerName;
+
+            if (HasArgument(nameof(ServerPort)))
+                context.ServerPort = ServerPort;
+
+            if (HasArgument(nameof(InstanceName)))
+                context.InstanceName = InstanceName;
+
+            if (HasArgument(nameof(DatabaseName)))
+                context.DatabaseName = DatabaseName;
+
+            if (HasArgument(nameof(Credential)))
+                //var credential = Credential.IsNullOrEmpty() ? null : Credential;
+                context.Credential = Credential;
+
+            if (HasArgument(nameof(ConnectTimeout)))
+                context.ConnectTimeout = ConnectTimeout;
+
+            if (HasArgument(nameof(ClientName)))
+                context.ClientName = ClientName;
+
+            if (HasArgument(nameof(ApplicationName)))
+                context.ApplicationName = ApplicationName;
+
+            if (HasArgument(nameof(ReadOnlyIntent)))
+                context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
+
+            if (HasArgument(nameof(ExposeCredentialInConnectionString)))
+                context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
+
+            if (HasArgument(nameof(Pooling)))
+                context.EnableConnectionPooling = Pooling;
+
+            if (HasArgument(nameof(MultipleActiveResultSets)))
+                context.EnableMultipleActiveResultSets = MultipleActiveResultSets;
 
             WriteObject(context);
         }
+
+        private SqlContext CreateContext()
+            => Azure.IsPresent
+                ? new AzureSqlContext()
+                : new SqlContext();
+
+        private bool HasArgument(string name)
+            => MyInvocation.BoundParameters.ContainsKey(name);
     }
 }
