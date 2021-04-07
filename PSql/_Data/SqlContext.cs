@@ -340,8 +340,8 @@ namespace PSql
             }
             else if (ExposeCredentialInConnectionString)
             {
-                builder.UserID              = Credential!.UserName;
-                builder.Password            = Credential!.GetNetworkCredential().Password;
+                builder.UserID              = Credential.UserName;
+                builder.Password            = Credential.GetNetworkCredential().Password;
                 builder.PersistSecurityInfo = true;
             }
             //else

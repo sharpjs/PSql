@@ -131,8 +131,8 @@ namespace PSql
 
             if (!Credential.IsNullOrEmpty() && ExposeCredentialInConnectionString)
             {
-                builder.UserID              = Credential!.UserName;
-                builder.Password            = Credential!.GetNetworkCredential().Password;
+                builder.UserID              = Credential.UserName;
+                builder.Password            = Credential.GetNetworkCredential().Password;
                 builder.PersistSecurityInfo = true;
             }
         }

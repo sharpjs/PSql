@@ -14,13 +14,14 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation;
 
 namespace PSql
 {
     internal static class PSCredentialExtensions
     {
-        public static bool IsNullOrEmpty(this PSCredential? credential)
+        public static bool IsNullOrEmpty([NotNullWhen(false)] this PSCredential? credential)
             => credential == null
             || credential == PSCredential.Empty;
     }
