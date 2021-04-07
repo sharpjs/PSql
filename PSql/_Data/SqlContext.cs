@@ -170,7 +170,8 @@ namespace PSql
 
         /// <summary>
         ///   Gets or sets a value that declares the kinds of operations that
-        ///   the client application intends to perform against databases.
+        ///   the client application intends to perform against databases.  The
+        ///   default is <see cref="ApplicationIntent.ReadWrite"/>.
         /// </summary>
         public ApplicationIntent ApplicationIntent { get; set; }
 
@@ -178,23 +179,24 @@ namespace PSql
         ///   Gets or sets whether the credential used for authentication
         ///   should be exposed in the <see cref="SqlConnection.ConnectionString"/>
         ///   property.  This is a potential security risk, so use only when
-        ///   necessary.
+        ///   necessary.  The default is <c>false</c>.
         /// </summary>
         public bool ExposeCredentialInConnectionString { get; set; }
 
         /// <summary>
         ///   Gets or sets whether connections may be pooled to reduce setup
         ///   and teardown time.  Pooling is useful when making many
-        ///   connections with identical connection strings.
+        ///   connections with identical connection strings.  The default is
+        ///   <c>false</c>.
         /// </summary>
         public bool EnableConnectionPooling { get; set; }
 
         /// <summary>
         ///   Gets or sets whether connections support execution of multiple
-        ///   batches concurrently, with limitations.  For more information,
-        ///   see Multiple Active Result Sets (MARS):
+        ///   batches concurrently, with limitations.  The default is <c>false</c>.
+        ///   For more information, see Multiple Active Result Sets (MARS):
         ///   https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars
-        /// </summary>
+        /// </remarks>
         public bool EnableMultipleActiveResultSets { get; set; }
 
         /// <summary>
