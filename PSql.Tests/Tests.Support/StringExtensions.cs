@@ -26,7 +26,9 @@ namespace PSql.Tests
 
             objects.Should().HaveCount(expected.Length);
 
-            objects.Select(o => o?.BaseObject).Should().BeEquivalentTo(expected);
+            objects
+                .Select(o => o?.BaseObject)
+                .Should().BeEquivalentTo(expected, x => x.IgnoringCyclicReferences());
         }
 
         internal static void
