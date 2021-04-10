@@ -59,9 +59,7 @@ namespace PSql.Tests.Unit
         }
 
         [Test]
-        [TestCase(null,       "database")]
-        [TestCase("other-db", "other-db")]
-        public void Clone_Typed(string? cloneDatabaseName, string expectedDatabaseName)
+        public void Clone_Typed()
         {
             var credential = new PSCredential("username", "password".Secure());
 
@@ -87,27 +85,17 @@ namespace PSql.Tests.Unit
 
             original.Freeze();
 
-            var context = original.Clone(cloneDatabaseName);
+            var clone = original.Clone();
 
-            context.Should().NotBeNull().And.NotBeSameAs(original);
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.AsAzure)
+                .Excluding(c => c.IsFrozen)
+            );
 
-            context.IsFrozen                           .Should().BeFalse();
-            context.ResourceGroupName                  .Should().Be("resource-group");
-            context.ServerName                         .Should().Be("server");
-            context.ServerFullName                     .Should().Be("server.example.com");
-            context.ServerPort                         .Should().Be(1234);
-            context.InstanceName                       .Should().Be("instance");
-            context.DatabaseName                       .Should().Be(expectedDatabaseName);
-            context.AuthenticationMode                 .Should().Be(AzureAuthenticationMode.SqlPassword);
-            context.Credential                         .Should().BeSameAs(credential);
-            context.EncryptionMode                     .Should().Be(EncryptionMode.Unverified);
-            context.ConnectTimeout                     .Should().Be(42.Seconds());
-            context.ClientName                         .Should().Be("client");
-            context.ApplicationName                    .Should().Be("application");
-            context.ApplicationIntent                  .Should().Be(ApplicationIntent.ReadOnly);
-            context.ExposeCredentialInConnectionString .Should().BeTrue();
-            context.EnableConnectionPooling            .Should().BeTrue();
-            context.EnableMultipleActiveResultSets     .Should().BeTrue();
+            clone.AsAzure .Should().BeSameAs(clone);
+            clone.IsFrozen.Should().BeFalse();
         }
 
         public static readonly IEnumerable<Case> PropertyCases = new[]

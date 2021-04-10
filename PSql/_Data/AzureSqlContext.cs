@@ -43,22 +43,16 @@ namespace PSql
 
         /// <summary>
         ///   Initializes a new <see cref="AzureSqlContext"/> instance by
-        ///   property values from the specified instance, and optionally with
-        ///   the specified database name.
+        ///   property values from the specified instance.
         /// </summary>
         /// <param name="other">
         ///   The instance from which to copy property values.
         /// </param>
-        /// <param name="databaseName">
-        ///   The name of the database to set on the copy.  If <c>null</c>, the
-        ///   copy will retain the database name of <paramref name="other"/>.
-        ///   The default is <c>null</c>.
-        /// </param>
         /// <exception cref="ArgumentNullException">
         ///   <paramref name="other"/> is <c>null</c>.
         /// </exception>
-        public AzureSqlContext(AzureSqlContext other, string? databaseName = null)
-            : base(other, databaseName)
+        public AzureSqlContext(AzureSqlContext other)
+            : base(other)
         {
             _resourceGroupName  = other.ResourceGroupName;
             _serverFullName     = other.ServerFullName;
@@ -101,12 +95,12 @@ namespace PSql
         }
 
         /// <inheritdoc cref="SqlContext.Clone(string?)" />
-        public new AzureSqlContext Clone(string? databaseName = null)
-            => (AzureSqlContext) CloneCore(databaseName);
+        public new AzureSqlContext Clone()
+            => (AzureSqlContext) CloneCore();
 
         /// <inheritdoc/>
-        protected override SqlContext CloneCore(string? databaseName = null)
-            => new AzureSqlContext(this, databaseName);
+        protected override SqlContext CloneCore()
+            => new AzureSqlContext(this);
 
         protected override void ConfigureServerName(dynamic /*SqlConnectionStringBuilder*/ builder)
         {
