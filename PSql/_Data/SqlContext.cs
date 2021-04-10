@@ -461,6 +461,9 @@ namespace PSql
 
         private bool GetIsLocal()
         {
+            if (IsAzure)
+                return false;
+
             if (ServerName is null)
                 return true;
 
