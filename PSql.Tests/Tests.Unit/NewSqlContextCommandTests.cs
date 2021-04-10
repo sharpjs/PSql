@@ -22,6 +22,20 @@ namespace PSql.Tests.Unit
             );
         }
 
+        public static IEnumerable<Case> StringCases = new[]
+        {
+            new Case("$null", null),
+            new Case("''",    null),
+            new Case("'a'",   "a" )
+        };
+
+        public static IEnumerable<Case> SwitchCases = new[]
+        {
+            new Case("",        true),
+            new Case(":$true",  true),
+            new Case(":$false", false)
+        };
+
         #region -ResourceGroupName
 
         [Test]
@@ -103,17 +117,17 @@ namespace PSql.Tests.Unit
 
         public static IEnumerable<Case> ValidPortCases = new[]
         {
-            UInt16("$null",  null),
-            UInt16("1",         1),
-            UInt16("65535", 65535)
+            new Case("$null",            null),
+            new Case("1",     (ushort?)     1),
+            new Case("65535", (ushort?) 65535)
         };
 
         public static IEnumerable<Case> InvalidPortCases = new[]
         {
-            Invalid("''",    @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
-            Invalid("0",     @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
-            Invalid("-1",    @"Cannot bind parameter 'ServerPort'. Cannot convert value ""{0}"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16."""),
-            Invalid("65536", @"Cannot bind parameter 'ServerPort'. Cannot convert value ""{0}"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16.""")
+            new Case("''",    @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
+            new Case("0",     @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
+            new Case("-1",    @"Cannot bind parameter 'ServerPort'. Cannot convert value """ +    @"-1"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16."""),
+            new Case("65536", @"Cannot bind parameter 'ServerPort'. Cannot convert value """ + @"65536"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16.""")
         };
 
         [Test]
@@ -487,21 +501,242 @@ namespace PSql.Tests.Unit
         }
 
         #endregion
+        #region -ReadOnlyIntent
 
-        public static Case String(string expression, string? value)
-            => new(expression, value);
-
-        public static Case UInt16(string expression, ushort? value)
-            => new(expression, value);
-
-        public static Case Invalid(string expression, string message)
-            => new(expression, string.Format(message, expression));
-
-        public static IEnumerable<Case> StringCases = new[]
+        public static IEnumerable<Case> ReadOnlyIntentCases = new[]
         {
-            String("$null", null),
-            String("''",    null),
-            String("'a'",   "a" )
+            new Case("",        ApplicationIntent.ReadOnly),
+            new Case(":$true",  ApplicationIntent.ReadOnly),
+            new Case(":$false", ApplicationIntent.ReadWrite)
         };
+
+        [Test]
+        [TestCaseSource(nameof(ReadOnlyIntentCases))]
+        public void ReadOnlyIntent_Set_Valid(string expression, ApplicationIntent value)
+        {
+            @$"
+                New-SqlContext -ReadOnlyIntent{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ApplicationIntent = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ReadOnlyIntentCases))]
+        public void ReadOnlyIntent_Override_Valid(string expression, ApplicationIntent value)
+        {
+            @$"
+                New-SqlContext -ReadOnlyIntent | New-SqlContext -ReadOnlyIntent{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ApplicationIntent = value }
+            );
+        }
+
+        #endregion
+        #region -ClientName
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void ClientName_Set_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -ClientName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ClientName = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void ClientName_Override_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -ClientName x | New-SqlContext -ClientName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ClientName = value }
+            );
+        }
+
+        #endregion
+        #region -ApplicationName
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void ApplicationName_Set_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -ApplicationName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ApplicationName = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void ApplicationName_Override_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -ApplicationName x | New-SqlContext -ApplicationName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ApplicationName = value }
+            );
+        }
+
+        #endregion
+        #region -ConnectTimeout
+
+        public static IEnumerable<Case> ValidTimeoutCases = new[]
+        {
+            new Case(            "$null", null),
+            new Case(         "00:00:00", new TimeSpan(              0)),
+            new Case(         "00:00:05", new TimeSpan(    0, 0,  0, 5)),
+            new Case(   "24855.03:14:07", new TimeSpan(24855, 3, 14, 7)),
+            new Case(                "0", new TimeSpan(              0)),
+            new Case(                "1", new TimeSpan(              1)),
+            new Case(         "50000000", new TimeSpan(    0, 0,  0, 5)),
+            new Case("21474836470000000", new TimeSpan(24855, 3, 14, 7))
+        };
+
+        public static IEnumerable<Case> InvalidTimeoutCases = new[]
+        {
+            new Case(                    "''", @"String '' was not recognized as a valid TimeSpan."),
+            new Case(     "-00:00:00.0000001", @"The value """ +      @"-00:00:00.0000001"" is negative. Negative timeouts are not supported."),
+            new Case("24855.03:14:07.0000001", @"The value """ + @"24855.03:14:07.0000001"" exceeds the maximum supported timeout, 24855.03:14:07."),
+            new Case(                    "-1", @"The value """ +            @"-1.00:00:00"" is negative. Negative timeouts are not supported."),
+            new Case(     "21474836470000001", @"The value """ + @"24855.03:14:07.0000001"" exceeds the maximum supported timeout, 24855.03:14:07."),
+        };
+
+        [Test]
+        [TestCaseSource(nameof(ValidTimeoutCases))]
+        public void ConnectTimeout_Set_Valid(string expression, TimeSpan? value)
+        {
+            @$"
+                New-SqlContext -ConnectTimeout {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ConnectTimeout = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidTimeoutCases))]
+        public void ConnectTimeout_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -ConnectTimeout {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ValidTimeoutCases))]
+        public void ConnectTimeout_Override_Valid(string expression, TimeSpan? value)
+        {
+            @$"
+                New-SqlContext -ConnectTimeout 42 | New-SqlContext -ConnectTimeout {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ConnectTimeout = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidTimeoutCases))]
+        public void ConnectTimeout_Override_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -ConnectTimeout 1337 | New-SqlContext -ConnectTimeout {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        #endregion
+        #region -ExposeCredentialInConnectionString
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void ExposeCredentialInConnectionString_Set_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -ExposeCredentialInConnectionString{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ExposeCredentialInConnectionString = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void ExposeCredentialInConnectionString_Override_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -ExposeCredentialInConnectionString | New-SqlContext -ExposeCredentialInConnectionString{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ExposeCredentialInConnectionString = value }
+            );
+        }
+
+        #endregion
+        #region -Pooling
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void Pooling_Set_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -Pooling{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EnableConnectionPooling = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void Pooling_Override_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -Pooling | New-SqlContext -Pooling{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EnableConnectionPooling = value }
+            );
+        }
+
+        #endregion
+        #region -MultipleActiveResultSets
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void MultipleActiveResultSets_Set_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -MultipleActiveResultSets{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EnableMultipleActiveResultSets = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void MultipleActiveResultSets_Override_Valid(string expression, bool value)
+        {
+            @$"
+                New-SqlContext -MultipleActiveResultSets | New-SqlContext -MultipleActiveResultSets{expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EnableMultipleActiveResultSets = value }
+            );
+        }
+
+        #endregion
     }
 }
