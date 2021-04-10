@@ -70,6 +70,8 @@ namespace PSql.Tests
 
             using var shell = PowerShell.Create(InitialState);
 
+            Redirect(shell.Streams, output);
+
             try
             {
                 shell.AddScript(script).Invoke(input: null, output);
@@ -85,5 +87,28 @@ namespace PSql.Tests
         internal static string EscapeForDoubleQuoteString(this string s)
             => s.Replace("\"", "`\"")
                 .Replace("`",  "``");
+
+        private static void Redirect(PSDataStreams streams, List<PSObject?> output)
+        {
+            streams.Warning.DataAdding += (_, data) => StoreWarning (data, output);
+            streams.Error  .DataAdding += (_, data) => StoreError   (data, output);
+        }
+
+        private static void StoreWarning(DataAddingEventArgs data, List<PSObject?> output)
+        {
+            var written = (WarningRecord) data.ItemAdded;
+            var message = new PSWarning(written.Message);
+            output.Add(new PSObject(message));
+        }
+
+        private static void StoreError(DataAddingEventArgs data, List<PSObject?> output)
+        {
+            var written = (ErrorRecord) data.ItemAdded;
+            var message = new PSError(written.Exception.Message);
+            output.Add(new PSObject(message));
+        }
     }
+
+    internal record PSWarning (string Message);
+    internal record PSError   (string Message);
 }
