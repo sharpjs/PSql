@@ -146,6 +146,9 @@ namespace PSql
             foreach (var parameterName in MyInvocation.BoundParameters.Keys)
                 ApplyParameterValue(context, parameterName);
 
+            if (Frozen)
+                context.Freeze();
+
             WriteObject(context);
         }
 
@@ -168,7 +171,6 @@ namespace PSql
                 case nameof(ExposeCredentialInConnectionString): SetExposeCredentialInConnectionString (context); break;
                 case nameof(Pooling):                            SetEnableConnectionPooling            (context); break;
                 case nameof(MultipleActiveResultSets):           SetEnableMultipleActiveResultSets     (context); break;
-                case nameof(Frozen):                             SetIsFrozen                           (context); break;
             }
         }
 
@@ -262,12 +264,6 @@ namespace PSql
         private void SetEnableMultipleActiveResultSets(SqlContext context)
         {
             context.EnableMultipleActiveResultSets = MultipleActiveResultSets;
-        }
-
-        private void SetIsFrozen(SqlContext context)
-        {
-            if (Frozen)
-                context.Freeze();
         }
 
         private void WarnIgnoredBecauseAzureContext(string parameterName)

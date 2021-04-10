@@ -744,13 +744,16 @@ namespace PSql.Tests.Unit
         [TestCaseSource(nameof(SwitchCases))]
         public void Frozen_Set_Valid(string expression, bool value)
         {
-            var context = new SqlContext();
+            // NOTE: Using -ServerName after -Frozen to verify that the freeze
+            // is applied after setting other properties.
+
+            var context = new SqlContext { ServerName = "a" };
 
             if (value)
                 context.Freeze();
 
             @$"
-                New-SqlContext -Frozen{expression}
+                New-SqlContext -Frozen{expression} -ServerName a
             "
             .ShouldOutput(context);
         }
@@ -759,13 +762,16 @@ namespace PSql.Tests.Unit
         [TestCaseSource(nameof(SwitchCases))]
         public void Frozen_Override_Valid(string expression, bool value)
         {
-            var context = new SqlContext();
+            // NOTE: Using -ServerName after -Frozen to verify that the freeze
+            // is applied after setting other properties.
+
+            var context = new SqlContext { ServerName = "a" };
 
             if (value)
                 context.Freeze();
 
             @$"
-                New-SqlContext -Frozen | New-SqlContext -Frozen{expression}
+                New-SqlContext -Frozen | New-SqlContext -Frozen{expression} -ServerName a
             "
             .ShouldOutput(context);
         }
