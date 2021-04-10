@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="**\*.dll-help.xml" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\PSql.Client\bin\$(Configuration)\$(TargetFramework)\**" Visible="false" />
   </ItemGroup>
 
