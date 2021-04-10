@@ -27,6 +27,10 @@ namespace PSql
     /// </summary>
     public class AzureSqlContext : SqlContext
     {
+        private string?                 _resourceGroupName;
+        private string?                 _serverFullName;
+        private AzureAuthenticationMode _authenticationMode;
+
         /// <summary>
         ///   Initializes a new <see cref="AzureSqlContext"/> instance with
         ///   default property values.
@@ -56,9 +60,9 @@ namespace PSql
         public AzureSqlContext(AzureSqlContext other, string? databaseName = null)
             : base(other, databaseName)
         {
-            ResourceGroupName  = other.ResourceGroupName;
-            ServerFullName     = other.ServerFullName;
-            AuthenticationMode = other.AuthenticationMode;
+            _resourceGroupName  = other.ResourceGroupName;
+            _serverFullName     = other.ServerFullName;
+            _authenticationMode = other.AuthenticationMode;
         }
 
         /// <inheritdoc/>
@@ -68,21 +72,33 @@ namespace PSql
         ///   Gets or sets the name of the resource group containing the
         ///   database server.  The default is <c>null</c>.
         /// </summary>
-        public string? ResourceGroupName { get; set; }
+        public string? ResourceGroupName
+        {
+            get => _resourceGroupName;
+            set => Set(out _resourceGroupName, value);
+        }
 
         /// <summary>
         ///   Gets the DNS name of the database server.  The value is
         ///   <c>null</c> until the context is used to create a connection
         ///   string.
         /// </summary>
-        public string? ServerFullName { get; internal set; }
+        public string? ServerFullName
+        {
+            get          => _serverFullName;
+            internal set => _serverFullName = value;
+        }
 
         /// <summary>
         ///   Gets or sets the method used to authenticate with the database
         ///   server.  The default is
         ///   <see cref="AzureAuthenticationMode.Default"/>.
         /// </summary>
-        public AzureAuthenticationMode AuthenticationMode { get; set; }
+        public AzureAuthenticationMode AuthenticationMode
+        {
+            get => _authenticationMode;
+            set => Set(out _authenticationMode, value);
+        }
 
         /// <inheritdoc cref="SqlContext.Clone(string?)" />
         public new AzureSqlContext Clone(string? databaseName = null)

@@ -479,7 +479,7 @@ namespace PSql
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Set<T>(out T slot, T value)
+        protected void Set<T>(out T slot, T value)
         {
             if (IsFrozen)
                 throw OnAttemptToModifyFrozenContext();
