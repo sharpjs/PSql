@@ -118,8 +118,8 @@ namespace PSql
 
         // -ConnectTimeout
         [Alias("Timeout")]
-        [ValidateRange("0:00:00", "24855.03:14:07")]
         [Parameter]
+        [ValidateNullOrTimeout]
         public TimeSpan? ConnectTimeout { get; set; }
 
         // -ExposeCredentialInConnectionString
