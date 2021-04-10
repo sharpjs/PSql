@@ -14,13 +14,19 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Management.Automation;
+using System.Reflection;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
 
 namespace PSql.Tests.Unit
 {
+    using Case = TestCaseData;
+
     [TestFixture]
     public class SqlContextTests
     {
@@ -28,6 +34,11 @@ namespace PSql.Tests.Unit
         public void Defaults()
         {
             var context = new SqlContext();
+
+            context.IsAzure                            .Should().BeFalse();
+            context.AsAzure                            .Should().BeNull();
+            context.IsLocal                            .Should().BeTrue();
+            context.IsFrozen                           .Should().BeFalse();
 
             context.ServerName                         .Should().BeNull();
             context.ServerPort                         .Should().BeNull();
@@ -42,6 +53,15 @@ namespace PSql.Tests.Unit
             context.ExposeCredentialInConnectionString .Should().BeFalse();
             context.EnableConnectionPooling            .Should().BeFalse();
             context.EnableMultipleActiveResultSets     .Should().BeFalse();
+        }
+
+        public void Freeze()
+        {
+            var context = new SqlContext();
+
+            context.Freeze();
+
+            context.IsFrozen.Should().BeTrue();
         }
 
         [Test]
@@ -68,10 +88,13 @@ namespace PSql.Tests.Unit
                 EnableMultipleActiveResultSets     = true,
             };
 
+            original.Freeze();
+
             var context = original.Clone(cloneDatabaseName);
 
             context.Should().NotBeNull().And.NotBeSameAs(original);
 
+            context.IsFrozen                           .Should().BeFalse();
             context.ServerName                         .Should().Be("server");
             context.ServerPort                         .Should().Be(1234);
             context.InstanceName                       .Should().Be("instance");
@@ -85,6 +108,61 @@ namespace PSql.Tests.Unit
             context.ExposeCredentialInConnectionString .Should().BeTrue();
             context.EnableConnectionPooling            .Should().BeTrue();
             context.EnableMultipleActiveResultSets     .Should().BeTrue();
+        }
+
+        public static readonly IEnumerable<Case> PropertyCases = new[]
+        {
+            PropertyCase(c => c.ServerName,                         "server"),
+            PropertyCase(c => c.ServerPort,                         (ushort?) 1234),
+            PropertyCase(c => c.InstanceName,                       "instance"),
+            PropertyCase(c => c.DatabaseName,                       "database"),
+            PropertyCase(c => c.Credential,                         MakeCredential()),
+            PropertyCase(c => c.EncryptionMode,                     EncryptionMode.Full),
+            PropertyCase(c => c.ConnectTimeout,                     60.Seconds()),
+            PropertyCase(c => c.ClientName,                         "client"),
+            PropertyCase(c => c.ApplicationName,                    "application"),
+            PropertyCase(c => c.ApplicationIntent,                  ApplicationIntent.ReadOnly),
+            PropertyCase(c => c.ExposeCredentialInConnectionString, true),
+            PropertyCase(c => c.EnableConnectionPooling,            true),
+            PropertyCase(c => c.EnableMultipleActiveResultSets,     true),
+        };
+
+        public static Case PropertyCase<T>(Expression<Func<SqlContext, T>> property, T value)
+        {
+            var memberExpression = (MemberExpression) property.Body;
+            var propertyInfo     = (PropertyInfo)     memberExpression.Member;
+
+            return new Case(propertyInfo, value);
+        }
+
+        public static PSCredential MakeCredential()
+        {
+            return new PSCredential("username", "password".Secure());
+        }
+
+        [Test]
+        [TestCaseSource(nameof(PropertyCases))]
+        public void Property_Set_NotFrozen(PropertyInfo property, object? value)
+        {
+            var context = new SqlContext();
+
+            property.SetValue(context, value);
+
+            property.GetValue(context).Should().Be(value);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(PropertyCases))]
+        public void Property_Set_Frozen(PropertyInfo property, object? value)
+        {
+            var context = new SqlContext();
+
+            context.Freeze();
+
+            context.Invoking(c => property.SetValue(context, value))
+                .Should().Throw<TargetInvocationException>() // due to reflection
+                .WithInnerException<InvalidOperationException>()
+                .WithMessage("The context is frozen and cannot be modified.*");
         }
     }
 }
