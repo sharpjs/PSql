@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using NUnit.Framework;
@@ -25,7 +26,7 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ResourceGroupName_Set(string expression, string? value)
+        public void ResourceGroupName_Set_Valid(string expression, string? value)
         {
             @$"
                 New-SqlContext -Azure -ResourceGroupName {expression} -ServerName x
@@ -48,7 +49,7 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ResourceGroupName_Override(string expression, string? value)
+        public void ResourceGroupName_Override_Valid(string expression, string? value)
         {
             @$"
                 New-SqlContext -Azure -ResourceGroupName x -ServerName x | New-SqlContext -ResourceGroupName {expression}
@@ -75,7 +76,7 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ServerName_Set(string expression, string? value)
+        public void ServerName_Set_Valid(string expression, string? value)
         {
             @$"
                 New-SqlContext -ServerName {expression}
@@ -87,67 +88,13 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ServerName_Override(string expression, string? value)
+        public void ServerName_Override_Valid(string expression, string? value)
         {
             @$"
                 New-SqlContext -ServerName x | New-SqlContext -ServerName {expression}
             "
             .ShouldOutput(
                 new SqlContext { ServerName = value }
-            );
-        }
-
-        #endregion
-        #region -DatabaseName
-
-        [Test]
-        [TestCaseSource(nameof(StringCases))]
-        public void DatabaseName_Set(string expression, string? value)
-        {
-            @$"
-                New-SqlContext -DatabaseName {expression}
-            "
-            .ShouldOutput(
-                new SqlContext { DatabaseName = value }
-            );
-        }
-
-        [Test]
-        [TestCaseSource(nameof(StringCases))]
-        public void DatabaseName_Override(string expression, string? value)
-        {
-            @$"
-                New-SqlContext -DatabaseName x | New-SqlContext -DatabaseName {expression}
-            "
-            .ShouldOutput(
-                new SqlContext { DatabaseName = value }
-            );
-        }
-
-        #endregion
-        #region -InstanceName
-
-        [Test]
-        [TestCaseSource(nameof(StringCases))]
-        public void InstanceName_Set(string expression, string? value)
-        {
-            @$"
-                New-SqlContext -InstanceName {expression}
-            "
-            .ShouldOutput(
-                new SqlContext { InstanceName = value }
-            );
-        }
-
-        [Test]
-        [TestCaseSource(nameof(StringCases))]
-        public void InstanceName_Override(string expression, string? value)
-        {
-            @$"
-                New-SqlContext -InstanceName x | New-SqlContext -InstanceName {expression}
-            "
-            .ShouldOutput(
-                new SqlContext { InstanceName = value }
             );
         }
 
@@ -171,22 +118,10 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(ValidPortCases))]
-        public void ServerPort_Set(string expression, ushort? value)
+        public void ServerPort_Set_Valid(string expression, ushort? value)
         {
             @$"
                 New-SqlContext -ServerPort {expression}
-            "
-            .ShouldOutput(
-                new SqlContext { ServerPort = value }
-            );
-        }
-
-        [Test]
-        [TestCaseSource(nameof(ValidPortCases))]
-        public void ServerPort_Override(string expression, ushort? value)
-        {
-            @$"
-                New-SqlContext -ServerPort 42 | New-SqlContext -ServerPort {expression}
             "
             .ShouldOutput(
                 new SqlContext { ServerPort = value }
@@ -203,16 +138,364 @@ namespace PSql.Tests.Unit
             .ShouldThrow<ParameterBindingException>(message);
         }
 
+        [Test]
+        [TestCaseSource(nameof(ValidPortCases))]
+        public void ServerPort_Override_Valid(string expression, ushort? value)
+        {
+            @$"
+                New-SqlContext -ServerPort 42 | New-SqlContext -ServerPort {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { ServerPort = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidPortCases))]
+        public void ServerPort_Override_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -ServerPort 1337 | New-SqlContext -ServerPort {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        #endregion
+        #region -InstanceName
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void InstanceName_Set_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -InstanceName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { InstanceName = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void InstanceName_Override_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -InstanceName x | New-SqlContext -InstanceName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { InstanceName = value }
+            );
+        }
+
+        #endregion
+        #region -DatabaseName
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void DatabaseName_Set_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -DatabaseName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { DatabaseName = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(StringCases))]
+        public void DatabaseName_Override_Valid(string expression, string? value)
+        {
+            @$"
+                New-SqlContext -DatabaseName x | New-SqlContext -DatabaseName {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { DatabaseName = value }
+            );
+        }
+
+        #endregion
+        #region -AuthenticationMode
+
+        public static IEnumerable<Case> ValidAuthenticationModeCases = new[]
+        {
+            new Case("0",                  AzureAuthenticationMode.Default),
+            new Case("7",                  AzureAuthenticationMode.AadManagedIdentity),
+            new Case("Default",            AzureAuthenticationMode.Default),
+            new Case("AadManagedIdentity", AzureAuthenticationMode.AadManagedIdentity),
+        };
+
+        public static IEnumerable<Case> InvalidAuthenticationModeCases = new[]
+        {
+            new Case("$null", @"Cannot bind parameter 'AuthenticationMode'"),
+            new Case("''",    @"Cannot bind parameter 'AuthenticationMode'"),
+            new Case("-1",    @"Cannot bind parameter 'AuthenticationMode'"),
+            new Case("8",     @"Cannot bind parameter 'AuthenticationMode'"),
+            new Case("Wrong", @"Cannot bind parameter 'AuthenticationMode'"),
+        };
+
+        [Test]
+        [TestCaseSource(nameof(ValidAuthenticationModeCases))]
+        public void AuthenticationMode_Set_Valid(string expression, AzureAuthenticationMode value)
+        {
+            @$"
+                New-SqlContext -Azure `
+                    -ResourceGroupName  rg `
+                    -ServerName         srv `
+                    -AuthenticationMode {expression}
+            "
+            .ShouldOutput(
+                new AzureSqlContext
+                {
+                    ResourceGroupName  = "rg",
+                    ServerName         = "srv",
+                    AuthenticationMode = value
+                }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidAuthenticationModeCases))]
+        public void AuthenticationMode_Set_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -Azure `
+                    -ResourceGroupName  rg `
+                    -ServerName         srv `
+                    -AuthenticationMode {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        public void AuthenticationMode_Set_NonAzure()
+        {
+            @$"
+                New-SqlContext -AuthenticationMode AadPassword
+            "
+            .ShouldThrow<ParameterBindingException>(
+                "Parameter set cannot be resolved using the specified named parameters."
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ValidAuthenticationModeCases))]
+        public void AuthenticationMode_Override_Valid(string expression, AzureAuthenticationMode value)
+        {
+            @$"
+                New-SqlContext -Azure `
+                    -ResourceGroupName  rg `
+                    -ServerName         srv `
+                    -AuthenticationMode SqlPassword `
+                | `
+                New-SqlContext -AuthenticationMode {expression}
+            "
+            .ShouldOutput(
+                new AzureSqlContext
+                {
+                    ResourceGroupName  = "rg",
+                    ServerName         = "srv",
+                    AuthenticationMode = value
+                }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidAuthenticationModeCases))]
+        public void AuthenticationMode_Override_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -Azure `
+                    -ResourceGroupName  rg `
+                    -ServerName         srv `
+                    -AuthenticationMode SqlPassword `
+                | `
+                New-SqlContext -AuthenticationMode {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        public void AuthenticationMode_Override_NonAzure()
+        {
+            @$"
+                New-SqlContext | New-SqlContext -AuthenticationMode AadServicePrincipal
+            "
+            .ShouldOutput(
+                new PSWarning("The 'AuthenticationMode' argument was ignored because the context is not an Azure SQL Database context."),
+                new SqlContext()
+            );
+        }
+
+        #endregion
+        #region -Credential
+
+        public static IEnumerable<Case> ValidCredentialCases = new[]
+        {
+            new Case("$null",                   null),
+            new Case("([PSCredential]::Empty)", PSCredential.Empty),
+            new Case("$Credential",             new PSCredential("a", "p".Secure())),
+        };
+
+        public static IEnumerable<Case> InvalidCredentialCases = new[]
+        {
+            new Case("''",       @"Cannot process argument transformation on parameter 'Credential'. A command that prompts the user failed because the host program or the command type does not support user interaction."),
+            new Case("username", @"Cannot process argument transformation on parameter 'Credential'. A command that prompts the user failed because the host program or the command type does not support user interaction."),
+        };
+
+        [Test]
+        [TestCaseSource(nameof(ValidCredentialCases))]
+        public void Credential_Set_Valid(string expression, PSCredential? value)
+        {
+            @$"
+                $Password   = ConvertTo-SecureString p -AsPlainText
+                $Credential = New-Object PSCredential a, $Password
+                New-SqlContext -Credential {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { Credential = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidCredentialCases))]
+        public void Credential_Set_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -Credential {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ValidCredentialCases))]
+        public void Credential_Override_Valid(string expression, PSCredential? value)
+        {
+            @$"
+                $Password    = ConvertTo-SecureString p -AsPlainText
+                $Credential  = New-Object PSCredential a, $Password
+                $Credential2 = New-Object PSCredential b, $Password
+                New-SqlContext -Credential $Credential2 | New-SqlContext -Credential {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { Credential = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidCredentialCases))]
+        public void Credential_Override_Invalid(string expression, string message)
+        {
+            @$"
+                $Password    = ConvertTo-SecureString p -AsPlainText
+                $Credential2 = New-Object PSCredential b, $Password
+                New-SqlContext -Credential $Credential2 | New-SqlContext -Credential {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        #endregion
+        #region -EncryptionMode
+
+        public static IEnumerable<Case> ValidEncryptionModeCases = new[]
+        {
+            new Case("0",       EncryptionMode.Default),
+            new Case("3",       EncryptionMode.Full),
+            new Case("Default", EncryptionMode.Default),
+            new Case("Full",    EncryptionMode.Full),
+        };
+
+        public static IEnumerable<Case> InvalidEncryptionModeCases = new[]
+        {
+            new Case("$null", @"Cannot bind parameter 'EncryptionMode'"),
+            new Case("''",    @"Cannot bind parameter 'EncryptionMode'"),
+            new Case("-1",    @"Cannot bind parameter 'EncryptionMode'"),
+            new Case("4",     @"Cannot bind parameter 'EncryptionMode'"),
+            new Case("Wrong", @"Cannot bind parameter 'EncryptionMode'"),
+        };
+
+        [Test]
+        [TestCaseSource(nameof(ValidEncryptionModeCases))]
+        public void EncryptionMode_Set_Valid(string expression, EncryptionMode value)
+        {
+            @$"
+                New-SqlContext -EncryptionMode {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EncryptionMode = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidEncryptionModeCases))]
+        public void EncryptionMode_Set_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -EncryptionMode {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        public void EncryptionMode_Set_Azure()
+        {
+            @$"
+                New-SqlContext -Azure `
+                    -ResourceGroupName rg `
+                    -ServerName        srv `
+                    -EncryptionMode    Unverified
+            "
+            .ShouldThrow<ParameterBindingException>(
+                "Parameter set cannot be resolved using the specified named parameters."
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ValidEncryptionModeCases))]
+        public void EncryptionMode_Override_Valid(string expression, EncryptionMode value)
+        {
+            @$"
+                New-SqlContext -EncryptionMode None | New-SqlContext -EncryptionMode {expression}
+            "
+            .ShouldOutput(
+                new SqlContext { EncryptionMode = value }
+            );
+        }
+
+        [Test]
+        [TestCaseSource(nameof(InvalidEncryptionModeCases))]
+        public void EncryptionMode_Override_Invalid(string expression, string message)
+        {
+            @$"
+                New-SqlContext -EncryptionMode None | New-SqlContext -EncryptionMode {expression}
+            "
+            .ShouldThrow<ParameterBindingException>(message);
+        }
+
+        [Test]
+        public void EncryptionMode_Override_Azure()
+        {
+            @$"
+                New-SqlContext -Azure -ResourceGroupName rg -ServerName srv `
+                | `
+                New-SqlContext -EncryptionMode Unverified
+            "
+            .ShouldOutput(
+                new PSWarning("The 'EncryptionMode' argument was ignored because the context is an Azure SQL Database context."),
+                new AzureSqlContext { ResourceGroupName = "rg", ServerName = "srv" }
+            );
+        }
+
         #endregion
 
         public static Case String(string expression, string? value)
-            => new Case(expression, value);
+            => new(expression, value);
 
         public static Case UInt16(string expression, ushort? value)
-            => new Case(expression, value);
+            => new(expression, value);
 
         public static Case Invalid(string expression, string message)
-            => new Case(expression, string.Format(message, expression));
+            => new(expression, string.Format(message, expression));
 
         public static IEnumerable<Case> StringCases = new[]
         {
