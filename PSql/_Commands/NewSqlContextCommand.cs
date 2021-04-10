@@ -101,38 +101,38 @@ namespace PSql
 
         // -ReadOnlyIntent
         [Alias("ReadOnly")]
-        [Parameter()]
+        [Parameter]
         public SwitchParameter ReadOnlyIntent { get; set; }
 
         // -ClientName
         [Alias("Client")]
-        [Parameter()]
+        [Parameter]
         [AllowNull, AllowEmptyString]
         public string ClientName { get; set; }
 
         // -ApplicationName
         [Alias("Application")]
-        [Parameter()]
+        [Parameter]
         [AllowNull, AllowEmptyString]
         public string ApplicationName { get; set; }
 
         // -ConnectTimeout
         [Alias("Timeout")]
-        [Parameter()]
         [ValidateRange("0:00:00", "24855.03:14:07")]
+        [Parameter]
         public TimeSpan? ConnectTimeout { get; set; }
 
         // -ExposeCredentialInConnectionString
-        [Parameter()]
+        [Parameter]
         public SwitchParameter ExposeCredentialInConnectionString { get; set; }
 
         // -Pooling
-        [Parameter()]
+        [Parameter]
         public SwitchParameter Pooling { get; set; }
 
         // -MultipleActiveResultSets
         [Alias("Mars")]
-        [Parameter()]
+        [Parameter]
         public SwitchParameter MultipleActiveResultSets { get; set; }
 
         protected override void ProcessRecord()
