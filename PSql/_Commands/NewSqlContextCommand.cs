@@ -46,6 +46,7 @@ namespace PSql
         [Alias("ResourceGroup")]
         [Parameter(ParameterSetName = AzureName)]
         [Parameter(ParameterSetName = CloneName)]
+        [AllowNull, AllowEmptyString]
         public string ResourceGroupName { get; set; }
 
         // -ServerName
@@ -53,15 +54,15 @@ namespace PSql
         [Parameter(ParameterSetName = GenericName, Position = 0)]
         [Parameter(ParameterSetName = AzureName,   Position = 0, Mandatory = true)]
         [Parameter(ParameterSetName = CloneName,   Position = 0)]
-        [AllowNull]
+        [AllowNull, AllowEmptyString]
         public string ServerName { get; set; }
 
         // -DatabaseName
         [Alias("Database")]
         [Parameter(ParameterSetName = GenericName, Position = 1)]
-        [Parameter(ParameterSetName = AzureName,   Position = 1, Mandatory = true)]
+        [Parameter(ParameterSetName = AzureName,   Position = 1)]
         [Parameter(ParameterSetName = CloneName,   Position = 1)]
-        [AllowNull]
+        [AllowNull, AllowEmptyString]
         public string DatabaseName { get; set; }
 
         // -Credential
@@ -69,6 +70,7 @@ namespace PSql
         [Parameter(ParameterSetName = AzureName,   Position = 2)]
         [Parameter(ParameterSetName = CloneName,   Position = 2)]
         [Credential]
+        [AllowNull]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
 
         // -AuthenticationMode
@@ -87,14 +89,14 @@ namespace PSql
         [Alias("Port")]
         [Parameter(ParameterSetName = GenericName)]
         [Parameter(ParameterSetName = CloneName)]
-        [ValidateRange((ushort) 1, (ushort) 65535)]
+        [ValidateNullOrPositiveUInt16]
         public ushort? ServerPort { get; set; }
 
         // -InstanceName
         [Alias("Instance")]
         [Parameter(ParameterSetName = GenericName)]
         [Parameter(ParameterSetName = CloneName)]
-        //[ValidateNotNullOrEmpty]
+        [AllowNull, AllowEmptyString]
         public string InstanceName { get; set; }
 
         // -ReadOnlyIntent
@@ -105,13 +107,13 @@ namespace PSql
         // -ClientName
         [Alias("Client")]
         [Parameter()]
-        [AllowNull]
+        [AllowNull, AllowEmptyString]
         public string ClientName { get; set; }
 
         // -ApplicationName
         [Alias("Application")]
         [Parameter()]
-        [AllowNull]
+        [AllowNull, AllowEmptyString]
         public string ApplicationName { get; set; }
 
         // -ConnectTimeout
@@ -137,66 +139,142 @@ namespace PSql
         {
             var context = Source?.Clone() ?? CreateContext();
 
-            if (context is AzureSqlContext azureContext)
-            {
-                if (HasArgument(nameof(ResourceGroupName)))
-                    azureContext.ResourceGroupName = ResourceGroupName;
-
-                if (HasArgument(nameof(AuthenticationMode)))
-                    azureContext.AuthenticationMode = AuthenticationMode;
-            }
-            else // (context is not AzureSqlContext)
-            {
-                if (HasArgument(nameof(EncryptionMode)))
-                    context.EncryptionMode = EncryptionMode;
-            }
-
-            if (HasArgument(nameof(ServerName)))
-                context.ServerName = ServerName;
-
-            if (HasArgument(nameof(ServerPort)))
-                context.ServerPort = ServerPort;
-
-            if (HasArgument(nameof(InstanceName)))
-                context.InstanceName = InstanceName;
-
-            if (HasArgument(nameof(DatabaseName)))
-                context.DatabaseName = DatabaseName;
-
-            if (HasArgument(nameof(Credential)))
-                //var credential = Credential.IsNullOrEmpty() ? null : Credential;
-                context.Credential = Credential;
-
-            if (HasArgument(nameof(ConnectTimeout)))
-                context.ConnectTimeout = ConnectTimeout;
-
-            if (HasArgument(nameof(ClientName)))
-                context.ClientName = ClientName;
-
-            if (HasArgument(nameof(ApplicationName)))
-                context.ApplicationName = ApplicationName;
-
-            if (HasArgument(nameof(ReadOnlyIntent)))
-                context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
-
-            if (HasArgument(nameof(ExposeCredentialInConnectionString)))
-                context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
-
-            if (HasArgument(nameof(Pooling)))
-                context.EnableConnectionPooling = Pooling;
-
-            if (HasArgument(nameof(MultipleActiveResultSets)))
-                context.EnableMultipleActiveResultSets = MultipleActiveResultSets;
+            foreach (var parameterName in MyInvocation.BoundParameters.Keys)
+                ApplyParameterValue(context, parameterName);
 
             WriteObject(context);
         }
 
+        private void ApplyParameterValue(SqlContext context, string parameterName)
+        {
+            switch (parameterName)
+            {
+                case nameof(ResourceGroupName):                  SetResourceGroupName                  (context); break;
+                case nameof(ServerName):                         SetServerName                         (context); break;
+                case nameof(ServerPort):                         SetServerPort                         (context); break;
+                case nameof(InstanceName):                       SetInstanceName                       (context); break;
+                case nameof(DatabaseName):                       SetDatabaseName                       (context); break;
+                case nameof(AuthenticationMode):                 SetAuthenticationMode                 (context); break;
+                case nameof(Credential):                         SetCredential                         (context); break;
+                case nameof(EncryptionMode):                     SetEncryptionMode                     (context); break;
+                case nameof(ConnectTimeout):                     SetConnectTimeout                     (context); break;
+                case nameof(ClientName):                         SetClientName                         (context); break;
+                case nameof(ApplicationName):                    SetApplicationName                    (context); break;
+                case nameof(ReadOnlyIntent):                     SetApplicationIntent                  (context); break;
+                case nameof(ExposeCredentialInConnectionString): SetExposeCredentialInConnectionString (context); break;
+                case nameof(Pooling):                            SetEnableConnectionPooling            (context); break;
+                case nameof(MultipleActiveResultSets):           SetEnableMultipleActiveResultSets     (context); break;
+            }
+        }
+
         private SqlContext CreateContext()
-            => Azure.IsPresent
+        {
+            return Azure.IsPresent
                 ? new AzureSqlContext()
                 : new SqlContext();
+        }
 
-        private bool HasArgument(string name)
-            => MyInvocation.BoundParameters.ContainsKey(name);
+        private void SetResourceGroupName(SqlContext context)
+        {
+            if (context is AzureSqlContext azureContext)
+                azureContext.ResourceGroupName = ResourceGroupName.NullIfEmpty();
+            else
+                WarnIgnoredBecauseNotAzureContext(nameof(ResourceGroupName));
+        }
+
+        private void SetServerName(SqlContext context)
+        {
+            context.ServerName = ServerName.NullIfEmpty();
+        }
+
+        private void SetServerPort(SqlContext context)
+        {
+            context.ServerPort = ServerPort;
+        }
+
+        private void SetInstanceName(SqlContext context)
+        {
+            context.InstanceName = InstanceName.NullIfEmpty();
+        }
+
+        private void SetDatabaseName(SqlContext context)
+        {
+            context.DatabaseName = DatabaseName.NullIfEmpty();
+        }
+
+        private void SetAuthenticationMode(SqlContext context)
+        {
+            if (context is AzureSqlContext azureContext)
+                azureContext.AuthenticationMode = AuthenticationMode;
+            else
+                WarnIgnoredBecauseNotAzureContext(nameof(AuthenticationMode));
+        }
+
+        private void SetCredential(SqlContext context)
+        {
+            //var credential = Credential.IsNullOrEmpty() ? null : Credential;
+            context.Credential = Credential;
+        }
+
+        private void SetEncryptionMode(SqlContext context)
+        {
+            if (context is AzureSqlContext)
+                WarnIgnoredBecauseAzureContext(nameof(EncryptionMode));
+            else
+                context.EncryptionMode = EncryptionMode;
+        }
+
+        private void SetConnectTimeout(SqlContext context)
+        {
+            context.ConnectTimeout = ConnectTimeout;
+        }
+
+        private void SetClientName(SqlContext context)
+        {
+            context.ClientName = ClientName.NullIfEmpty();
+        }
+
+        private void SetApplicationName(SqlContext context)
+        {
+            context.ApplicationName = ApplicationName.NullIfEmpty();
+        }
+
+        private void SetApplicationIntent(SqlContext context)
+        {
+            context.ApplicationIntent = ReadOnlyIntent ? ReadOnly : ReadWrite;
+        }
+
+        private void SetExposeCredentialInConnectionString(SqlContext context)
+        {
+            context.ExposeCredentialInConnectionString = ExposeCredentialInConnectionString;
+        }
+
+        private void SetEnableConnectionPooling(SqlContext context)
+        {
+            context.EnableConnectionPooling = Pooling;
+        }
+
+        private void SetEnableMultipleActiveResultSets(SqlContext context)
+        {
+            context.EnableMultipleActiveResultSets = MultipleActiveResultSets;
+        }
+
+        private void WarnIgnoredBecauseAzureContext(string parameterName)
+        {
+            WriteWarning(string.Format(
+                "The '{0}' argument was ignored because " +
+                "the context is an Azure SQL Database context.",
+                parameterName
+            ));
+        }
+
+        private void WarnIgnoredBecauseNotAzureContext(string parameterName)
+        {
+            WriteWarning(string.Format(
+                "The '{0}' argument was ignored because " +
+                "the context is not an Azure SQL Database context.",
+                parameterName
+            ));
+        }
     }
 }
