@@ -65,6 +65,12 @@ namespace PSql
         [AllowNull, AllowEmptyString]
         public string DatabaseName { get; set; }
 
+        // -AuthenticationMode
+        [Alias("Auth")]
+        [Parameter(ParameterSetName = AzureName)]
+        [Parameter(ParameterSetName = CloneName)]
+        public AzureAuthenticationMode AuthenticationMode { get; set; }
+
         // -Credential
         [Parameter(ParameterSetName = GenericName, Position = 2)]
         [Parameter(ParameterSetName = AzureName,   Position = 2)]
@@ -72,12 +78,6 @@ namespace PSql
         [Credential]
         [AllowNull]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
-
-        // -AuthenticationMode
-        [Alias("Auth")]
-        [Parameter(ParameterSetName = AzureName)]
-        [Parameter(ParameterSetName = CloneName)]
-        public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         // -EncryptionMode
         [Alias("Encryption")]
