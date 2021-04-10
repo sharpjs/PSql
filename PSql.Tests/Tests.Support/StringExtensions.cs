@@ -32,22 +32,15 @@ namespace PSql.Tests
         }
 
         internal static void
-            ShouldThrow<T>(
-                this string script,
-                string      messagePart
-            )
+            ShouldThrow<T>(this string script, string messagePart)
             where T : Exception
         {
-            script.ShouldThrow<T>(
-                e => e.Message.Contains(messagePart, StringComparison.OrdinalIgnoreCase)
-            );
+            var exception = script.ShouldThrow<T>();
+
+            exception.Message.Should().Contain(messagePart);
         }
 
-        internal static void
-            ShouldThrow<T>(
-                this string                script,
-                Expression<Func<T, bool>>? predicate = null
-            )
+        internal static T ShouldThrow<T>(this string script)
             where T : Exception
         {
             if (script is null)
@@ -55,10 +48,10 @@ namespace PSql.Tests
 
             var (_, exception) = Execute(script);
 
-            exception.Should().NotBeNull().And.BeAssignableTo<T>();
-
-            if (predicate is not null)
-                exception.Should().Match<T>(predicate);
+            return exception
+                .Should().NotBeNull()
+                .And     .BeAssignableTo<T>()
+                .Subject;
         }
     }
 }
