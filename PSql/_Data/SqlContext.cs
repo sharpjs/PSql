@@ -18,6 +18,7 @@ using System;
 using System.Globalization;
 using System.Management.Automation;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PSql
@@ -34,6 +35,21 @@ namespace PSql
         protected const string
             LocalServerName    = ".",
             MasterDatabaseName = "master";
+
+        private bool              _isFrozen;
+        private string?           _serverName;
+        private ushort?           _serverPort;
+        private string?           _instanceName;
+        private string?           _databaseName;
+        private PSCredential?     _credential;
+        private EncryptionMode    _encryptionMode;
+        private TimeSpan?         _connectTimeout;
+        private string?           _clientName;
+        private string?           _applicationName;
+        private ApplicationIntent _applicationIntent;
+        private bool              _exposeCredentialInConnectionString;
+        private bool              _enableConnectionPooling;
+        private bool              _enableMultipleActiveResultSets;
 
         /// <summary>
         ///   Initializes a new <see cref="SqlContext"/> instance with default
@@ -62,20 +78,42 @@ namespace PSql
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
 
-            ServerName                         = other.ServerName;
-            ServerPort                         = other.ServerPort;
-            InstanceName                       = other.InstanceName;
-            DatabaseName                       = databaseName ?? other.DatabaseName;
-            Credential                         = other.Credential;
-            EncryptionMode                     = other.EncryptionMode;
-            ConnectTimeout                     = other.ConnectTimeout;
-            ClientName                         = other.ClientName;
-            ApplicationName                    = other.ApplicationName;
-            ApplicationIntent                  = other.ApplicationIntent;
-            ExposeCredentialInConnectionString = other.ExposeCredentialInConnectionString;
-            EnableConnectionPooling            = other.EnableConnectionPooling;
-            EnableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
+            _serverName                         = other.ServerName;
+            _serverPort                         = other.ServerPort;
+            _instanceName                       = other.InstanceName;
+            _databaseName                       = databaseName ?? other.DatabaseName;
+            _credential                         = other.Credential;
+            _encryptionMode                     = other.EncryptionMode;
+            _connectTimeout                     = other.ConnectTimeout;
+            _clientName                         = other.ClientName;
+            _applicationName                    = other.ApplicationName;
+            _applicationIntent                  = other.ApplicationIntent;
+            _exposeCredentialInConnectionString = other.ExposeCredentialInConnectionString;
+            _enableConnectionPooling            = other.EnableConnectionPooling;
+            _enableMultipleActiveResultSets     = other.EnableMultipleActiveResultSets;
         }
+
+        /// <summary>
+        ///   Gets whether the context is an <see cref="AzureSqlContext"/>.
+        /// </summary>
+        public virtual bool IsAzure => false;
+
+        /// <summary>
+        ///   Gets the context cast to <see cref="AzureSqlContext"/>.  If the
+        ///   context is a non-Azure context, this property is <c>null</c>.
+        /// </summary>
+        public AzureSqlContext? AsAzure => this as AzureSqlContext;
+
+        /// <summary>
+        ///   Gets whether the context connects to the local computer.
+        /// </summary>
+        public bool IsLocal => GetIsLocal();
+
+        /// <summary>
+        ///   Gets whether the context is frozen.  A frozen context is
+        ///   read-only; its properties cannot be changed.
+        /// </summary>
+        public bool IsFrozen => _isFrozen;
 
         /// <summary>
         ///   Gets or sets the name (DNS name or Azure resource name) of the
@@ -99,28 +137,44 @@ namespace PSql
         ///     target the local machine.
         ///   </para>
         /// </remarks>
-        public string? ServerName { get; set; }
+        public string? ServerName
+        {
+            get => _serverName;
+            set => Set(out _serverName, value);
+        }
 
         /// <summary>
         ///   Gets or sets the remote TCP port of the database server.  If
         ///   <c>null</c>, the underlying ADO.NET implementation will use a
         ///   default port, typically 1433.  The default is <c>null</c>.
         /// </summary>
-        public ushort? ServerPort { get; set; }
+        public ushort? ServerPort
+        {
+            get => _serverPort;
+            set => Set(out _serverPort, value);
+        }
 
         /// <summary>
         ///   Gets or sets the name of the database engine instance.  If
         ///   <c>null</c>, connection attempts will target the default
         ///   instance.  The default is <c>null</c>.
         /// </summary>
-        public string? InstanceName { get; set; }
+        public string? InstanceName
+        {
+            get => _instanceName;
+            set => Set(out _instanceName, value);
+        }
 
         /// <summary>
         ///  Gets or sets the name of the database.  If <c>null</c>,
         ///  connections will attempt to open in the default database of the
         ///  authenticated user.  The default is <c>null</c>.
         /// </summary>
-        public string? DatabaseName { get; set; }
+        public string? DatabaseName
+        {
+            get => _databaseName;
+            set => Set(out _databaseName, value);
+        }
 
         /// <summary>
         ///   Gets or sets the credential to use to authenticate with the
@@ -139,41 +193,65 @@ namespace PSql
         ///     integrated authentication.
         ///   </para>
         /// </remarks>
-        public PSCredential? Credential { get; set; }
+        public PSCredential? Credential
+        {
+            get => _credential;
+            set => Set(out _credential, value);
+        }
 
         /// <summary>
         ///   Gets or sets a value that specifies the transport encryption to
         ///   use for connections.  The default is
         ///   <see cref="EncryptionMode.Default"/>.
         /// </summary>
-        public EncryptionMode EncryptionMode { get; set; }
+        public EncryptionMode EncryptionMode
+        {
+            get => _encryptionMode;
+            set => Set(out _encryptionMode, value);
+        }
 
         /// <summary>
         ///   Gets or sets the duration after which a connection attempt times
         ///   out.  If <c>null</c>, the underlying ADO.NET implementation
         ///   default of 15 seconds is used.
         /// </summary>
-        public TimeSpan? ConnectTimeout { get; set; }
+        public TimeSpan? ConnectTimeout
+        {
+            get => _connectTimeout;
+            set => Set(out _connectTimeout, value);
+        }
 
         /// <summary>
         ///   Gets or sets the name of the client device.  If <c>null</c>, the
         ///   underlying ADO.NET implementation will provide a default value.
         /// </summary>
-        public string? ClientName { get; set; }
+        public string? ClientName
+        {
+            get => _clientName;
+            set => Set(out _clientName, value);
+        }
 
         /// <summary>
         ///   Gets or sets the name of the client application.  If <c>null</c>,
         ///   the underlying ADO.NET implementation will provide a default
         ///   value.
         /// </summary>
-        public string? ApplicationName { get; set; }
+        public string? ApplicationName
+        {
+            get => _applicationName;
+            set => Set(out _applicationName, value);
+        }
 
         /// <summary>
         ///   Gets or sets a value that declares the kinds of operations that
         ///   the client application intends to perform against databases.  The
         ///   default is <see cref="ApplicationIntent.ReadWrite"/>.
         /// </summary>
-        public ApplicationIntent ApplicationIntent { get; set; }
+        public ApplicationIntent ApplicationIntent
+        {
+            get => _applicationIntent;
+            set => Set(out _applicationIntent, value);
+        }
 
         /// <summary>
         ///   Gets or sets whether the credential used for authentication
@@ -181,7 +259,11 @@ namespace PSql
         ///   property.  This is a potential security risk, so use only when
         ///   necessary.  The default is <c>false</c>.
         /// </summary>
-        public bool ExposeCredentialInConnectionString { get; set; }
+        public bool ExposeCredentialInConnectionString
+        {
+            get => _exposeCredentialInConnectionString;
+            set => Set(out _exposeCredentialInConnectionString, value);
+        }
 
         /// <summary>
         ///   Gets or sets whether connections may be pooled to reduce setup
@@ -189,7 +271,11 @@ namespace PSql
         ///   connections with identical connection strings.  The default is
         ///   <c>false</c>.
         /// </summary>
-        public bool EnableConnectionPooling { get; set; }
+        public bool EnableConnectionPooling
+        {
+            get => _enableConnectionPooling;
+            set => Set(out _enableConnectionPooling, value);
+        }
 
         /// <summary>
         ///   Gets or sets whether connections support execution of multiple
@@ -197,23 +283,20 @@ namespace PSql
         ///   For more information, see Multiple Active Result Sets (MARS):
         ///   https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/multiple-active-result-sets-mars
         /// </remarks>
-        public bool EnableMultipleActiveResultSets { get; set; }
+        public bool EnableMultipleActiveResultSets
+        {
+            get => _enableMultipleActiveResultSets;
+            set => Set(out _enableMultipleActiveResultSets, value);
+        }
 
         /// <summary>
-        ///   Gets whether the context is an <see cref="AzureSqlContext"/>.
+        ///   Freezes the context if it is not frozen already.  Once frozen,
+        ///   the properties of the context cannot be changed.
         /// </summary>
-        public virtual bool IsAzure => false;
-
-        /// <summary>
-        ///   Gets the context cast to <see cref="AzureSqlContext"/>.  If the
-        ///   context is a non-Azure context, this property is <c>null</c>.
-        /// </summary>
-        public AzureSqlContext? AsAzure => this as AzureSqlContext;
-
-        /// <summary>
-        ///   Gets whether the context connects to the local computer.
-        /// </summary>
-        public bool IsLocal => GetIsLocal();
+        public void Freeze()
+        {
+            _isFrozen = true;
+        }
 
         /// <summary>
         ///   Creates a new object that is a copy of the current instance,
@@ -390,6 +473,23 @@ namespace PSql
                 || comparer.Equals(ServerName, "127.0.0.1")
                 || comparer.Equals(ServerName, "::1")
                 || comparer.Equals(ServerName, Dns.GetHostName());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Set<T>(out T slot, T value)
+        {
+            if (IsFrozen)
+                throw OnAttemptToModifyFrozenContext();
+
+            slot = value;
+        }
+
+        private static Exception OnAttemptToModifyFrozenContext()
+        {
+            return new InvalidOperationException(
+                "The context is frozen and cannot be modified. " +
+                "Create a copy and modify the copy instead."
+            );
         }
     }
 }

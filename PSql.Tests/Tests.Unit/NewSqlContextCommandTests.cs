@@ -738,5 +738,38 @@ namespace PSql.Tests.Unit
         }
 
         #endregion
+        #region -Frozen
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void Frozen_Set_Valid(string expression, bool value)
+        {
+            var context = new SqlContext();
+
+            if (value)
+                context.Freeze();
+
+            @$"
+                New-SqlContext -Frozen{expression}
+            "
+            .ShouldOutput(context);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(SwitchCases))]
+        public void Frozen_Override_Valid(string expression, bool value)
+        {
+            var context = new SqlContext();
+
+            if (value)
+                context.Freeze();
+
+            @$"
+                New-SqlContext -Frozen | New-SqlContext -Frozen{expression}
+            "
+            .ShouldOutput(context);
+        }
+
+        #endregion
     }
 }

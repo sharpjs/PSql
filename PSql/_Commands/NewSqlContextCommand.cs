@@ -135,6 +135,10 @@ namespace PSql
         [Parameter]
         public SwitchParameter MultipleActiveResultSets { get; set; }
 
+        // -Frozen
+        [Parameter]
+        public SwitchParameter Frozen { get; set; }
+
         protected override void ProcessRecord()
         {
             var context = Source?.Clone() ?? CreateContext();
@@ -164,6 +168,7 @@ namespace PSql
                 case nameof(ExposeCredentialInConnectionString): SetExposeCredentialInConnectionString (context); break;
                 case nameof(Pooling):                            SetEnableConnectionPooling            (context); break;
                 case nameof(MultipleActiveResultSets):           SetEnableMultipleActiveResultSets     (context); break;
+                case nameof(Frozen):                             SetIsFrozen                           (context); break;
             }
         }
 
@@ -257,6 +262,12 @@ namespace PSql
         private void SetEnableMultipleActiveResultSets(SqlContext context)
         {
             context.EnableMultipleActiveResultSets = MultipleActiveResultSets;
+        }
+
+        private void SetIsFrozen(SqlContext context)
+        {
+            if (Frozen)
+                context.Freeze();
         }
 
         private void WarnIgnoredBecauseAzureContext(string parameterName)
