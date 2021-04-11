@@ -64,12 +64,11 @@ namespace PSql.Tests.Unit
             context.IsFrozen.Should().BeTrue();
         }
 
-        [Test]
-        public void Clone_Typed()
+        public static SqlContext MakeExampleContext(bool frozen = false)
         {
             var credential = new PSCredential("username", "password".Secure());
 
-            var original = new SqlContext
+            var context = new SqlContext
             {
                 ServerName                         = "server",
                 ServerPort                         = 1234,
@@ -86,7 +85,17 @@ namespace PSql.Tests.Unit
                 EnableMultipleActiveResultSets     = true,
             };
 
-            original.Freeze();
+            if (frozen) context.Freeze();
+
+            return context;
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Clone_Typed(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
 
             var clone = original.Clone();
 
@@ -97,6 +106,71 @@ namespace PSql.Tests.Unit
             );
 
             clone.IsFrozen.Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Indexer_Action(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
+
+            var clone = original[c => c.ServerPort = 42];
+
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.ServerPort)
+            );
+
+            clone.ServerPort.Should().Be(42);
+        }
+
+        [Test]
+        public void Indexer_Action_Null()
+        {
+            var original = MakeExampleContext();
+
+            original.Invoking(c => c[(null as Action<SqlContext>)!])
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Indexer_DatabaseName(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
+
+            var clone = original["db2"];
+
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.DatabaseName)
+            );
+
+            clone.DatabaseName.Should().Be("db2");
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Indexer_ServerName_DatabaseName(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
+
+            var clone = original["srv2", "db2"];
+
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.ServerName)
+                .Excluding(c => c.DatabaseName)
+            );
+
+            clone.ServerName  .Should().Be("srv2");
+            clone.DatabaseName.Should().Be("db2");
         }
 
         public static readonly IEnumerable<Case> PropertyCases = new[]

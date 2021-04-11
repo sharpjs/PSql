@@ -58,12 +58,11 @@ namespace PSql.Tests.Unit
             context.EnableMultipleActiveResultSets     .Should().BeFalse();
         }
 
-        [Test]
-        public void Clone_Typed()
+        private AzureSqlContext MakeExampleContext(bool frozen = false)
         {
             var credential = new PSCredential("username", "password".Secure());
 
-            var original = new AzureSqlContext
+            var context = new AzureSqlContext
             {
                 ResourceGroupName                  = "resource-group",
                 ServerName                         = "server",
@@ -83,7 +82,17 @@ namespace PSql.Tests.Unit
                 EnableMultipleActiveResultSets     = true,
             };
 
-            original.Freeze();
+            if (frozen) context.Freeze();
+
+            return context;
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Clone_Typed(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
 
             var clone = original.Clone();
 
@@ -96,6 +105,59 @@ namespace PSql.Tests.Unit
 
             clone.AsAzure .Should().BeSameAs(clone);
             clone.IsFrozen.Should().BeFalse();
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Indexer_Action(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
+
+            var clone = original[c => c.AuthenticationMode = AzureAuthenticationMode.AadDeviceCodeFlow];
+
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.AsAzure)
+                .Excluding(c => c.AuthenticationMode)
+            );
+
+            clone.AsAzure           .Should().BeSameAs(clone);
+            clone.AuthenticationMode.Should().Be(AzureAuthenticationMode.AadDeviceCodeFlow);
+        }
+
+        [Test]
+        public void Indexer_Action_Null()
+        {
+            var original = MakeExampleContext();
+
+            original.Invoking(c => c[(null as Action<AzureSqlContext>)!])
+                .Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Indexer_ResourceGroupName_ServerName_DatabaseName(bool frozen)
+        {
+            var original = MakeExampleContext(frozen);
+
+            var clone = original["rg2", "srv2", "db2"];
+
+            clone.Should().NotBeNull();
+            clone.Should().NotBeSameAs(original);
+            clone.Should().BeEquivalentTo(original, o => o
+                .Excluding(c => c.AsAzure)
+                .Excluding(c => c.ResourceGroupName)
+                .Excluding(c => c.ServerName)
+                .Excluding(c => c.DatabaseName)
+            );
+
+            clone.AsAzure          .Should().BeSameAs(clone);
+            clone.ResourceGroupName.Should().Be("rg2");
+            clone.ServerName       .Should().Be("srv2");
+            clone.DatabaseName     .Should().Be("db2");
         }
 
         public static readonly IEnumerable<Case> PropertyCases = new[]

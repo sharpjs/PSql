@@ -94,7 +94,44 @@ namespace PSql
             set => Set(out _authenticationMode, value);
         }
 
-        /// <inheritdoc cref="SqlContext.Clone(string?)" />
+        /// <inheritdoc cref="SqlContext.this[Action{SqlContext}]" />
+        public AzureSqlContext this[Action<AzureSqlContext> mutator]
+        {
+            get
+            {
+                if (mutator is null)
+                    throw new ArgumentNullException(nameof(mutator));
+
+                var clone = Clone();
+                mutator.Invoke(clone);
+                if (IsFrozen) clone.Freeze();
+                return clone;
+            }
+        }
+
+        /// <summary>
+        ///   Gets a new context that is a copy of the current instance, but
+        ///   with the specified resource group name, server name, and database
+        ///   name.  If the current instance is frozen, the copy is frozen also.
+        /// </summary>
+        /// <param name="resourceGroupName">
+        ///   The name of the resource group to set on the copy.
+        /// </param>
+        /// <param name="serverName">
+        ///   The name of the server to set on the copy.
+        /// </param>
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.
+        /// </param>
+        public AzureSqlContext this[string? resourceGroupName, string? serverName, string? databaseName]
+            => this[clone =>
+            {
+                clone.ResourceGroupName = resourceGroupName;
+                clone.ServerName        = serverName;
+                clone.DatabaseName      = databaseName;
+            }];
+
+        /// <inheritdoc cref="SqlContext.Clone()" />
         public new AzureSqlContext Clone()
             => (AzureSqlContext) CloneCore();
 

@@ -284,6 +284,60 @@ namespace PSql
         }
 
         /// <summary>
+        ///   Gets a new context that is a copy of the current instance, then
+        ///   modified by the specified delegate.  If the current instance is
+        ///   frozen, the copy becomes frozen after the delegate returns.
+        /// </summary>
+        /// <param name="mutator">
+        ///   A delegate that can modify the created context.
+        /// </param>
+        public SqlContext this[Action<SqlContext> mutator]
+        {
+            get
+            {
+                if (mutator is null)
+                    throw new ArgumentNullException(nameof(mutator));
+
+                var clone = Clone();
+                mutator.Invoke(clone);
+                if (IsFrozen) clone.Freeze();
+                return clone;
+            }
+        }
+
+        /// <summary>
+        ///   Gets a new context that is a copy of the current instance, but
+        ///   with the specified database name.  If the current instance is
+        ///   frozen, the copy is frozen also.
+        /// </summary>
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.
+        /// </param>
+        public SqlContext this[string? databaseName]
+            => this[clone =>
+            {
+                clone.DatabaseName = databaseName;
+            }];
+
+        /// <summary>
+        ///   Gets a new context that is a copy of the current instance, but
+        ///   with the specified server name and database name.  If the current
+        ///   instance is frozen, the copy is frozen also.
+        /// </summary>
+        /// <param name="serverName">
+        ///   The name of the server to set on the copy.
+        /// </param>
+        /// <param name="databaseName">
+        ///   The name of the database to set on the copy.
+        /// </param>
+        public SqlContext this[string? serverName, string? databaseName]
+            => this[clone =>
+            {
+                clone.ServerName   = serverName;
+                clone.DatabaseName = databaseName;
+            }];
+
+        /// <summary>
         ///   Freezes the context if it is not frozen already.  Once frozen,
         ///   the properties of the context cannot be changed.
         /// </summary>
@@ -293,7 +347,8 @@ namespace PSql
         }
 
         /// <summary>
-        ///   Creates a new object that is a copy of the current instance.
+        ///   Creates a new, non-frozen context that is a copy of the current
+        ///   instance.
         /// </summary>
         public SqlContext Clone()
             => CloneCore();
@@ -303,8 +358,8 @@ namespace PSql
             => CloneCore();
 
         /// <summary>
-        ///   Creates a new object that is a copy of the current instance.
-        ///   Subclasses should override this method.
+        ///   Creates a new, non-frozen context that is a copy of the current
+        ///   instance.  Subclasses should override this method.
         /// </summary>
         protected virtual SqlContext CloneCore()
             => new SqlContext(this);
