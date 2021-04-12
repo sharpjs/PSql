@@ -285,25 +285,15 @@ namespace PSql
 
         /// <summary>
         ///   Gets a new context that is a copy of the current instance, then
-        ///   modified by the specified delegate.  If the current instance is
-        ///   frozen, the copy becomes frozen after the delegate returns.
+        ///   modified by the specified script block.  If the current instance
+        ///   is frozen, the copy becomes frozen after the script block ends.
         /// </summary>
-        /// <param name="mutator">
-        ///   A delegate that can modify the created context.
+        /// <param name="block">
+        ///   A script block that can modify the created context.  Inside the
+        ///   script block, the variable <c>$_</c> holds the created context.
         /// </param>
-        public SqlContext this[Action<SqlContext> mutator]
-        {
-            get
-            {
-                if (mutator is null)
-                    throw new ArgumentNullException(nameof(mutator));
-
-                var clone = Clone();
-                mutator.Invoke(clone);
-                if (IsFrozen) clone.Freeze();
-                return clone;
-            }
-        }
+        public SqlContext this[ScriptBlock block]
+            => CloneAndModify(this, clone => block.InvokeWithUnderscore(clone));
 
         /// <summary>
         ///   Gets a new context that is a copy of the current instance, but
@@ -314,10 +304,10 @@ namespace PSql
         ///   The name of the database to set on the copy.
         /// </param>
         public SqlContext this[string? databaseName]
-            => this[clone =>
+            => CloneAndModify(this, clone =>
             {
                 clone.DatabaseName = databaseName;
-            }];
+            });
 
         /// <summary>
         ///   Gets a new context that is a copy of the current instance, but
@@ -331,20 +321,11 @@ namespace PSql
         ///   The name of the database to set on the copy.
         /// </param>
         public SqlContext this[string? serverName, string? databaseName]
-            => this[clone =>
+            => CloneAndModify(this, clone =>
             {
                 clone.ServerName   = serverName;
                 clone.DatabaseName = databaseName;
-            }];
-
-        /// <summary>
-        ///   Freezes the context if it is not frozen already.  Once frozen,
-        ///   the properties of the context cannot be changed.
-        /// </summary>
-        public void Freeze()
-        {
-            _isFrozen = true;
-        }
+            });
 
         /// <summary>
         ///   Creates a new, non-frozen context that is a copy of the current
@@ -363,6 +344,15 @@ namespace PSql
         /// </summary>
         protected virtual SqlContext CloneCore()
             => new SqlContext(this);
+
+        /// <summary>
+        ///   Freezes the context if it is not frozen already.  Once frozen,
+        ///   the properties of the context cannot be changed.
+        /// </summary>
+        public void Freeze()
+        {
+            _isFrozen = true;
+        }
 
         /// <summary>
         ///   Gets a connection string built from the property values of the
@@ -522,6 +512,24 @@ namespace PSql
                 throw OnAttemptToModifyFrozenContext();
 
             slot = value;
+        }
+
+        private protected static T CloneAndModify<T>(T context, Action<T> action)
+            where T : SqlContext
+        {
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
+            if (action is null)
+                throw new ArgumentNullException(nameof(action));
+
+            var clone = (T) context.Clone();
+
+            action(clone);
+
+            if (context.IsFrozen)
+                clone.Freeze();
+
+            return clone;
         }
 
         private static Exception OnAttemptToModifyFrozenContext()

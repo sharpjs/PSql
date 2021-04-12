@@ -110,35 +110,6 @@ namespace PSql.Tests.Unit
         [Test]
         [TestCase(false)]
         [TestCase(true)]
-        public void Indexer_Action(bool frozen)
-        {
-            var original = MakeExampleContext(frozen);
-
-            var clone = original[c => c.AuthenticationMode = AzureAuthenticationMode.AadDeviceCodeFlow];
-
-            clone.Should().NotBeNull();
-            clone.Should().NotBeSameAs(original);
-            clone.Should().BeEquivalentTo(original, o => o
-                .Excluding(c => c.AsAzure)
-                .Excluding(c => c.AuthenticationMode)
-            );
-
-            clone.AsAzure           .Should().BeSameAs(clone);
-            clone.AuthenticationMode.Should().Be(AzureAuthenticationMode.AadDeviceCodeFlow);
-        }
-
-        [Test]
-        public void Indexer_Action_Null()
-        {
-            var original = MakeExampleContext();
-
-            original.Invoking(c => c[(null as Action<AzureSqlContext>)!])
-                .Should().Throw<ArgumentNullException>();
-        }
-
-        [Test]
-        [TestCase(false)]
-        [TestCase(true)]
         public void Indexer_ResourceGroupName_ServerName_DatabaseName(bool frozen)
         {
             var original = MakeExampleContext(frozen);

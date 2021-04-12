@@ -111,11 +111,12 @@ namespace PSql.Tests.Unit
         [Test]
         [TestCase(false)]
         [TestCase(true)]
-        public void Indexer_Action(bool frozen)
+        public void Indexer_ScriptBlock(bool frozen)
         {
+            using var _  = new RunspaceScope();
             var original = MakeExampleContext(frozen);
 
-            var clone = original[c => c.ServerPort = 42];
+            var clone = original[ScriptBlock.Create("$_.ServerPort = 42")];
 
             clone.Should().NotBeNull();
             clone.Should().NotBeSameAs(original);
@@ -127,11 +128,11 @@ namespace PSql.Tests.Unit
         }
 
         [Test]
-        public void Indexer_Action_Null()
+        public void Indexer_ScriptBlock_Null()
         {
             var original = MakeExampleContext();
 
-            original.Invoking(c => c[(null as Action<SqlContext>)!])
+            original.Invoking(c => c[(null as ScriptBlock)!])
                 .Should().Throw<ArgumentNullException>();
         }
 
