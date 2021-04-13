@@ -42,17 +42,24 @@ namespace PSql
         [ValidateNotNull]
         public SqlContext Source { get; set; }
 
-        // -ResourceGroupName
+        // -ServerResourceGroupName
         [Alias("ResourceGroup")]
-        [Parameter(ParameterSetName = AzureName)]
+        [Parameter(ParameterSetName = AzureName, Position = 0)]
         [Parameter(ParameterSetName = CloneName)]
         [AllowNull, AllowEmptyString]
-        public string ResourceGroupName { get; set; }
+        public string ServerResourceGroupName { get; set; }
+
+        // -ServerResourceName
+        [Alias("Resource")]
+        [Parameter(ParameterSetName = AzureName,  Position = 1)]
+        [Parameter(ParameterSetName = CloneName)]
+        [AllowNull, AllowEmptyString]
+        public string ServerResourceName { get; set; }
 
         // -ServerName
         [Alias("Server")]
         [Parameter(ParameterSetName = GenericName, Position = 0)]
-        [Parameter(ParameterSetName = AzureName,   Position = 0, Mandatory = true)]
+        [Parameter(ParameterSetName = AzureName)]
         [Parameter(ParameterSetName = CloneName,   Position = 0)]
         [AllowNull, AllowEmptyString]
         public string ServerName { get; set; }
@@ -60,7 +67,7 @@ namespace PSql
         // -DatabaseName
         [Alias("Database")]
         [Parameter(ParameterSetName = GenericName, Position = 1)]
-        [Parameter(ParameterSetName = AzureName,   Position = 1)]
+        [Parameter(ParameterSetName = AzureName,   Position = 2)]
         [Parameter(ParameterSetName = CloneName,   Position = 1)]
         [AllowNull, AllowEmptyString]
         public string DatabaseName { get; set; }
@@ -72,9 +79,7 @@ namespace PSql
         public AzureAuthenticationMode AuthenticationMode { get; set; }
 
         // -Credential
-        [Parameter(ParameterSetName = GenericName, Position = 2)]
-        [Parameter(ParameterSetName = AzureName,   Position = 2)]
-        [Parameter(ParameterSetName = CloneName,   Position = 2)]
+        [Parameter]
         [Credential]
         [AllowNull]
         public PSCredential Credential { get; set; } = PSCredential.Empty;
@@ -156,7 +161,8 @@ namespace PSql
         {
             switch (parameterName)
             {
-                case nameof(ResourceGroupName):                  SetResourceGroupName                  (context); break;
+                case nameof(ServerResourceGroupName):            SetServerResourceGroupName            (context); break;
+                case nameof(ServerResourceName):                 SetServerResourceName                 (context); break;
                 case nameof(ServerName):                         SetServerName                         (context); break;
                 case nameof(ServerPort):                         SetServerPort                         (context); break;
                 case nameof(InstanceName):                       SetInstanceName                       (context); break;
@@ -181,12 +187,20 @@ namespace PSql
                 : new SqlContext();
         }
 
-        private void SetResourceGroupName(SqlContext context)
+        private void SetServerResourceGroupName(SqlContext context)
         {
             if (context is AzureSqlContext azureContext)
-                azureContext.ResourceGroupName = ResourceGroupName.NullIfEmpty();
+                azureContext.ServerResourceGroupName = ServerResourceGroupName.NullIfEmpty();
             else
-                WarnIgnoredBecauseNotAzureContext(nameof(ResourceGroupName));
+                WarnIgnoredBecauseNotAzureContext(nameof(ServerResourceGroupName));
+        }
+
+        private void SetServerResourceName(SqlContext context)
+        {
+            if (context is AzureSqlContext azureContext)
+                azureContext.ServerResourceName = ServerResourceName.NullIfEmpty();
+            else
+                WarnIgnoredBecauseNotAzureContext(nameof(ServerResourceName));
         }
 
         private void SetServerName(SqlContext context)

@@ -9,12 +9,18 @@ namespace PSql.Tests
         private readonly Runspace   _oldRunspace;
         private readonly PowerShell _shell;
 
+        public RunspaceScope(InitialSessionState state)
+            : this(PowerShell.Create(state)) { }
+
         public RunspaceScope()
+            : this(PowerShell.Create()) { }
+
+        protected RunspaceScope(PowerShell shell)
         {
             _oldRunspace = Runspace.DefaultRunspace;
-            _shell       = PowerShell.Create();
+            _shell       = shell;
 
-            Runspace.DefaultRunspace = _shell.Runspace;
+            Runspace.DefaultRunspace = shell.Runspace;
         }
 
         void IDisposable.Dispose()

@@ -563,13 +563,13 @@
       <command:verb>New</command:verb>
       <command:noun>SqlContext</command:noun>
       <maml:description>
-        <maml:para>Creates an object specifying how to connect to a SQL Server or compatible database.</maml:para>
+        <maml:para>Creates an object specifying how to connect to SQL Server or Azure SQL Database.</maml:para>
       </maml:description>
     </command:details>
 
     <maml:description>
       <maml:para>
-        The PSql New-SqlContext cmdlet accepts parameters specifying how to connect to a SQL Server, Azure SQL Database, or compatible database, and outputs a context object containing the supplied values.  Pass the context object to other PSql cmdlets via their -Context parameter to work with the specified database.
+        The PSql New-SqlContext cmdlet accepts parameters specifying how to connect to a SQL Server, Azure SQL Database, or compatible product, and outputs a context object containing the supplied values.  Pass the context object to other PSql cmdlets via their -Context parameter to work with the specified database.
       </maml:para>
     </maml:description>
 
@@ -585,7 +585,7 @@
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="2" pipelineInput="False" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
@@ -635,15 +635,19 @@
         <command:parameter required="true" position="named" pipelineInput="False" globbing="false">
           <maml:name>Azure</maml:name>
         </command:parameter>
-        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
-          <maml:name>ResourceGroupName</maml:name>
-          <command:parameterValue required="true">string</command:parameterValue>
-        </command:parameter>
-        <command:parameter required="true" position="0" pipelineInput="False" globbing="false">
-          <maml:name>ServerName</maml:name>
+        <command:parameter required="false" position="0" pipelineInput="False" globbing="false">
+          <maml:name>ServerResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="1" pipelineInput="False" globbing="false">
+          <maml:name>ServerResourceName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
+          <maml:name>ServerName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="2" pipelineInput="False" globbing="false">
           <maml:name>DatabaseName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
@@ -651,7 +655,7 @@
           <maml:name>AuthenticationMode</maml:name>
           <command:parameterValue required="true">{ Default | SqlPassword | AadPassword | AadIntegrated | AadInteractive | AadServicePrincipal | AadDeviceCodeFlow | AadManagedIdentity }</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="2" pipelineInput="False" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
@@ -691,7 +695,11 @@
           <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (False)" globbing="false">
-          <maml:name>ResourceGroupName</maml:name>
+          <maml:name>ServerResourceGroupName</maml:name>
+          <command:parameterValue required="true">string</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
+          <maml:name>ServerResourceName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="0" pipelineInput="False" globbing="false">
@@ -706,7 +714,7 @@
           <maml:name>AuthenticationMode</maml:name>
           <command:parameterValue required="true">{ Default | SqlPassword | AadPassword | AadIntegrated | AadInteractive | AadServicePrincipal | AadDeviceCodeFlow | AadManagedIdentity }</command:parameterValue>
         </command:parameter>
-        <command:parameter required="false" position="2" pipelineInput="False" globbing="false">
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>Credential</maml:name>
           <command:parameterValue required="true">PSCredential</command:parameterValue>
         </command:parameter>
@@ -757,7 +765,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Azure</maml:name>
         <maml:description>
-          <maml:para>Specifies that the database is an Azure SQL Database resource.</maml:para>
+          <maml:para>Specifies that the context connects to Azure SQL Database.</maml:para>
         </maml:description>
         <command:parameterValue required="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -769,7 +777,7 @@
       <command:parameter required="false" position="named" pipelineInput="True (ByValue)" globbing="false" aliases="none">
         <maml:name>Source</maml:name>
         <maml:description>
-          <maml:para>A context previously created by this cmdlet from which to copy property values into the created context.</maml:para>
+          <maml:para>A context previously created by this cmdlet from which to copy property values into the created context.  This parameter accepts pipeline input.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.PSqlContext</command:parameterValue>
         <dev:type>
@@ -779,9 +787,23 @@
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="ResourceGroup">
-        <maml:name>ResourceGroupName</maml:name>
+        <maml:name>ServerResourceGroupName</maml:name>
         <maml:description>
-          <maml:para>The name of the Azure resource group containing the virtual database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>The name of the Azure resource group containing the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>The context uses this value and -ServerResourceName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">string</command:parameterValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Resource">
+        <maml:name>ServerResourceName</maml:name>
+        <maml:description>
+          <maml:para>The Azure resource name of the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>The context uses this value and -ServerResourceGroupName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
@@ -793,9 +815,18 @@
       <command:parameter required="false" position="0" pipelineInput="False" globbing="false" aliases="Server">
         <maml:name>ServerName</maml:name>
         <maml:description>
-          <maml:para>The name of the database server.</maml:para>
-          <maml:para>When the -Azure switch is used, -ServerName is required.  Otherwise, -ServerName is optional.</maml:para>
-          <maml:para>When the -ResourceGroupName parameter is used, or when the -Source context has a resource group name, -ServerName specifies the Azure resource name of the virtual database server.  Otherwise, -ServerName specifies the DNS name of the database server.</maml:para>
+          <maml:para>The DNS name of the database server.  The values . and (local) are recognized as aliases for the local machine.</maml:para>
+          <maml:para>If not specified, the default is context-dependent:</maml:para>
+          <maml:list class="bullet">
+            <maml:listItem>
+              <maml:para>With -Azure switch or an Azure -Source context:</maml:para>
+              <maml:para>The context uses -ServerResourceGroupName and -ServerResourceName to discover the DNS name of the database server.</maml:para>
+            </maml:listItem>
+            <maml:listItem>
+              <maml:para>Otherwise:</maml:para>
+              <maml:para>The context targets the local machine.</maml:para>
+            </maml:listItem>
+          </maml:list>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
@@ -820,7 +851,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Auth">
         <maml:name>AuthenticationMode</maml:name>
         <maml:description>
-          <maml:para>The method to use to authenticate with Azure SQL Database or compatible database.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>The method to use to authenticate with Azure SQL Database.  Requires the -Azure switch or an Azure -Source context.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.AuthenticationMode</command:parameterValue>
         <dev:type>
@@ -913,12 +944,13 @@
         <maml:name>EncryptionMode</maml:name>
         <maml:description>
           <maml:para>The transport encryption to use for connections.</maml:para>
+          <maml:para>Ignored when the -Azure switch is used or when the -Source context is an Azure context.  Azure contexts always use the Full encryption mode.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.EncryptionMode</command:parameterValue>
         <dev:type>
           <maml:name>PSql.EncryptionMode</maml:name>
         </dev:type>
-        <dev:defaultValue>Default</dev:defaultValue>
+        <dev:defaultValue>Default (non-Azure); Full (Azure)</dev:defaultValue>
         <dev:possibleValues>
           <dev:possibleValue>
             <dev:value>Default</dev:value>

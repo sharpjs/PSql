@@ -18,9 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 using System.Reflection;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using PS = System.Management.Automation;
 using NUnit.Framework;
 
 namespace PSql.Tests.Unit
@@ -40,9 +42,9 @@ namespace PSql.Tests.Unit
             context.IsLocal                            .Should().BeFalse();
             context.IsFrozen                           .Should().BeFalse();
 
-            context.ResourceGroupName                  .Should().BeNull();
+            context.ServerResourceGroupName            .Should().BeNull();
+            context.ServerResourceName                 .Should().BeNull();
             context.ServerName                         .Should().BeNull();
-            context.ServerFullName                     .Should().BeNull();
             context.ServerPort                         .Should().BeNull();
             context.InstanceName                       .Should().BeNull();
             context.DatabaseName                       .Should().BeNull();
@@ -64,15 +66,14 @@ namespace PSql.Tests.Unit
 
             var context = new AzureSqlContext
             {
-                ResourceGroupName                  = "resource-group",
-                ServerName                         = "server",
-                ServerFullName                     = "server.example.com",
+                ServerResourceGroupName            = "resource-group",
+                ServerResourceName                 = "server",
+                ServerName                         = "server.example.com",
                 ServerPort                         = 1234,
                 InstanceName                       = "instance",
                 DatabaseName                       = "database",
                 AuthenticationMode                 = AzureAuthenticationMode.SqlPassword,
                 Credential                         = credential,
-                EncryptionMode                     = EncryptionMode.Unverified,
                 ConnectTimeout                     = 42.Seconds(),
                 ClientName                         = "client",
                 ApplicationName                    = "application",
@@ -120,21 +121,22 @@ namespace PSql.Tests.Unit
             clone.Should().NotBeSameAs(original);
             clone.Should().BeEquivalentTo(original, o => o
                 .Excluding(c => c.AsAzure)
-                .Excluding(c => c.ResourceGroupName)
-                .Excluding(c => c.ServerName)
+                .Excluding(c => c.ServerResourceGroupName)
+                .Excluding(c => c.ServerResourceName)
                 .Excluding(c => c.DatabaseName)
             );
 
-            clone.AsAzure          .Should().BeSameAs(clone);
-            clone.ResourceGroupName.Should().Be("rg2");
-            clone.ServerName       .Should().Be("srv2");
-            clone.DatabaseName     .Should().Be("db2");
+            clone.AsAzure                .Should().BeSameAs(clone);
+            clone.ServerResourceGroupName.Should().Be("rg2");
+            clone.ServerResourceName     .Should().Be("srv2");
+            clone.DatabaseName           .Should().Be("db2");
         }
 
         public static readonly IEnumerable<Case> PropertyCases = new[]
         {
-            PropertyCase(c => c.ResourceGroupName,  "resource-group"),
-            PropertyCase(c => c.AuthenticationMode, AzureAuthenticationMode.AadDeviceCodeFlow),
+            PropertyCase(c => c.ServerResourceGroupName, "resource-group"),
+            PropertyCase(c => c.ServerResourceName,      "server"),
+            PropertyCase(c => c.AuthenticationMode,      AzureAuthenticationMode.AadDeviceCodeFlow),
         };
 
         public static Case PropertyCase<T>(Expression<Func<AzureSqlContext, T>> property, T value)
@@ -168,6 +170,116 @@ namespace PSql.Tests.Unit
                 .Should().Throw<TargetInvocationException>() // due to reflection
                 .WithInnerException<InvalidOperationException>()
                 .WithMessage("The context is frozen and cannot be modified.*");
+        }
+
+        [Test]
+        [TestCase(null,                           "resolved-server.example.com")]
+        [TestCase("explicit-server.example.com",  "explicit-server.example.com")]
+        public void GetEffectiveServerName(string? serverName, string expected)
+        {
+            var context = new AzureSqlContext
+            {
+                ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
+                ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName,
+                ServerName              = serverName
+            };
+
+            var state = InitialSessionState.CreateDefault();
+
+            state.Variables.Add(new SessionStateVariableEntry(
+                GetAzSqlServerCommand.ResultVariableName,
+                new { FullyQualifiedDomainName = "resolved-server.example.com" },
+                description: null
+            ));
+
+            state.Commands.Add(new SessionStateCmdletEntry(
+                "Get-AzSqlServer",
+                typeof(GetAzSqlServerCommand),
+                helpFileName: null
+            ));
+
+            using var _ = new RunspaceScope(state);
+
+            context.GetEffectiveServerName().Should().Be(expected);
+        }
+
+        [Test]
+        public void GetEffectiveServerName_NoServerResourceGroupName()
+        {
+            var context = new AzureSqlContext
+            {
+                ServerResourceGroupName = null,
+                ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName
+            };
+
+            context.Invoking(c => c.GetEffectiveServerName())
+                .Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void GetEffectiveServerName_NoServerResourceName()
+        {
+            var context = new AzureSqlContext
+            {
+                ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
+                ServerResourceName      = null
+            };
+
+            context.Invoking(c => c.GetEffectiveServerName())
+                .Should().Throw<InvalidOperationException>();
+        }
+
+        [Test]
+        public void GetEffectiveServerName_UnexpectAzSqlServerObject()
+        {
+            var context = new AzureSqlContext
+            {
+                ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
+                ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName
+            };
+
+            var state = InitialSessionState.CreateDefault();
+
+            state.Variables.Add(new SessionStateVariableEntry(
+                GetAzSqlServerCommand.ResultVariableName,
+                new { Description = "something unexpected" },
+                description: null
+            ));
+
+            state.Commands.Add(new SessionStateCmdletEntry(
+                "Get-AzSqlServer",
+                typeof(GetAzSqlServerCommand),
+                helpFileName: null
+            ));
+
+            using var _ = new RunspaceScope(state);
+
+            context.Invoking(c => c.GetEffectiveServerName())
+                .Should().Throw<InvalidOperationException>();
+        }
+
+        [Cmdlet(VerbsCommon.Get, "AzSqlServer")]
+        [OutputType(typeof(PSObject))]
+        private class GetAzSqlServerCommand : PSCmdlet
+        {
+            public const string
+                ExpectedResourceGroupName = "resource-group",
+                ExpectedServerName        = "server",
+                ResultVariableName        = "FakeAzSqlServer";
+
+            [Parameter(Mandatory = true)]
+            public string? ResourceGroupName { get; set; }
+
+            [Parameter(Mandatory = true)]
+            public string? ServerName { get; set; }
+
+            protected override void ProcessRecord()
+            {
+                ResourceGroupName.Should().Be(ExpectedResourceGroupName);
+                ServerName       .Should().Be(ExpectedServerName);
+
+                WriteObject(SessionState.PSVariable.GetValue(ResultVariableName));
+            }
         }
     }
 }

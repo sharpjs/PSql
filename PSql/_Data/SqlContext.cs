@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.DirectoryServices;
 using System.Globalization;
 using System.Management.Automation;
 using System.Net;
@@ -110,27 +111,16 @@ namespace PSql
         public bool IsFrozen => _isFrozen;
 
         /// <summary>
-        ///   Gets or sets the name (DNS name or Azure resource name) of the
-        ///   database server.  The default is <c>null</c>.
+        ///   Gets or sets the DNS name of the database server.  The values
+        ///   <c>.</c> and <c>(local)</c> are recognized as aliases for the
+        ///   local machine.  If <c>null</c> or an empty string, behavior is
+        ///   context-dependent: <see cref="SqlContext"/> connects to the local
+        ///   machine, and <see cref="AzureSqlContext"/> connects to the Azure
+        ///   virtual database server identified by the
+        ///     <see cref="AzureSqlContext.ServerResourceGroupName"/> and
+        ///     <see cref="AzureSqlContext.ServerResourceName"/> properties.
+        ///   The default is <c>null</c>.
         /// </summary>
-        /// <remarks>
-        ///   <para>
-        ///     For <see cref="AzureSqlContext"/>, this property is required.
-        ///     If <see cref="AzureSqlContext.ResourceGroupName"/> is <c>null</c>,
-        ///     this property specifies the DNS name of the Azure SQL Database
-        ///     endpoint.  Example: <c>myserver.database.windows.net</c>.
-        ///     If <see cref="AzureSqlContext.ResourceGroupName"/> is not
-        ///     <c>null</c>, this property specifies the Azure resource name of
-        ///     the virtual database server.  Example: <c>myserver</c>.
-        ///   </para>
-        ///   <para>
-        ///     For non-Azure contexts, this parameter is optional and
-        ///     specifies the DNS name of the database server.  The values
-        ///     <c>.</c> and <c>(local)</c> are recognized as aliases for the
-        ///     local machine.  If not specified, connection attempts will
-        ///     target the local machine.
-        ///   </para>
-        /// </remarks>
         public string? ServerName
         {
             get => _serverName;
@@ -198,7 +188,7 @@ namespace PSql
         ///   use for connections.  The default is
         ///   <see cref="EncryptionMode.Default"/>.
         /// </summary>
-        public EncryptionMode EncryptionMode
+        public virtual EncryptionMode EncryptionMode
         {
             get => _encryptionMode;
             set => Set(out _encryptionMode, value);
@@ -293,7 +283,13 @@ namespace PSql
         ///   script block, the variable <c>$_</c> holds the created context.
         /// </param>
         public SqlContext this[ScriptBlock block]
-            => CloneAndModify(this, clone => block.InvokeWithUnderscore(clone));
+            => CloneAndModify(this, clone =>
+            {
+                if (block is null)
+                    throw new ArgumentNullException(nameof(block));
+
+                block.InvokeWithUnderscore(clone);
+            });
 
         /// <summary>
         ///   Gets a new context that is a copy of the current instance, but
@@ -349,10 +345,30 @@ namespace PSql
         ///   Freezes the context if it is not frozen already.  Once frozen,
         ///   the properties of the context cannot be changed.
         /// </summary>
-        public void Freeze()
+        public SqlContext Freeze()
         {
             _isFrozen = true;
+            return this;
         }
+
+        /// <summary>
+        ///   Returns the effective DNS name of the database server.  If the
+        ///   <see cref="ServerName"/> property is neither <c>null</c> nor
+        ///   empty, this method returns the property value.  Otherwise,
+        ///   behavior is context-dependent.  For <see cref="SqlContext"/>,
+        ///   this method returns an alias for the local machine.  For
+        ///   <see cref="AzureSqlContext"/>, this method returns the DNS name
+        ///   of the Azure virtual database server identified by the
+        ///     <see cref="AzureSqlContext.ServerResourceGroupName"/> and
+        ///     <see cref="AzureSqlContext.ServerResourceName"/> properties.
+        /// </summary>
+        public string GetEffectiveServerName()
+        {
+            return ServerName.NullIfEmpty() ?? GetDefaultServerName();
+        }
+
+        private protected virtual string GetDefaultServerName()
+            => LocalServerName;
 
         /// <summary>
         ///   Gets a connection string built from the property values of the
@@ -414,7 +430,7 @@ namespace PSql
         protected virtual void ConfigureServerName(
             dynamic /*SqlConnectionStringBuilder*/ builder)
         {
-            var dataSource = ServerName.NullIfEmpty() ?? LocalServerName;
+            var dataSource = GetEffectiveServerName();
 
             if (ServerPort.HasValue || InstanceName.HasContent())
             {

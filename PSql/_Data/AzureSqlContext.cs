@@ -27,8 +27,9 @@ namespace PSql
     /// </summary>
     public class AzureSqlContext : SqlContext
     {
-        private string?                 _resourceGroupName;
-        private string?                 _serverFullName;
+        private string?                 _serverResourceGroupName;
+        private string?                 _serverResourceName;
+        private string?                 _serverResolvedName;
         private AzureAuthenticationMode _authenticationMode;
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace PSql
         public AzureSqlContext()
         {
             // Encryption is required for connections to Azure SQL Database
-            EncryptionMode = EncryptionMode.Full;
+            base.EncryptionMode = EncryptionMode.Full;
         }
 
         /// <summary>
@@ -54,33 +55,41 @@ namespace PSql
         public AzureSqlContext(AzureSqlContext other)
             : base(other)
         {
-            _resourceGroupName  = other.ResourceGroupName;
-            _serverFullName     = other.ServerFullName;
-            _authenticationMode = other.AuthenticationMode;
+            _serverResourceGroupName  = other. ServerResourceGroupName;
+            _serverResourceName       = other. ServerResourceName;
+            _serverResolvedName       = other._serverResolvedName;
+            _authenticationMode       = other. AuthenticationMode;
         }
 
         /// <inheritdoc/>
         public sealed override bool IsAzure => true;
 
         /// <summary>
-        ///   Gets or sets the name of the resource group containing the
-        ///   database server.  The default is <c>null</c>.
+        ///   Gets or sets the name of the Azure resource group containing the
+        ///   virtual database server.  The default is <c>null</c>.
         /// </summary>
-        public string? ResourceGroupName
+        public string? ServerResourceGroupName
         {
-            get => _resourceGroupName;
-            set => Set(out _resourceGroupName, value);
+            get => _serverResourceGroupName;
+            set
+            {
+                Set(out _serverResourceGroupName, value);
+                _serverResolvedName = null;
+            }
         }
 
         /// <summary>
-        ///   Gets the DNS name of the database server.  The value is
-        ///   <c>null</c> until the context is used to create a connection
-        ///   string.
+        ///   Gets or sets the Azure resource name of the virtual database
+        ///   server.  The default is <c>null</c>.
         /// </summary>
-        public string? ServerFullName
+        public string? ServerResourceName
         {
-            get          => _serverFullName;
-            internal set => _serverFullName = value;
+            get => _serverResourceName;
+            set
+            {
+                Set(out _serverResourceName, value);
+                _serverResolvedName = null;
+            }
         }
 
         /// <summary>
@@ -94,26 +103,41 @@ namespace PSql
             set => Set(out _authenticationMode, value);
         }
 
+        /// <inheritdoc/>
+        public sealed override EncryptionMode EncryptionMode
+        {
+            get => base.EncryptionMode;
+            set { } // Property is immutable for AzureSqlContext
+        }
+
         /// <summary>
         ///   Gets a new context that is a copy of the current instance, but
-        ///   with the specified resource group name, server name, and database
-        ///   name.  If the current instance is frozen, the copy is frozen also.
+        ///   with the specified server resource group name, server resource
+        ///   name, and database name.  If the current instance is frozen, the
+        ///   copy is frozen also.
         /// </summary>
-        /// <param name="resourceGroupName">
-        ///   The name of the resource group to set on the copy.
+        /// <param name="serverResourceGroupName">
+        ///   The value to set on the copy for the name of the Azure resource
+        ///   group containing the virtual database server.
         /// </param>
-        /// <param name="serverName">
-        ///   The name of the server to set on the copy.
+        /// <param name="serverResourceName">
+        ///   The value to set on the copy for the Azure resource name of the
+        ///   virtual database server.
         /// </param>
         /// <param name="databaseName">
-        ///   The name of the database to set on the copy.
+        ///   The value to set on the copy for the name of the database.
         /// </param>
-        public AzureSqlContext this[string? resourceGroupName, string? serverName, string? databaseName]
+        public AzureSqlContext
+            this[
+                string? serverResourceGroupName,
+                string? serverResourceName,
+                string? databaseName
+            ]
             => CloneAndModify(this, clone =>
             {
-                clone.ResourceGroupName = resourceGroupName;
-                clone.ServerName        = serverName;
-                clone.DatabaseName      = databaseName;
+                clone.ServerResourceGroupName = serverResourceGroupName;
+                clone.ServerResourceName      = serverResourceName;
+                clone.DatabaseName            = databaseName;
             });
 
         /// <inheritdoc cref="SqlContext.Clone()" />
@@ -124,12 +148,59 @@ namespace PSql
         protected override SqlContext CloneCore()
             => new AzureSqlContext(this);
 
-        protected override void ConfigureServerName(dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected sealed override string GetDefaultServerName()
         {
-            builder.DataSource = ServerFullName ?? ResolveServerFullName();
+            // Resolve ServerName using Az module
+
+            if (_serverResolvedName is string existing)
+                return existing;
+
+            if (string.IsNullOrEmpty(ServerResourceGroupName) ||
+                string.IsNullOrEmpty(ServerResourceName))
+            {
+                throw new InvalidOperationException(
+                    "Cannot determine the server DNS name. "                    +
+                    "Set ServerName to the DNS name of a database server, or "  +
+                    "set ServerResourceGroupName and ServerResourceName to "    +
+                    "the resource group name and resource name, respectively, " +
+                    "of an Azure SQL Database virtual server."
+                );
+            }
+
+            var value = ScriptBlock
+                .Create("param ($x) Get-AzSqlServer @x -ErrorAction Stop")
+                .Invoke(new Dictionary<string, object?>
+                {
+                    ["ResourceGroupName"] = ServerResourceGroupName,
+                    ["ServerName"]        = ServerResourceName,
+                })
+                .FirstOrDefault()
+                ?.Properties["FullyQualifiedDomainName"]
+                ?.Value as string;
+
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new InvalidOperationException(
+                    "Failed to determine the server DNS name. "                    +
+                    "The Get-AzSqlServer command completed without error, "        +
+                    "but did not yield an object with a FullyQualifiedDomainName " +
+                    "property set to a non-null, non-empty string."
+                );
+            }
+
+            return _serverResolvedName = value;
         }
 
-        protected override void ConfigureDefaultDatabaseName(dynamic /*SqlConnectionStringBuilder*/ builder)
+        protected override void ConfigureServerName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
+        {
+            // Ignore ServerPort and InstanceName.
+
+            builder.DataSource = GetEffectiveServerName();
+        }
+
+        protected override void ConfigureDefaultDatabaseName(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             if (!string.IsNullOrEmpty(DatabaseName))
                 builder.InitialCatalog = DatabaseName;
@@ -137,7 +208,8 @@ namespace PSql
                 builder.InitialCatalog = MasterDatabaseName;
         }
 
-        protected override void ConfigureAuthentication(dynamic /*SqlConnectionStringBuilder*/ builder)
+        protected override void ConfigureAuthentication(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             var mode = AuthenticationMode;
 
@@ -169,50 +241,14 @@ namespace PSql
             }
         }
 
-        protected override void ConfigureEncryption(dynamic /*SqlConnectionStringBuilder*/ builder)
+        protected override void ConfigureEncryption(
+            dynamic /*SqlConnectionStringBuilder*/ builder)
         {
             // Encryption is required for connections to Azure SQL Database
             builder.Encrypt = true;
 
             // Always verify server identity
             // builder.TrustServerCertificate defaults to false
-        }
-
-        private string ResolveServerFullName()
-        {
-            // Check if ServerName should be used as ServerFullName verbatim
-
-            if (string.IsNullOrEmpty(ServerName))
-                throw new InvalidOperationException("ServerName is required.");
-
-            var shouldUseServerNameVerbatim
-                =  ServerName.Contains('.', StringComparison.Ordinal)
-                || string.IsNullOrEmpty(ResourceGroupName);
-
-            if (shouldUseServerNameVerbatim)
-                return ServerName;
-
-            // Resolve ServerFullName using Az cmdlets
-
-            var value = ScriptBlock
-                .Create("param ($x) Get-AzSqlServer @x -ea Stop")
-                .Invoke(new Dictionary<string, object>
-                {
-                    ["ResourceGroupName"] = ResourceGroupName!, // null-checked above
-                    ["ServerName"]        = ServerName,
-                })
-                .FirstOrDefault()
-                ?.Properties["FullyQualifiedDomainName"]
-                ?.Value as string;
-
-            if (string.IsNullOrEmpty(value))
-                throw new InvalidOperationException(
-                    "The Get-AzSqlServer command completed without error, " +
-                    "but did not yield an object with a FullyQualifiedDomainName " +
-                    "property set to a non-null, non-empty string."
-                );
-
-            return ServerFullName = value;
         }
     }
 }

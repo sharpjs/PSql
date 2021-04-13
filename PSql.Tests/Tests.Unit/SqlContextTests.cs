@@ -59,9 +59,10 @@ namespace PSql.Tests.Unit
         {
             var context = new SqlContext();
 
-            context.Freeze();
+            var frozen = context.Freeze();
 
-            context.IsFrozen.Should().BeTrue();
+            frozen         .Should().BeSameAs(context);
+            frozen.IsFrozen.Should().BeTrue();
         }
 
         public static SqlContext MakeExampleContext(bool frozen = false)
@@ -227,6 +228,16 @@ namespace PSql.Tests.Unit
                 .Should().Throw<TargetInvocationException>() // due to reflection
                 .WithInnerException<InvalidOperationException>()
                 .WithMessage("The context is frozen and cannot be modified.*");
+        }
+
+        [Test]
+        [TestCase(null, ".")]
+        [TestCase("a",  "a")]
+        public void GetEffectiveServerName(string? serverName, string expected)
+        {
+            var context = new SqlContext { ServerName = serverName };
+
+            context.GetEffectiveServerName().Should().Be(expected);
         }
     }
 }
