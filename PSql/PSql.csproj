@@ -22,13 +22,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.1.0-rc02" PrivateAssets="All" />
-    <PackageReference Include="System.Management.Automation" Version="[7.0.0,8.0.0)" PrivateAssets="All" />
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule"
+                      Version="1.1.0-rc03" PrivateAssets="All" />
+
+    <PackageReference Include="System.Management.Automation"
+                      Version="[7.0.0,8.0.0)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="**\*.dll-help.xml" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\PSql.Client\bin\$(Configuration)\$(TargetFramework)\**" Visible="false" />
+    <Content Include="$(PowerShellItemIncludes)"
+             Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+
+    <None Include="..\PSql.Client\bin\$(Configuration)\$(TargetFramework)\**"
+          Visible="false" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
