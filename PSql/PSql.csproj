@@ -23,10 +23,10 @@
 
   <ItemGroup>
     <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule"
-                      Version="1.1.0-rc03" PrivateAssets="All" />
+                      Version="1.1.0" PrivateAssets="All" />
 
     <PackageReference Include="System.Management.Automation"
-                      Version="[7.0.0,8.0.0)" PrivateAssets="All" />
+                      Version="[7.0.0, 8.0.0)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
