@@ -14,7 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -24,87 +23,23 @@ namespace PSql.Tests.Unit
     public class StringExtensionsTests
     {
         [Test]
-        public void Unindent_Null()
+        [TestCase(null, false)]
+        [TestCase("",   false)]
+        [TestCase(" ",  true )]
+        [TestCase("a",  true )]
+        public void HasContent(string? s, bool expected)
         {
-            (null as string)
-                .Invoking(s => s!.Unindent())
-                .Should().Throw<ArgumentNullException>();
+            s.HasContent().Should().Be(expected);
         }
 
         [Test]
-        public void Unindent_Empty()
+        [TestCase(null, null)]
+        [TestCase("",   null)]
+        [TestCase(" ",  " " )]
+        [TestCase("a",  "a" )]
+        public void NullIfEmpty(string? s, string? expected)
         {
-            "".Unindent().Should().BeEmpty();
-        }
-
-        [Test]
-        public void Unindent_Lf()
-        {
-            "\n".Unindent().Should().BeEmpty();
-        }
-
-        [Test]
-        public void Unindent_CrLf()
-        {
-            "\r\n".Unindent().Should().BeEmpty();
-        }
-
-        [Test]
-        public void Unindent_OneLine_NotIndented()
-        {
-            "a".Unindent().Should().Be("a");
-        }
-
-        [Test]
-        public void Unindent_OneLine_Indented()
-        {
-            "\t a".Unindent().Should().Be("a");
-        }
-
-        [Test]
-        public void Unindent_MultiLine_NotIndented()
-        {
-            ( "\r\n"
-            + "a\r\n"
-            + "  b\r\n"
-            + "    c\r\n"
-            )
-            .Unindent().Should().Be
-            ( "a\r\n"
-            + "  b\r\n"
-            + "    c\r\n"
-            );
-        }
-
-        [Test]
-        public void Unindent_MultiLine_Indented()
-        {
-            ( "\r\n"
-            + "    \t    a\r\n"
-            + "    \t      b\r\n"
-            + "    \t        c\r\n"
-            )
-            .Unindent().Should().Be
-            ( "a\r\n"
-            + "  b\r\n"
-            + "    c\r\n"
-            );
-        }
-
-        [Test]
-        public void Unindent_MultiLine_Indented_TrailingIndent()
-        {
-            ( "\r\n"
-            + "    \t    a\r\n"
-            + "    \t      b\r\n"
-            + "    \t        c\r\n"
-            + "    \t    "
-            )
-            .Unindent().Should().Be
-            ( "a\r\n"
-            + "  b\r\n"
-            + "    c\r\n"
-            );
+            s.NullIfEmpty().Should().Be(expected);
         }
     }
 }

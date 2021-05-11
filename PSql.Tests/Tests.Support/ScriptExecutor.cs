@@ -22,6 +22,7 @@ using System.Management.Automation.Runspaces;
 using System.Runtime.InteropServices;
 using Microsoft.PowerShell;
 using NUnit.Framework;
+using Unindent;
 
 namespace PSql.Tests
 {

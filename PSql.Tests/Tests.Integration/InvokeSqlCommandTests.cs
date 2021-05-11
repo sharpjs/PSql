@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
+using Unindent;
 
 namespace PSql.Tests.Integration
 {
