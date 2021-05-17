@@ -43,7 +43,7 @@ namespace PSql
         public SqlContext Source { get; set; }
 
         // -ServerResourceGroupName
-        [Alias("ResourceGroup")]
+        [Alias("ResourceGroup", "ResourceGroupName")]
         [Parameter(ParameterSetName = AzureName, Position = 0)]
         [Parameter(ParameterSetName = CloneName)]
         [AllowNull, AllowEmptyString]
