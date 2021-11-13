@@ -636,7 +636,7 @@
           <maml:name>Azure</maml:name>
         </command:parameter>
         <command:parameter required="false" position="0" pipelineInput="False" globbing="false">
-          <maml:name>ServerResourceGroupName</maml:name>
+          <maml:name>ResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="1" pipelineInput="False" globbing="false">
@@ -695,7 +695,7 @@
           <command:parameterValue required="true">PSql.SqlContext</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="True (False)" globbing="false">
-          <maml:name>ServerResourceGroupName</maml:name>
+          <maml:name>ResourceGroupName</maml:name>
           <command:parameterValue required="true">string</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
@@ -786,8 +786,8 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
 
-      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="ResourceGroup">
-        <maml:name>ServerResourceGroupName</maml:name>
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="ResourceGroup,ServerResourceGroupName">
+        <maml:name>ResourceGroupName</maml:name>
         <maml:description>
           <maml:para>The name of the Azure resource group containing the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
           <maml:para>The context uses this value and -ServerResourceName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
@@ -803,7 +803,7 @@
         <maml:name>ServerResourceName</maml:name>
         <maml:description>
           <maml:para>The Azure resource name of the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
-          <maml:para>The context uses this value and -ServerResourceGroupName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
+          <maml:para>The context uses this value and -ResourceGroupName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
         <dev:type>
@@ -820,7 +820,7 @@
           <maml:list class="bullet">
             <maml:listItem>
               <maml:para>With -Azure switch or an Azure -Source context:</maml:para>
-              <maml:para>The context uses -ServerResourceGroupName and -ServerResourceName to discover the DNS name of the database server.</maml:para>
+              <maml:para>The context uses -ResourceGroupName and -ServerResourceName to discover the DNS name of the database server.</maml:para>
             </maml:listItem>
             <maml:listItem>
               <maml:para>Otherwise:</maml:para>

@@ -36,14 +36,14 @@ namespace PSql.Tests.Unit
             new Case(":$false", false)
         };
 
-        #region -ServerResourceGroupName
+        #region -ResourceGroupName
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ServerResourceGroupName_Set_Valid(string expression, string? value)
+        public void ResourceGroupName_Set_Valid(string expression, string? value)
         {
             @$"
-                New-SqlContext -Azure -ServerResourceGroupName {expression}
+                New-SqlContext -Azure -ResourceGroupName {expression}
             "
             .ShouldOutput(
                 new AzureSqlContext { ServerResourceGroupName = value }
@@ -51,10 +51,10 @@ namespace PSql.Tests.Unit
         }
 
         [Test]
-        public void ServerResourceGroupName_Set_NonAzure()
+        public void ResourceGroupName_Set_NonAzure()
         {
             @$"
-                New-SqlContext -ServerResourceGroupName x
+                New-SqlContext -ResourceGroupName x
             "
             .ShouldThrow<ParameterBindingException>(
                 "Parameter set cannot be resolved using the specified named parameters."
@@ -63,10 +63,10 @@ namespace PSql.Tests.Unit
 
         [Test]
         [TestCaseSource(nameof(StringCases))]
-        public void ServerResourceGroupName_Override_Valid(string expression, string? value)
+        public void ResourceGroupName_Override_Valid(string expression, string? value)
         {
             @$"
-                New-SqlContext -Azure -ServerResourceGroupName x | New-SqlContext -ServerResourceGroupName {expression}
+                New-SqlContext -Azure -ResourceGroupName x | New-SqlContext -ResourceGroupName {expression}
             "
             .ShouldOutput(
                 new AzureSqlContext { ServerResourceGroupName = value }
@@ -74,13 +74,13 @@ namespace PSql.Tests.Unit
         }
 
         [Test]
-        public void ServerResourceGroupName_Override_NonAzure()
+        public void ResourceGroupName_Override_NonAzure()
         {
             @$"
-                New-SqlContext | New-SqlContext -ServerResourceGroupName x
+                New-SqlContext | New-SqlContext -ResourceGroupName x
             "
             .ShouldOutput(
-                new PSWarning("The 'ServerResourceGroupName' argument was ignored because the context is not an Azure SQL Database context."),
+                new PSWarning("The 'ResourceGroupName' argument was ignored because the context is not an Azure SQL Database context."),
                 new SqlContext()
             );
         }
@@ -304,16 +304,16 @@ namespace PSql.Tests.Unit
         {
             @$"
                 New-SqlContext -Azure `
-                    -ServerResourceGroupName  rg `
-                    -ServerName         srv `
+                    -ResourceGroupName  rg `
+                    -ServerResourceName srv `
                     -AuthenticationMode {expression}
             "
             .ShouldOutput(
                 new AzureSqlContext
                 {
-                    ServerResourceGroupName  = "rg",
-                    ServerName         = "srv",
-                    AuthenticationMode = value
+                    ServerResourceGroupName = "rg",
+                    ServerResourceName      = "srv",
+                    AuthenticationMode      = value
                 }
             );
         }
@@ -324,8 +324,8 @@ namespace PSql.Tests.Unit
         {
             @$"
                 New-SqlContext -Azure `
-                    -ServerResourceGroupName  rg `
-                    -ServerName         srv `
+                    -ResourceGroupName  rg `
+                    -ServerResourceName srv `
                     -AuthenticationMode {expression}
             "
             .ShouldThrow<ParameterBindingException>(message);
@@ -348,8 +348,8 @@ namespace PSql.Tests.Unit
         {
             @$"
                 New-SqlContext -Azure `
-                    -ServerResourceGroupName  rg `
-                    -ServerName         srv `
+                    -ResourceGroupName  rg `
+                    -ServerResourceName srv `
                     -AuthenticationMode SqlPassword `
                 | `
                 New-SqlContext -AuthenticationMode {expression}
@@ -357,9 +357,9 @@ namespace PSql.Tests.Unit
             .ShouldOutput(
                 new AzureSqlContext
                 {
-                    ServerResourceGroupName  = "rg",
-                    ServerName         = "srv",
-                    AuthenticationMode = value
+                    ServerResourceGroupName = "rg",
+                    ServerResourceName      = "srv",
+                    AuthenticationMode      = value
                 }
             );
         }
@@ -370,8 +370,8 @@ namespace PSql.Tests.Unit
         {
             @$"
                 New-SqlContext -Azure `
-                    -ServerResourceGroupName  rg `
-                    -ServerName         srv `
+                    -ResourceGroupName  rg `
+                    -ServerResourceName srv `
                     -AuthenticationMode SqlPassword `
                 | `
                 New-SqlContext -AuthenticationMode {expression}
@@ -505,9 +505,9 @@ namespace PSql.Tests.Unit
         {
             @$"
                 New-SqlContext -Azure `
-                    -ServerResourceGroupName rg `
-                    -ServerName        srv `
-                    -EncryptionMode    Unverified
+                    -ResourceGroupName  rg `
+                    -ServerResourceName srv `
+                    -EncryptionMode     Unverified
             "
             .ShouldThrow<ParameterBindingException>(
                 "Parameter set cannot be resolved using the specified named parameters."
@@ -540,13 +540,13 @@ namespace PSql.Tests.Unit
         public void EncryptionMode_Override_Azure()
         {
             @$"
-                New-SqlContext -Azure -ServerResourceGroupName rg -ServerName srv `
+                New-SqlContext -Azure -ResourceGroupName rg -ServerResourceName srv `
                 | `
                 New-SqlContext -EncryptionMode Unverified
             "
             .ShouldOutput(
                 new PSWarning("The 'EncryptionMode' argument was ignored because the context is an Azure SQL Database context."),
-                new AzureSqlContext { ServerResourceGroupName = "rg", ServerName = "srv" }
+                new AzureSqlContext { ServerResourceGroupName = "rg", ServerResourceName = "srv" }
             );
         }
 

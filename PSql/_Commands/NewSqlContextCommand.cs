@@ -42,12 +42,12 @@ namespace PSql
         [ValidateNotNull]
         public SqlContext Source { get; set; }
 
-        // -ServerResourceGroupName
-        [Alias("ResourceGroup", "ResourceGroupName")]
+        // -ResourceGroupName
+        [Alias("ResourceGroup", "ServerResourceGroupName")]
         [Parameter(ParameterSetName = AzureName, Position = 0)]
         [Parameter(ParameterSetName = CloneName)]
         [AllowNull, AllowEmptyString]
-        public string ServerResourceGroupName { get; set; }
+        public string ResourceGroupName { get; set; }
 
         // -ServerResourceName
         [Alias("Resource")]
@@ -161,7 +161,7 @@ namespace PSql
         {
             switch (parameterName)
             {
-                case nameof(ServerResourceGroupName):            SetServerResourceGroupName            (context); break;
+                case nameof(ResourceGroupName):                  SetServerResourceGroupName            (context); break;
                 case nameof(ServerResourceName):                 SetServerResourceName                 (context); break;
                 case nameof(ServerName):                         SetServerName                         (context); break;
                 case nameof(ServerPort):                         SetServerPort                         (context); break;
@@ -190,9 +190,9 @@ namespace PSql
         private void SetServerResourceGroupName(SqlContext context)
         {
             if (context is AzureSqlContext azureContext)
-                azureContext.ServerResourceGroupName = ServerResourceGroupName.NullIfEmpty();
+                azureContext.ServerResourceGroupName = ResourceGroupName.NullIfEmpty();
             else
-                WarnIgnoredBecauseNotAzureContext(nameof(ServerResourceGroupName));
+                WarnIgnoredBecauseNotAzureContext(nameof(ResourceGroupName));
         }
 
         private void SetServerResourceName(SqlContext context)
