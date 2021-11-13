@@ -17,7 +17,7 @@ The 2.0.0 release is a complete rewrite of PSql.
 - Change module type to binary.
 - Change target to PowerShell 7.0+ / .NET Core 3.1.
 - Change ADO.NET implementation to [Microsoft.Data.SqlClient](https://github.com/dotnet/SqlClient).
-- Add numerous SQL context properties.
+- Add numerous SqlContext properties.
 - Add support for Azure Active Directory authentication modes.
 - Add automated build and publish via GitHub Actions.
 
