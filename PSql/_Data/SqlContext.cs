@@ -339,7 +339,7 @@ namespace PSql
         ///   instance.  Subclasses should override this method.
         /// </summary>
         protected virtual SqlContext CloneCore()
-            => new SqlContext(this);
+            => new(this);
 
         /// <summary>
         ///   Freezes the context if it is not frozen already.  Once frozen,
@@ -491,15 +491,15 @@ namespace PSql
         {
             // tuple: (useEncryption, useServerIdentityCheck)
 
-            switch (mode)
+            return mode switch
             {
-                //                                     ( ENCRYPT,       VERIFY )
-                case EncryptionMode.None:       return ( false,         false  );
-                case EncryptionMode.Unverified: return ( true,          false  );
-                case EncryptionMode.Full:       return ( true,          true   );
-                case EncryptionMode.Default:    //↓↓↓↓ ( !GetIsLocal(), true   );
-                default:                        return ( !GetIsLocal(), true   );
-            }
+                //                            ( ENCRYPT,       VERIFY )
+                EncryptionMode.None        => ( false,         false  ),
+                EncryptionMode.Unverified  => ( true,          false  ),
+                EncryptionMode.Full        => ( true,          true   ),
+            //  EncryptionMode.Default     ↓↓ ( !GetIsLocal(), true   ),
+                _                          => ( !GetIsLocal(), true   ),
+            };
         }
 
         private bool GetIsLocal()

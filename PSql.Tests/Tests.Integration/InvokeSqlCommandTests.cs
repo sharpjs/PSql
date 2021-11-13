@@ -1024,7 +1024,7 @@ namespace PSql.Tests.Integration
         }
 
         private static SqlString Greenlandic(string s)
-            => new SqlString(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
+            => new(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
 
         private static bool EqualBytes(byte[] a, byte[] b)
             => a.AsSpan().SequenceEqual(b);

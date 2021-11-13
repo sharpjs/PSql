@@ -202,10 +202,9 @@ namespace PSql
         protected override void ConfigureDefaultDatabaseName(
             dynamic /*SqlConnectionStringBuilder*/ builder)
         {
-            if (!string.IsNullOrEmpty(DatabaseName))
-                builder.InitialCatalog = DatabaseName;
-            else
-                builder.InitialCatalog = MasterDatabaseName;
+            builder.InitialCatalog = !string.IsNullOrEmpty(DatabaseName)
+                ? DatabaseName
+                : MasterDatabaseName;
         }
 
         protected override void ConfigureAuthentication(
