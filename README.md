@@ -93,12 +93,12 @@ and Azure Active Directory authentication modes.
 $login = Get-Credential pgibbons
 
 $context = New-SqlContext -Azure `
-    -ServerResourceGroupName initech `
-    -ServerResourceName      initech-db01 `
-    -DatabaseName            TpsReports `
-    -AuthenticationMode      AadPassword `
-    -Credential              $login `
-    -ApplicationName         "TPS Report Generator"
+    -ResourceGroupName  initech `
+    -ServerResourceName initech-db01 `
+    -DatabaseName       TpsReports `
+    -AuthenticationMode AadPassword `
+    -Credential         $login `
+    -ApplicationName    "TPS Report Generator"
 ```
 
 `New-SqlContext` supports a number of other parameters that generally
