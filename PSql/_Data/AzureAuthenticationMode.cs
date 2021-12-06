@@ -82,5 +82,62 @@ namespace PSql
         ///   the <see cref="SqlContext.Credential"/> should be null.
         /// </summary>
         AadManagedIdentity = 7, // ActiveDirectoryManagedIdentity
+
+        /// <summary>
+        ///   Azure Active Directory default authentication mode.  This mode
+        ///   attempts multiple <strong>non-interactive</strong>
+        ///   authentication methods sequentially.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///   This mode attempts in order:
+        ///   </para>
+        ///   <list type="bullet">
+        ///     <item>
+        ///       <term>Environment</term>
+        ///       <description>
+        ///         Credential
+        ///         <a href="https://docs.microsoft.com/en-ca/dotnet/api/azure.identity.environmentcredential?view=azure-dotnet">configured in environment variables</a>.
+        ///       </description>
+        ///     </item>
+        ///     <item>
+        ///       <term>Managed Identity</term>
+        ///       <description>
+        ///         Managed identity configured for the Azure resource running
+        ///         the current PowerShell session.  For a user-assigned
+        ///         identity, the <see cref="SqlContext.Credential"/>
+        ///         property's username should be the object ID of the
+        ///         identity; the password is ignored.  For a system-assigned
+        ///         identity, the the <see cref="SqlContext.Credential"/>
+        ///         should be null.
+        ///       </description>
+        ///     </item>
+        ///     <item>
+        ///       <term>Shared Token Cache</term>
+        ///       <description>
+        ///         Local cache shared between Microsoft applications.
+        ///       </description>
+        ///     </item>
+        ///     <item>
+        ///       <term>Visual Studio</term>
+        ///       <description>
+        ///         Token cached by Visual Studio.
+        ///       </description>
+        ///     </item>
+        ///     <item>
+        ///       <term>Visual Studio Code</term>
+        ///       <description>
+        ///         Token cached by Visual Studio Code.
+        ///       </description>
+        ///     </item>
+        ///     <item>
+        ///       <term>Azure CLI</term>
+        ///       <description>
+        ///         Token cached by the Azure CLI.
+        ///       </description>
+        ///     </item>
+        ///   </list>
+        /// </remarks>
+        AadDefault = 9, // ActiveDirectoryDefault
     }
 }
