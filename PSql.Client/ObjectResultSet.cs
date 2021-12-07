@@ -14,114 +14,112 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 
-namespace PSql
+namespace PSql;
+
+using static FormattableString;
+
+internal sealed class ObjectResultSet : IEnumerator<object>
 {
-    using static FormattableString;
+    private readonly SqlDataReader                    _reader;
+    private readonly Func   <object>                  _createObject;
+    private readonly Action <object, string, object?> _setProperty;
+    private readonly bool                             _useSqlTypes;
 
-    internal sealed class ObjectResultSet : IEnumerator<object>
+    private object?   _current;
+    private string[]? _columnNames;
+
+    public ObjectResultSet(
+        SqlDataReader                    reader,
+        Func   <object>                  createObject,
+        Action <object, string, object?> setProperty,
+        bool                             useSqlTypes)
     {
-        private readonly SqlDataReader                    _reader;
-        private readonly Func   <object>                  _createObject;
-        private readonly Action <object, string, object?> _setProperty;
-        private readonly bool                             _useSqlTypes;
+        _reader       = reader       ?? throw new ArgumentNullException(nameof(reader));
+        _createObject = createObject ?? throw new ArgumentNullException(nameof(createObject));
+        _setProperty  = setProperty  ?? throw new ArgumentNullException(nameof(setProperty));
+        _useSqlTypes  = useSqlTypes;
+    }
 
-        private object?   _current;
-        private string[]? _columnNames;
+    public object Current
+        => _current ?? throw OnNoCurrentItem();
 
-        public ObjectResultSet(
-            SqlDataReader                    reader,
-            Func   <object>                  createObject,
-            Action <object, string, object?> setProperty,
-            bool                             useSqlTypes)
+    public bool MoveNext()
+        => MoveNextCore() ? SetCurrent() : SetNoCurrent();
+
+    public void Reset()
+        => throw new NotSupportedException();
+
+    public void Dispose()
+        => _reader.Dispose();
+
+    private bool MoveNextCore()
+    {
+        while (!_reader.Read())
         {
-            _reader       = reader       ?? throw new ArgumentNullException(nameof(reader));
-            _createObject = createObject ?? throw new ArgumentNullException(nameof(createObject));
-            _setProperty  = setProperty  ?? throw new ArgumentNullException(nameof(setProperty));
-            _useSqlTypes  = useSqlTypes;
+            if (!_reader.NextResult())
+                return false;
+
+            _columnNames = null;
         }
 
-        public object Current
-            => _current ?? throw OnNoCurrentItem();
+        return true;
+    }
 
-        public bool MoveNext()
-            => MoveNextCore() ? SetCurrent() : SetNoCurrent();
+    private bool SetCurrent()
+    {
+        _columnNames ??= GetColumnNames(_reader);
+        _current       = ProjectToObject();
+        return true;
+    }
 
-        public void Reset()
-            => throw new NotSupportedException();
+    private bool SetNoCurrent()
+    {
+        _current = null;
+        return false;
+    }
 
-        public void Dispose()
-            => _reader.Dispose();
+    private static string[] GetColumnNames(SqlDataReader reader)
+    {
+        var names = new string[reader.FieldCount];
 
-        private bool MoveNextCore()
+        for (var i = 0; i < names.Length; i++)
+            names[i] = reader.GetName(i).NullIfEmpty() ?? Invariant($"Col{i}");
+
+        return names;
+    }
+
+    private object ProjectToObject()
+    {
+        var obj = _createObject();
+
+        for (var i = 0; i < _columnNames!.Length; i++)
         {
-            while (!_reader.Read())
-            {
-                if (!_reader.NextResult())
-                    return false;
-
-                _columnNames = null;
-            }
-
-            return true;
+            var name  = _columnNames[i];
+            var value = GetValue(_reader, i, _useSqlTypes);
+            _setProperty(obj, name, value);
         }
 
-        private bool SetCurrent()
-        {
-            _columnNames ??= GetColumnNames(_reader);
-            _current       = ProjectToObject();
-            return true;
-        }
+        return obj;
+    }
 
-        private bool SetNoCurrent()
-        {
-            _current = null;
-            return false;
-        }
+    private static object? GetValue(SqlDataReader reader, int ordinal, bool useSqlTypes)
+    {
+        var value = useSqlTypes
+            ? reader.GetSqlValue (ordinal)
+            : reader.GetValue    (ordinal);
 
-        private static string[] GetColumnNames(SqlDataReader reader)
-        {
-            var names = new string[reader.FieldCount];
+        return value is DBNull
+            ? null
+            : value;
+    }
 
-            for (var i = 0; i < names.Length; i++)
-                names[i] = reader.GetName(i).NullIfEmpty() ?? Invariant($"Col{i}");
-
-            return names;
-        }
-
-        private object ProjectToObject()
-        {
-            var obj = _createObject();
-
-            for (var i = 0; i < _columnNames!.Length; i++)
-            {
-                var name  = _columnNames[i];
-                var value = GetValue(_reader, i, _useSqlTypes);
-                _setProperty(obj, name, value);
-            }
-
-            return obj;
-        }
-
-        private static object? GetValue(SqlDataReader reader, int ordinal, bool useSqlTypes)
-        {
-            var value = useSqlTypes
-                ? reader.GetSqlValue (ordinal)
-                : reader.GetValue    (ordinal);
-
-            return value is DBNull
-                ? null
-                : value;
-        }
-
-        private static Exception OnNoCurrentItem()
-        {
-            return new InvalidOperationException(
-                "The " + nameof(ObjectResultSet) + " does not have a current item."
-            );
-        }
+    private static Exception OnNoCurrentItem()
+    {
+        return new InvalidOperationException(
+            "The " + nameof(ObjectResultSet) + " does not have a current item."
+        );
     }
 }
+

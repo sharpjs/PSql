@@ -14,50 +14,48 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System.IO;
 using System.Runtime.InteropServices;
 
-namespace PSql
+namespace PSql;
+
+// Microsoft.Data.SqlClient 2.0.0 and later, at least when used within this
+// PowerShell module, has trouble locating the appropriate SNI DLL.  The
+// workaround is to load it manually.
+
+internal static class SniLoader
 {
-    // Microsoft.Data.SqlClient 2.0.0 and later, at least when used within this
-    // PowerShell module, has trouble locating the appropriate SNI DLL.  The
-    // workaround is to load it manually.
-
-    internal static class SniLoader
+    internal static void Load()
     {
-        internal static void Load()
+        // Does platform need SNI?
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return; // no
+
+        // Get runtime identifier
+        var rid = RuntimeInformation.ProcessArchitecture switch
         {
-            // Does platform need SNI?
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return; // no
+            Architecture.X86   => "win-x86",
+            Architecture.X64   => "win-x64",
+            Architecture.Arm   => "win-arm",
+            Architecture.Arm64 => "win-arm64",
+            _                  => null
+        };
 
-            // Get runtime identifier
-            var rid = RuntimeInformation.ProcessArchitecture switch
-            {
-                Architecture.X86   => "win-x86",
-                Architecture.X64   => "win-x64",
-                Architecture.Arm   => "win-arm",
-                Architecture.Arm64 => "win-arm64",
-                _                  => null
-            };
+        // Does runtime need SNI?
+        if (rid == null)
+            return; // no
 
-            // Does runtime need SNI?
-            if (rid == null)
-                return; // no
+        // Get path to SNI DLL
+        var path = Path.Combine(
+            "runtimes", rid, "native", "Microsoft.Data.SqlClient.SNI.dll"
+        );
 
-            // Get path to SNI DLL
-            var path = Path.Combine(
-                "runtimes", rid, "native", "Microsoft.Data.SqlClient.SNI.dll"
-            );
-
-            // Load SNI DLL
-            // BUG: Still does not honor the AssemblyLoadContext in .NET Core 3.1
-            // https://github.com/dotnet/runtime/issues/13819
-            NativeLibrary.Load(
-                path,
-                typeof(SniLoader).Assembly,
-                DllImportSearchPath.AssemblyDirectory
-            );
-        }
+        // Load SNI DLL
+        // BUG: Still does not honor the AssemblyLoadContext in .NET Core 3.1
+        // https://github.com/dotnet/runtime/issues/13819
+        NativeLibrary.Load(
+            path,
+            typeof(SniLoader).Assembly,
+            DllImportSearchPath.AssemblyDirectory
+        );
     }
 }
