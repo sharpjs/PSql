@@ -1,0 +1,81 @@
+namespace PSql;
+
+using static AzureAuthenticationMode;
+using static SqlClientVersion;
+
+internal static class SqlClientVersionExtensions
+{
+    /*
+        Connection string history, distilled from:
+        https://github.com/dotnet/SqlClient/tree/main/release-notes
+
+        MDS 1.0 (netfx)
+        - Authentication: AadPassword, AadIntegrated, AadInteractive
+
+        MDS 1.0 (others)
+        - Authentication: AadPassword
+
+        MDS 1.1
+        - Attestation Protocol
+        - Enclave Attestation Url
+
+        MDS 2.0:
+        - Authentication: AadIntegrated, AadInteractive, AadServicePrincipal
+        - Application Intent                (was: ApplicationIntent)
+        - Connect Retry Count               (was: ConnectRetryCount)
+        - Connect Retry Interval            (was: ConnectRetryInterval)
+        - Pool Blocking Period              (was: PoolBlockingPeriod)
+        - Multiple Active Result Sets       (was: MultipleActiveResultSets)
+        - Multi Subnet Failover             (was: MultiSubnetFailover)
+        - Transparent Network IP Resolution (was: TransparentNetworkIPResolution)
+        - Trust Server Certificate          (was: TrustServerCertificate)
+
+        MDS 2.1
+        - Authentication: AadDeviceCodeFlow, AadManagedIdentity
+        - Command Timeout
+
+        MDS 3.0
+        - Authentication: AadDefault
+        - The User ID connection property now requires a client id instead of
+          an object id for user-assigned managed identity.
+
+        MDS 4.0
+        - Encrypt: true by default
+        - Authentication: AadIntegrated (allows User ID)
+        - [REMOVED] Asynchronous Processing
+    */
+
+    public static bool SupportsAuthenticationMode(
+        this SqlClientVersion version, AzureAuthenticationMode mode)
+        => mode switch
+        {
+            Default             => version >= Mds1,
+            SqlPassword         => version >= Mds1,
+            AadPassword         => version >= Mds1,
+            AadIntegrated       => version >= Mds1,
+            AadInteractive      => version >= Mds1,
+            AadServicePrincipal => version >= Mds2,
+            AadDeviceCodeFlow   => version >= Mds2_1,
+            AadManagedIdentity  => version >= Mds2_1,
+            AadDefault          => version >= Mds3,
+            _                   => false,
+        };
+
+    public static bool GetDefaultEncrypt(this SqlClientVersion version)
+        => version >= Mds4;
+
+    public static string GetApplicationIntentKey(this SqlClientVersion version)
+        => version >= Mds2
+        ? "Application Intent"
+        : "ApplicationIntent";
+
+    public static string GetMultipleActiveResultSetsKey(this SqlClientVersion version)
+        => version >= Mds2
+        ? "Multiple Active Result Sets"
+        : "MultipleActiveResultSets";
+
+    public static string GetTrustServerCertificateKey(this SqlClientVersion version)
+        => version >= Mds2
+        ? "Trust Server Certificate"
+        : "TrustServerCertificate";
+}

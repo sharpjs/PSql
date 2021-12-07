@@ -21,43 +21,6 @@ namespace PSql;
 /// </summary>
 public enum SqlClientVersion
 {
-    /*
-        Connection string history:
-
-        MDS 1.0
-        - Authentication: AadPassword                   (all)
-        - Authentication: AadIntegrated, AadInteractive (netfx)
-
-        MDS 1.1
-        - Attestation Protocol
-        - Enclave Attestation Url
-
-        MDS 2.0:
-        - Authentication: AadIntegrated, AadInteractive, AadServicePrincipal
-        - Application Intent                (was: ApplicationIntent)
-        - Connect Retry Count               (was: ConnectRetryCount)
-        - Connect Retry Interval            (was: ConnectRetryInterval)
-        - Pool Blocking Period              (was: PoolBlockingPeriod)
-        - Multiple Active Result Sets       (was: MultipleActiveResultSets)
-        - Multi Subnet Failover             (was: MultiSubnetFailover)
-        - Transparent Network IP Resolution (was: TransparentNetworkIPResolution)
-        - Trust Server Certificate          (was: TrustServerCertificate)
-
-        MDS 2.1
-        - Authentication: AadDeviceCodeFlow, AadManagedIdentity
-        - Command Timeout
-
-        MDS 3.0
-        - Authentication: AadDefault
-        - The User ID connection property now requires a client id instead of
-          an object id for user-assigned managed identity.
-
-        MDS 4.0
-        - Encrypt: true by default
-        - Authentication: AadIntegrated (allows User ID)
-        - [REMOVED] Asynchronous Processing
-    */
-
     /// <summary>
     ///   System.Data.SqlClient
     /// </summary>
