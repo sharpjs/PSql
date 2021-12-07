@@ -14,8 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Security;
 using Microsoft.Data.SqlClient;
@@ -31,22 +29,6 @@ namespace PSql
         {
             SniLoader.Load();
         }
-
-        /// <summary>
-        ///   Creates a new <see cref="SqlConnectionStringBuilder"/> instance.
-        /// </summary>
-        public SqlConnectionStringBuilder CreateConnectionStringBuilder()
-            => new SqlConnectionStringBuilder();
-
-        /// <summary>
-        ///   Casts the specified integer value to
-        ///   <see cref="SqlAuthenticationMethod"/>.
-        /// </summary>
-        /// <param name="value">
-        ///   The value to cast.
-        /// </param>
-        public SqlAuthenticationMethod GetAuthenticationMethod(int value)
-            => (SqlAuthenticationMethod) value;
 
         /// <summary>
         ///   Creates and opens a new <see cref="SqlConnection"/> instance
