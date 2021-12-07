@@ -137,3 +137,16 @@ jobs:
           --no-symbols 1
         env:
           PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        #url: https://github.com/ncipollo/release-action
+        if: startsWith(github.ref, 'refs/tags/release/')
+        with:
+          name: ${{ steps.stamp.outputs.version }}
+          prerelease: ${{ contains('-', steps.stamp.outputs.version) }}
+          draft: true
+          bodyFile: CHANGES.md
+          artifacts: ${{ runner.temp }}/dist/*nupkg
+          artifactErrorsFailBuild: true
+          token: ${{ secrets.GITHUB_TOKEN }}
