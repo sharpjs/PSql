@@ -14,13 +14,12 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
 
 namespace PSql
 {
+    using static AzureAuthenticationMode;
+
     /// <summary>
     ///   Information necessary to connect to an Azure SQL Database or
     ///   compatible database.
@@ -191,63 +190,105 @@ namespace PSql
             return _serverResolvedName = value;
         }
 
-        protected override void ConfigureServerName(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected override void
+            ConfigureServerName(SqlConnectionStringBuilder builder)
         {
             // Ignore ServerPort and InstanceName.
 
-            builder.DataSource = GetEffectiveServerName();
+            builder.AppendServerName(GetEffectiveServerName());
         }
 
-        protected override void ConfigureDefaultDatabaseName(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected override void
+            ConfigureDatabaseName(SqlConnectionStringBuilder builder, string? databaseName)
         {
-            builder.InitialCatalog = !string.IsNullOrEmpty(DatabaseName)
-                ? DatabaseName
-                : MasterDatabaseName;
+            if (string.IsNullOrEmpty(databaseName))
+                databaseName = MasterDatabaseName;
+
+            builder.AppendDatabaseName(databaseName);
         }
 
-        protected override void ConfigureAuthentication(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected override void
+            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool hideCredential)
         {
             var mode = AuthenticationMode;
 
+            // Mode
             switch (mode)
             {
-                case AzureAuthenticationMode.Default when Credential.IsNullOrEmpty():
-                    mode = AzureAuthenticationMode.AadIntegrated;
+                case Default when Credential.IsNullOrEmpty():
+                    mode = AadIntegrated;
+                    goto case default;
+
+                case Default:
+                    mode = SqlPassword;
+                    // No need to specify the mode in connection string in this case
                     break;
 
-                case AzureAuthenticationMode.Default:
-                    mode = AzureAuthenticationMode.SqlPassword;
-                    break;
-
-                case AzureAuthenticationMode.SqlPassword:
-                case AzureAuthenticationMode.AadPassword:
-                case AzureAuthenticationMode.AadServicePrincipal:
-                    if (Credential.IsNullOrEmpty())
-                        throw new NotSupportedException("A credential is required when connecting to Azure SQL Database.");
+                default:
+                    RequireSupport(builder.Version, mode);
+                    builder.AppendAuthenticationMode(mode);
                     break;
             }
 
-            builder.Authentication = PSqlClient.Instance.GetAuthenticationMethod((int) mode);
-
-            if (!Credential.IsNullOrEmpty() && ExposeCredentialInConnectionString)
+            // Credential
+            switch (mode)
             {
-                builder.UserID              = Credential.UserName;
-                builder.Password            = Credential.GetNetworkCredential().Password;
-                builder.PersistSecurityInfo = true;
+                // Required
+                case SqlPassword:
+                case AadPassword:
+                case AadServicePrincipal:
+                    RequireCredential(mode);
+                    if (!hideCredential || ExposeCredentialInConnectionString)
+                        builder.AppendCredential(Credential!.GetNetworkCredential());
+                    if (ExposeCredentialInConnectionString)
+                        builder.AppendPersistSecurityInfo(true);
+                    break;
+
+                // Optional, password ignored
+                case AadManagedIdentity:
+                case AadDefault:
+                    if (!Credential.IsNullOrEmpty())
+                        builder.AppendUserName(Credential.UserName);
+                    break;
             }
         }
 
-        protected override void ConfigureEncryption(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected override void
+            ConfigureEncryption(SqlConnectionStringBuilder builder)
         {
             // Encryption is required for connections to Azure SQL Database
-            builder.Encrypt = true;
+            builder.AppendEncrypt(true);
 
             // Always verify server identity
-            // builder.TrustServerCertificate defaults to false
+            // builder.AppendTrustServerCertificate(false); is the default
+        }
+
+        private void RequireSupport(SqlClientVersion version, AzureAuthenticationMode mode)
+        {
+            if (version.SupportsAuthenticationMode(mode))
+                return;
+
+            var message = string.Format(
+                "The specified SqlClient version '{0}' " +
+                "does not support authentication mode '{1}'.",
+                version, mode
+            );
+
+            throw new NotSupportedException(message);
+        }
+
+        private void RequireCredential(AzureAuthenticationMode mode)
+        {
+            if (!Credential.IsNullOrEmpty())
+                return;
+
+            var message = string.Format(
+                "A credential is required when connecting to " +
+                "Azure SQL Database using authentication mode '{0}'.",
+                mode
+            );
+
+            throw new NotSupportedException(message);
         }
     }
 }

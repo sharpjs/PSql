@@ -14,8 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-using System.DirectoryServices;
 using System.Globalization;
 using System.Management.Automation;
 using System.Net;
@@ -383,58 +381,56 @@ namespace PSql
         ///   A connection string built from the property values of the current
         ///   context and, if specified, <paramref name="databaseName"/>.
         /// </returns>
-        public string GetConnectionString(string? databaseName = null)
+        public string GetConnectionString(
+            string?           databaseName     = null,
+            SqlClientVersion  sqlClientVersion = SqlClientVersion.Legacy,
+            bool              hideCredential   = false)
         {
-            var builder = PSqlClient.Instance.CreateConnectionStringBuilder();
+            if (string.IsNullOrEmpty(databaseName))
+                databaseName = DatabaseName;
 
-            BuildConnectionString(builder);
+            var builder = new SqlConnectionStringBuilder(sqlClientVersion);
 
-            if (databaseName != null)
-                builder.InitialCatalog = databaseName;
+            ConfigureServerName     (builder);
+            ConfigureDatabaseName   (builder, databaseName);
+            ConfigureAuthentication (builder, hideCredential);
+            ConfigureEncryption     (builder);
+
+            // Connect Timeout
+            if (ConnectTimeout.HasValue)
+                builder.AppendConnectTimeout(ConnectTimeout.Value);
+
+            // Client Name
+            if (!string.IsNullOrEmpty(ClientName))
+                builder.AppendClientName(ClientName);
+
+            // Application Name
+            if (!string.IsNullOrEmpty(ApplicationName))
+                builder.AppendApplicationName(ApplicationName);
+
+            // Application Intent
+            if (ApplicationIntent != ApplicationIntent.ReadWrite)
+                builder.AppendApplicationIntent(ApplicationIntent);
+
+            // Multiple Active Result Sets
+            if (EnableMultipleActiveResultSets)
+                builder.AppendMultipleActiveResultSets(true);
+
+            // Connection Pooling
+            if (!EnableConnectionPooling)
+                builder.AppendPooling(false);
 
             return builder.ToString();
         }
 
-        protected void BuildConnectionString(dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected virtual void
+            ConfigureServerName(SqlConnectionStringBuilder builder)
         {
-            ConfigureServerName          (builder);
-            ConfigureDefaultDatabaseName (builder);
-            ConfigureAuthentication      (builder);
-            ConfigureEncryption          (builder);
-
-            // Timeout
-            if (ConnectTimeout.HasValue)
-                builder.ConnectTimeout = ConnectTimeout.Value.GetAbsoluteSecondsSaturatingInt32();
-
-            // Client Name
-            if (!string.IsNullOrEmpty(ClientName))
-                builder.WorkstationID = ClientName;
-
-            // Application Name
-            if (!string.IsNullOrEmpty(ApplicationName))
-                builder.ApplicationName = ApplicationName;
-
-            // Application Intent
-            if (ApplicationIntent != ApplicationIntent.ReadWrite)
-                builder.ApplicationIntent = ApplicationIntent;
-
-            // Enable Multiple Active Result Sets
-            if (EnableMultipleActiveResultSets)
-                builder.MultipleActiveResultSets = true;
-
-            // Enable Connection Pooling
-            if (!EnableConnectionPooling)
-                builder.Pooling = false;
-        }
-
-        protected virtual void ConfigureServerName(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
-        {
-            var dataSource = GetEffectiveServerName();
+            var serverName = GetEffectiveServerName();
 
             if (ServerPort.HasValue || InstanceName.HasContent())
             {
-                var s = new StringBuilder(dataSource);
+                var s = new StringBuilder(serverName);
 
                 if (InstanceName.HasContent())
                     s.Append('\\').Append(InstanceName);
@@ -442,54 +438,55 @@ namespace PSql
                 if (ServerPort.HasValue)
                     s.Append(',').Append(ServerPort.Value.ToString(CultureInfo.InvariantCulture));
 
-                dataSource = s.ToString();
+                serverName = s.ToString();
             }
 
-            builder.DataSource = dataSource;
+            builder.AppendServerName(serverName);
         }
 
-        protected virtual void ConfigureDefaultDatabaseName(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected virtual void
+            ConfigureDatabaseName(SqlConnectionStringBuilder builder, string? databaseName)
         {
-            if (!string.IsNullOrEmpty(DatabaseName))
-                builder.InitialCatalog = DatabaseName;
+            if (!string.IsNullOrEmpty(databaseName))
+                builder.AppendDatabaseName(databaseName);
             //else
             //  server determines database
         }
 
-        protected virtual void ConfigureAuthentication(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected virtual void
+            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool hideCredential)
         {
             if (Credential.IsNullOrEmpty())
             {
-                builder.IntegratedSecurity = true;
+                builder.AppendIntegratedSecurity(true);
             }
-            else if (ExposeCredentialInConnectionString)
+            else if (!hideCredential || ExposeCredentialInConnectionString)
             {
-                builder.UserID              = Credential.UserName;
-                builder.Password            = Credential.GetNetworkCredential().Password;
-                builder.PersistSecurityInfo = true;
+                builder.AppendCredential(Credential.GetNetworkCredential());
+
+                if (ExposeCredentialInConnectionString)
+                    builder.AppendPersistSecurityInfo(true);
             }
             //else
             //  will provide credential as a SqlCredential object
         }
 
-        protected virtual void ConfigureEncryption(
-            dynamic /*SqlConnectionStringBuilder*/ builder)
+        private protected virtual void
+            ConfigureEncryption(SqlConnectionStringBuilder builder)
         {
-            var (useEncryption, useServerIdentityCheck)
+            var (encrypt, verifyServerIdentity)
                 = TranslateEncryptionMode(EncryptionMode);
 
-            if (useEncryption)
-                builder.Encrypt = true;
+            if (encrypt != builder.Version.GetDefaultEncrypt())
+                builder.AppendEncrypt(encrypt);
 
-            if (!useServerIdentityCheck)
-                builder.TrustServerCertificate = true;
+            if (!verifyServerIdentity)
+                builder.AppendTrustServerCertificate(true);
         }
 
         private (bool, bool) TranslateEncryptionMode(EncryptionMode mode)
         {
-            // tuple: (useEncryption, useServerIdentityCheck)
+            // tuple: (encrypt, verifyServerIdentity)
 
             return mode switch
             {
