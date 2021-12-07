@@ -14,7 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
@@ -26,6 +25,9 @@ namespace PSql
 
     internal static class PSqlClient
     {
+        public const SqlClientVersion
+            Version = SqlClientVersion.Mds4;
+
         private const string
             AssemblyPath = "PSql.Client.dll";
 

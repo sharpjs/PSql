@@ -60,13 +60,15 @@ namespace PSql
         /// </exception>
         internal SqlConnection(SqlContext? context, string? databaseName, Cmdlet cmdlet)
         {
+            const SqlClientVersion Version = PSqlClient.Version;
+
             if (cmdlet is null)
                 throw new ArgumentNullException(nameof(cmdlet));
 
             context ??= new SqlContext();
 
             var client           = PSqlClient.Instance;
-            var connectionString = context.GetConnectionString(databaseName);
+            var connectionString = context.GetConnectionString(databaseName, Version, true);
             var credential       = context.Credential;
             var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
             var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));
