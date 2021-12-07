@@ -14,9 +14,6 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System.Data;
-using Microsoft.Data.SqlClient;
-
 namespace PSql;
 
 /// <summary>
