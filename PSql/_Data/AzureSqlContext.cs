@@ -208,7 +208,7 @@ namespace PSql
         }
 
         private protected override void
-            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool hideCredential)
+            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool omitCredential)
         {
             var mode = AuthenticationMode;
 
@@ -238,7 +238,7 @@ namespace PSql
                 case AadPassword:
                 case AadServicePrincipal:
                     RequireCredential(mode);
-                    if (!hideCredential || ExposeCredentialInConnectionString)
+                    if (!omitCredential || ExposeCredentialInConnectionString)
                         builder.AppendCredential(Credential!.GetNetworkCredential());
                     if (ExposeCredentialInConnectionString)
                         builder.AppendPersistSecurityInfo(true);

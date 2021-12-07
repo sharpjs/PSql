@@ -370,21 +370,46 @@ namespace PSql
 
         /// <summary>
         ///   Gets a connection string built from the property values of the
-        ///   current context, optionally with the specified database name.
+        ///   current context, optionally with the specified database name,
+        ///   compatibility, and/or credential disclosure.
         /// </summary>
         /// <param name="databaseName">
         ///   The name of the database to specify in the connection string.
-        ///   If not <c>null</c>, this parameter overrides the value of the
-        ///   <see cref="DatabaseName"/> property.
+        ///   If not <see langword="null"/>, this parameter overrides the
+        ///   value of the <see cref="DatabaseName"/> property.  The default
+        ///   is <see langword="null"/>.
+        /// </param>
+        /// <param name="sqlClientVersion">
+        ///   The SqlClient version with which the generated connection string
+        ///   should be compatible.  The default is
+        ///   <see cref="SqlClientVersion.Legacy"/>.
+        /// </param>
+        /// <param name="omitCredential">
+        ///   <para>
+        ///     Whether to omit credential properties from the generated
+        ///     connection string if possible.  Use <see langword="true"/>
+        ///     when passing the credential separately from the connection
+        ///     string (for example, as a <c>SqlCredential</c> object).  The
+        ///     default is <see langword="false"/>.
+        ///   </para>
+        ///   <para>
+        ///     Note that the <see cref="ExposeCredentialInConnectionString"/>
+        ///     takes precedence over this this parameter.  If the property is
+        ///     <see langword="true"/>, the generated connection string will
+        ///     include credential properties regardless of this parameter.
+        ///   </para>
         /// </param>
         /// <returns>
-        ///   A connection string built from the property values of the current
-        ///   context and, if specified, <paramref name="databaseName"/>.
+        ///   A connection string compatible with <paramref name="sqlClientVersion"/>
+        ///   built from the property values of the current context and, if
+        ///   specified, <paramref name="databaseName"/>.  If
+        ///   <paramref name="omitCredential"/> is <see langword="true"/>, the
+        ///   connection 
         /// </returns>
         public string GetConnectionString(
             string?           databaseName     = null,
             SqlClientVersion  sqlClientVersion = SqlClientVersion.Legacy,
-            bool              hideCredential   = false)
+            bool              omitCredential   = false)
         {
             if (string.IsNullOrEmpty(databaseName))
                 databaseName = DatabaseName;
@@ -393,7 +418,7 @@ namespace PSql
 
             ConfigureServerName     (builder);
             ConfigureDatabaseName   (builder, databaseName);
-            ConfigureAuthentication (builder, hideCredential);
+            ConfigureAuthentication (builder, omitCredential);
             ConfigureEncryption     (builder);
 
             // Connect Timeout
@@ -454,13 +479,13 @@ namespace PSql
         }
 
         private protected virtual void
-            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool hideCredential)
+            ConfigureAuthentication(SqlConnectionStringBuilder builder, bool omitCredential)
         {
             if (Credential.IsNullOrEmpty())
             {
                 builder.AppendIntegratedSecurity(true);
             }
-            else if (!hideCredential || ExposeCredentialInConnectionString)
+            else if (!omitCredential || ExposeCredentialInConnectionString)
             {
                 builder.AppendCredential(Credential.GetNetworkCredential());
 
