@@ -14,62 +14,62 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using static System.Text.RegularExpressions.RegexOptions;
 
-namespace PSql
+namespace PSql;
+
+using static RegexOptions;
+
+public static class SqlErrorHandling
 {
-    public static class SqlErrorHandling
+    public static string Apply(IEnumerable<string> batches)
     {
-        public static string Apply(IEnumerable<string> batches)
+        var builder = new StringBuilder(4096);
+
+        builder.Append(Prologue);
+
+        foreach (var batch in batches)
         {
-            var builder = new StringBuilder(4096);
+            builder
+                .AppendLine()
+                .Append("    SET @__sql__ = N'");
 
-            builder.Append(Prologue);
+            var start = builder.Length;
+            builder
+                .Append(batch)
+                .Replace("'", "''", start, builder.Length - start)
+                .AppendLine("';");
 
-            foreach (var batch in batches)
-            {
-                builder
-                    .AppendLine()
-                    .Append("    SET @__sql__ = N'");
-
-                var start = builder.Length;
-                builder
-                    .Append(batch)
-                    .Replace("'", "''", start, builder.Length - start)
-                    .AppendLine("';");
-
-                var exec = NoWrapRegex.IsMatch(batch)
-                    ? batch
-                    : "    EXEC sp_executesql @__sql__;";
-                builder.AppendLine(exec);
-            }
-
-            builder.Append(Epilogue);
-
-            return builder.ToString();
+            var exec = NoWrapRegex.IsMatch(batch)
+                ? batch
+                : "    EXEC sp_executesql @__sql__;";
+            builder.AppendLine(exec);
         }
 
-        private static readonly Regex NoWrapRegex = new Regex(
-            @"^--#[ \t]*NOWRAP[ \t]*\r?$",
-            Options
-        );
+        builder.Append(Epilogue);
 
-        private const RegexOptions Options
-            = Multiline
-            | IgnoreCase
-            | CultureInvariant
-            | ExplicitCapture
-            | Compiled;
+        return builder.ToString();
+    }
 
-        private const string Prologue = 
+    private static readonly Regex NoWrapRegex = new Regex(
+        @"^--#[ \t]*NOWRAP[ \t]*\r?$",
+        Options
+    );
+
+    private const RegexOptions Options
+        = Multiline
+        | IgnoreCase
+        | CultureInvariant
+        | ExplicitCapture
+        | Compiled;
+
+    private const string Prologue = 
 @"DECLARE @__sql__ nvarchar(max);
 BEGIN TRY
 ";
 
-        private const string Epilogue =
+    private const string Epilogue =
 @"
 END TRY
 BEGIN CATCH
@@ -118,5 +118,4 @@ BEGIN CATCH
     THROW;
 END CATCH;
 ";
-    }
 }

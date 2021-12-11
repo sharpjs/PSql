@@ -14,65 +14,63 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using System.Management.Automation;
 
-namespace PSql
+namespace PSql;
+
+using static SqlConnectionHelper;
+
+/// <summary>
+///   Base class for PSql cmdlets that use an open database connection.
+/// </summary>
+public abstract class ConnectedCmdlet : Cmdlet, IDisposable
 {
-    using static SqlConnectionHelper;
+    protected const string
+        ConnectionName = nameof(Connection),
+        ContextName    = nameof(Context);
 
-    /// <summary>
-    ///   Base class for PSql cmdlets that use an open database connection.
-    /// </summary>
-    public abstract class ConnectedCmdlet : Cmdlet, IDisposable
+    // -Connection
+    [Parameter(ParameterSetName = ConnectionName, Mandatory = true)]
+    public SqlConnection? Connection { get; set; }
+
+    // -Context
+    [Parameter(ParameterSetName = ContextName)]
+    [ValidateNotNull]
+    public SqlContext? Context { get; set; }
+
+    // -DatabaseName
+    [Alias("Database")]
+    [Parameter(ParameterSetName = ContextName)]
+    public string? DatabaseName { get; set; }
+
+    private bool _ownsConnection;
+
+    protected override void BeginProcessing()
     {
-        protected const string
-            ConnectionName = nameof(Connection),
-            ContextName    = nameof(Context);
+        (Connection, _ownsConnection)
+            = EnsureConnection(Connection, Context, DatabaseName, this);
+    }
 
-        // -Connection
-        [Parameter(ParameterSetName = ConnectionName, Mandatory = true)]
-        public SqlConnection? Connection { get; set; }
+    ~ConnectedCmdlet()
+    {
+        Dispose(managed: false);
+    }
 
-        // -Context
-        [Parameter(ParameterSetName = ContextName)]
-        [ValidateNotNull]
-        public SqlContext? Context { get; set; }
+    void IDisposable.Dispose()
+    {
+        Dispose(managed: true);
+        GC.SuppressFinalize(this);
+    }
 
-        // -DatabaseName
-        [Alias("Database")]
-        [Parameter(ParameterSetName = ContextName)]
-        public string? DatabaseName { get; set; }
+    protected virtual void Dispose(bool managed)
+    {
+        if (!managed)
+            return;
 
-        private bool _ownsConnection;
+        if (_ownsConnection)
+            Connection?.Dispose();
 
-        protected override void BeginProcessing()
-        {
-            (Connection, _ownsConnection)
-                = EnsureConnection(Connection, Context, DatabaseName, this);
-        }
-
-        ~ConnectedCmdlet()
-        {
-            Dispose(managed: false);
-        }
-
-        void IDisposable.Dispose()
-        {
-            Dispose(managed: true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool managed)
-        {
-            if (!managed)
-                return;
-
-            if (_ownsConnection)
-                Connection?.Dispose();
-
-            Connection      = null;
-            _ownsConnection = false;
-        }
+        Connection      = null;
+        _ownsConnection = false;
     }
 }

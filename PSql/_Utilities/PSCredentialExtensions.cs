@@ -17,12 +17,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation;
 
-namespace PSql
+namespace PSql;
+
+internal static class PSCredentialExtensions
 {
-    internal static class PSCredentialExtensions
-    {
-        public static bool IsNullOrEmpty([NotNullWhen(false)] this PSCredential? credential)
-            => credential == null
-            || credential == PSCredential.Empty;
-    }
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this PSCredential? credential)
+        => credential == null
+        || credential == PSCredential.Empty;
 }

@@ -14,51 +14,49 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using System.Management.Automation;
 using System.Management.Automation.Host;
 
-namespace PSql
+namespace PSql;
+
+/// <summary>
+///   Base class for PSql cmdlets.
+/// </summary>
+public abstract class Cmdlet : System.Management.Automation.Cmdlet
 {
-    /// <summary>
-    ///   Base class for PSql cmdlets.
-    /// </summary>
-    public abstract class Cmdlet : System.Management.Automation.Cmdlet
+    private static readonly string[]
+        HostTag = { "PSHOST" };
+
+    public void WriteHost(string message,
+        bool          newLine         = true,
+        ConsoleColor? foregroundColor = null,
+        ConsoleColor? backgroundColor = null)
     {
-        private static readonly string[]
-            HostTag = { "PSHOST" };
+        // Technique learned from PSv5+ Write-Host implementation, which
+        // works by sending specially-marked messages to the information
+        // stream.
+        //
+        // https://github.com/PowerShell/PowerShell/blob/v7.0.3/src/Microsoft.PowerShell.Commands.Utility/commands/utility/WriteConsoleCmdlet.cs
 
-        public void WriteHost(string message,
-            bool          newLine         = true,
-            ConsoleColor? foregroundColor = null,
-            ConsoleColor? backgroundColor = null)
+        var data = new HostInformationMessage
         {
-            // Technique learned from PSv5+ Write-Host implementation, which
-            // works by sending specially-marked messages to the information
-            // stream.
-            //
-            // https://github.com/PowerShell/PowerShell/blob/v7.0.3/src/Microsoft.PowerShell.Commands.Utility/commands/utility/WriteConsoleCmdlet.cs
+            Message   = message,
+            NoNewLine = !newLine
+        };
 
-            var data = new HostInformationMessage
+        if (foregroundColor.HasValue || backgroundColor.HasValue)
+        {
+            try
             {
-                Message   = message,
-                NoNewLine = !newLine
-            };
-
-            if (foregroundColor.HasValue || backgroundColor.HasValue)
-            {
-                try
-                {
-                    data.ForegroundColor = foregroundColor;
-                    data.BackgroundColor = backgroundColor;
-                }
-                catch (HostException)
-                {
-                    // Host is non-interactive or does not support colors.
-                }
+                data.ForegroundColor = foregroundColor;
+                data.BackgroundColor = backgroundColor;
             }
-
-            WriteInformation(data, HostTag);
+            catch (HostException)
+            {
+                // Host is non-interactive or does not support colors.
+            }
         }
+
+        WriteInformation(data, HostTag);
     }
 }

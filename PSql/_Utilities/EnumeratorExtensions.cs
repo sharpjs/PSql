@@ -14,13 +14,10 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System.Collections.Generic;
+namespace PSql;
 
-namespace PSql
+internal static class EnumeratorExtensions
 {
-    internal static class EnumeratorExtensions
-    {
-        public static IEnumerator<T> GetEnumerator<T>(this IEnumerator<T> enumerator)
-            => enumerator;
-    }
+    public static IEnumerator<T> GetEnumerator<T>(this IEnumerator<T> enumerator)
+        => enumerator;
 }

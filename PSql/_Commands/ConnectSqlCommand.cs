@@ -16,26 +16,25 @@
 
 using System.Management.Automation;
 
-namespace PSql
+namespace PSql;
+
+[Cmdlet(VerbsCommunications.Connect, "Sql")]
+[OutputType(typeof(SqlConnection))]
+public class ConnectSqlCommand : Cmdlet
 {
-    [Cmdlet(VerbsCommunications.Connect, "Sql")]
-    [OutputType(typeof(SqlConnection))]
-    public class ConnectSqlCommand : Cmdlet
+    // -Context
+    [Parameter(Position = 0, ValueFromPipeline = true)]
+    public SqlContext? Context { get; set; }
+
+    // -DatabaseName
+    [Parameter]
+    [Alias("Database")]
+    public string? DatabaseName { get; set; }
+
+    protected override void ProcessRecord()
     {
-        // -Context
-        [Parameter(Position = 0, ValueFromPipeline = true)]
-        public SqlContext? Context { get; set; }
+        var connection = new SqlConnection(Context, DatabaseName, this);
 
-        // -DatabaseName
-        [Parameter]
-        [Alias("Database")]
-        public string? DatabaseName { get; set; }
-
-        protected override void ProcessRecord()
-        {
-            var connection = new SqlConnection(Context, DatabaseName, this);
-
-            WriteObject(connection);
-        }
+        WriteObject(connection);
     }
 }

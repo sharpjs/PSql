@@ -19,93 +19,92 @@ using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using Path = System.IO.Path;
 
-namespace PSql
+namespace PSql;
+
+using static RuntimeInformation;
+
+internal static class PSqlClient
 {
-    using static RuntimeInformation;
+    public const SqlClientVersion
+        Version = SqlClientVersion.Mds4;
 
-    internal static class PSqlClient
+    private const string
+        AssemblyPath = "PSql.Client.dll";
+
+    private static string              LoadPath    { get; }
+    private static AssemblyLoadContext LoadContext { get; }
+    private static Assembly            Assembly    { get; }
+    public  static dynamic             Instance    { get; }
+
+    static PSqlClient()
     {
-        public const SqlClientVersion
-            Version = SqlClientVersion.Mds4;
+        LoadPath
+            =  Path.GetDirectoryName(typeof(PSqlClient).Assembly.Location)
+            ?? Environment.CurrentDirectory;
 
-        private const string
-            AssemblyPath = "PSql.Client.dll";
+        LoadContext = new AssemblyLoadContext(nameof(PSqlClient));
+        LoadContext.Resolving += OnResolving;
 
-        private static string              LoadPath    { get; }
-        private static AssemblyLoadContext LoadContext { get; }
-        private static Assembly            Assembly    { get; }
-        public  static dynamic             Instance    { get; }
+        LoadMicrosoftDataSqlClientAssembly();
+        Assembly = LoadAssembly(AssemblyPath);
 
-        static PSqlClient()
-        {
-            LoadPath
-                =  Path.GetDirectoryName(typeof(PSqlClient).Assembly.Location)
-                ?? Environment.CurrentDirectory;
+        Instance = CreateObject(nameof(PSqlClient));
+    }
 
-            LoadContext = new AssemblyLoadContext(nameof(PSqlClient));
-            LoadContext.Resolving += OnResolving;
+    private static void LoadMicrosoftDataSqlClientAssembly()
+    {
+        // Get runtime identifier
+        var rid = IsOSPlatform(OSPlatform.Windows) ? "win" : "unix";
 
-            LoadMicrosoftDataSqlClientAssembly();
-            Assembly = LoadAssembly(AssemblyPath);
+        // Get path to MDS DLL
+        var path = Path.Combine(
+            "runtimes", rid, "lib", "netcoreapp3.1", "Microsoft.Data.SqlClient.dll"
+        );
 
-            Instance = CreateObject(nameof(PSqlClient));
-        }
+        // Load MDS DLL
+        LoadAssembly(path);
+    }
 
-        private static void LoadMicrosoftDataSqlClientAssembly()
-        {
-            // Get runtime identifier
-            var rid = IsOSPlatform(OSPlatform.Windows) ? "win" : "unix";
+    private static Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
+    {
+        var path = name.Name;
+        if (string.IsNullOrEmpty(path))
+            return null;
 
-            // Get path to MDS DLL
-            var path = Path.Combine(
-                "runtimes", rid, "lib", "netcoreapp3.1", "Microsoft.Data.SqlClient.dll"
-            );
+        if (!HasAssemblyExtension(path))
+            path += ".dll";
 
-            // Load MDS DLL
-            LoadAssembly(path);
-        }
+        return LoadAssembly(context, path);
+    }
 
-        private static Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
-        {
-            var path = name.Name;
-            if (string.IsNullOrEmpty(path))
-                return null;
+    private static Assembly LoadAssembly(string path)
+    {
+        return LoadAssembly(LoadContext, path);
+    }
 
-            if (!HasAssemblyExtension(path))
-                path += ".dll";
+    private static Assembly LoadAssembly(AssemblyLoadContext context, string path)
+    {
+        path = Path.Combine(LoadPath, path);
 
-            return LoadAssembly(context, path);
-        }
+        return context.LoadFromAssemblyPath(path);
+    }
 
-        private static Assembly LoadAssembly(string path)
-        {
-            return LoadAssembly(LoadContext, path);
-        }
+    private static bool HasAssemblyExtension(string path)
+    {
+        return path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+    }
 
-        private static Assembly LoadAssembly(AssemblyLoadContext context, string path)
-        {
-            path = Path.Combine(LoadPath, path);
+    private static Type GetType(string name)
+    {
+        // NULLS: Does not return null when throwOnError is true
+        return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
+    }
 
-            return context.LoadFromAssemblyPath(path);
-        }
-
-        private static bool HasAssemblyExtension(string path)
-        {
-            return path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
-                || path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static Type GetType(string name)
-        {
-            // NULLS: Does not return null when throwOnError is true
-            return Assembly.GetType(nameof(PSql) + "." + name, throwOnError: true)!;
-        }
-
-        private static dynamic CreateObject(string typeName, params object?[]? arguments)
-        {
-            // NULLS: CreateInstance returns null only for valueless instances
-            // of Nullable<T>, which cannot happen here.
-            return Activator.CreateInstance(GetType(typeName), arguments)!;
-        }
+    private static dynamic CreateObject(string typeName, params object?[]? arguments)
+    {
+        // NULLS: CreateInstance returns null only for valueless instances
+        // of Nullable<T>, which cannot happen here.
+        return Activator.CreateInstance(GetType(typeName), arguments)!;
     }
 }

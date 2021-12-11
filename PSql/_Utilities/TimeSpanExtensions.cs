@@ -14,22 +14,19 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
+namespace PSql;
 
-namespace PSql
+internal static class TimeSpanExtensions
 {
-    internal static class TimeSpanExtensions
+    public static int GetAbsoluteSecondsSaturatingInt32(this TimeSpan span)
     {
-        public static int GetAbsoluteSecondsSaturatingInt32(this TimeSpan span)
-        {
-            long seconds = span.Ticks / TimeSpan.TicksPerSecond;
+        long seconds = span.Ticks / TimeSpan.TicksPerSecond;
 
-            if (seconds < 0)
-                seconds = -seconds;
+        if (seconds < 0)
+            seconds = -seconds;
 
-            return seconds > int.MaxValue
-                ? int.MaxValue
-                : (int) seconds;
-        }
+        return seconds > int.MaxValue
+            ? int.MaxValue
+            : (int) seconds;
     }
 }

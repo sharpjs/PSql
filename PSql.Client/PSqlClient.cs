@@ -47,7 +47,7 @@ public class PSqlClient
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/>,
     ///   <paramref name="writeInformation"/>, and/or
-    ///   <paramref name="writeWarning"/> is <c>null</c>.
+    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
     public SqlConnection Connect(
         string         connectionString,
@@ -95,7 +95,7 @@ public class PSqlClient
     ///   <paramref name="username"/>,
     ///   <paramref name="password"/>,
     ///   <paramref name="writeInformation"/>, and/or
-    ///   <paramref name="writeWarning"/> is <c>null</c>.
+    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
     public SqlConnection Connect(
         string         connectionString,
@@ -161,7 +161,7 @@ public class PSqlClient
     ///   The connection to check.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    ///   <paramref name="connection"/> is <c>null</c>.
+    ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
     public bool HasErrors(SqlConnection connection)
     {
@@ -175,7 +175,7 @@ public class PSqlClient
     ///   The connection for which to clear error state.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    ///   <paramref name="connection"/> is <c>null</c>.
+    ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
     public void ClearErrors(SqlConnection connection)
     {
@@ -190,7 +190,7 @@ public class PSqlClient
     ///   The connection that is expected to disconnect.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    ///   <paramref name="connection"/> is <c>null</c>.
+    ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
     public void SetDisconnecting(SqlConnection connection)
     {
@@ -211,9 +211,9 @@ public class PSqlClient
     ///   Delegate that sets a property on a result object.
     /// </param>
     /// <param name="useSqlTypes">
-    ///   <c>false</c> to project fields using CLR types from the
+    ///   <see langword="false"/> to project fields using CLR types from the
     ///     <see cref="System"/> namespace, such as <see cref="int"/>.
-    ///   <c>true</c> to project fields using SQL types from the
+    ///   <see langword="true"/> to project fields using SQL types from the
     ///     <see cref="System.Data.SqlTypes"/> namespace, such as
     ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
     /// </param>
@@ -230,7 +230,7 @@ public class PSqlClient
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="command"/>,
     ///   <paramref name="createObject"/>, and/or
-    ///   <paramref name="setProperty"/> is <c>null</c>.
+    ///   <paramref name="setProperty"/> is <see langword="null"/>.
     /// </exception>
     public IEnumerator<object> ExecuteAndProject(
         SqlCommand                      command,

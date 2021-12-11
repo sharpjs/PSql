@@ -14,14 +14,13 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-namespace PSql
-{
-    internal static class StringExtensions
-    {
-        internal static bool HasContent(this string? s)
-            => !string.IsNullOrEmpty(s);
+namespace PSql;
 
-        internal static string? NullIfEmpty(this string? s)
-            => string.IsNullOrEmpty(s) ? null : s;
-    }
+internal static class StringExtensions
+{
+    internal static bool HasContent(this string? s)
+        => !string.IsNullOrEmpty(s);
+
+    internal static string? NullIfEmpty(this string? s)
+        => string.IsNullOrEmpty(s) ? null : s;
 }

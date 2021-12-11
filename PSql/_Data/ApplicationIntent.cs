@@ -14,22 +14,21 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-namespace PSql
+namespace PSql;
+
+/// <summary>
+///   Kinds of operations that an application can declare it intends to
+///   perform against a database.
+/// </summary>
+public enum ApplicationIntent // ~> M.D.S.ApplicationIntent
 {
     /// <summary>
-    ///   Kinds of operations that an application can declare it intends to
-    ///   perform against a database.
+    ///   The application intends to perform reads and writes.
     /// </summary>
-    public enum ApplicationIntent // ~> M.D.S.ApplicationIntent
-    {
-        /// <summary>
-        ///   The application intends to perform reads and writes.
-        /// </summary>
-        ReadWrite,
+    ReadWrite,
 
-        /// <summary>
-        ///   The application intends to perform reads only.
-        /// </summary>
-        ReadOnly
-    }
+    /// <summary>
+    ///   The application intends to perform reads only.
+    /// </summary>
+    ReadOnly
 }

@@ -16,29 +16,28 @@
 
 using System.Management.Automation;
 
-namespace PSql
+namespace PSql;
+
+[Cmdlet(VerbsCommunications.Disconnect, "Sql")]
+[OutputType(typeof(void))]
+public class DisconnectSqlCommand : Cmdlet
 {
-    [Cmdlet(VerbsCommunications.Disconnect, "Sql")]
-    [OutputType(typeof(void))]
-    public class DisconnectSqlCommand : Cmdlet
+    // -Connection
+    [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]
+    public SqlConnection?[]? Connection { get; set; }
+
+    protected override void ProcessRecord()
     {
-        // -Connection
-        [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]
-        public SqlConnection?[]? Connection { get; set; }
+        var connections = Connection;
+        if (connections is null)
+            return;
 
-        protected override void ProcessRecord()
+        foreach (var connection in connections)
         {
-            var connections = Connection;
-            if (connections is null)
-                return;
+            if (connection is null)
+                continue;
 
-            foreach (var connection in connections)
-            {
-                if (connection is null)
-                    continue;
-
-                connection.Dispose();
-            }
+            connection.Dispose();
         }
     }
 }
