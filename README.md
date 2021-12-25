@@ -10,8 +10,9 @@ Cmdlets for SQL Server and Azure SQL databases.
 [![NuGet](https://img.shields.io/powershellgallery/v/PSql.svg)](https://www.powershellgallery.com/packages/PSql)
 [![NuGet](https://img.shields.io/powershellgallery/dt/PSql.svg)](https://www.powershellgallery.com/packages/PSql)
 
-2.0 nearing release.  This is a new C# rewrite of a previous script module
-already used in production code.
+PSql 2.x is a C# rewrite of what previously was a script module.  The script
+module has been used for years in production code.  PSql 2.x has seen limited
+production use too, with more planned in 2022.
 
 ## Installation
 
@@ -22,16 +23,16 @@ To install PSql from [PowerShell Gallery](https://www.powershellgallery.com/pack
 run this PowerShell command:
 
 ```powershell
-Install-Module PSql -AllowPrerelease
+Install-Module PSql
 ```
 
 To update PSql, run this PowerShell command:
 
 ```powershell
-Update-Module PSql -AllowPrerelease
+Update-Module PSql
 ```
 
-To check what version of PSql you have installed, run this PowerShell command:
+To check what version(s) of PSql you have installed, run this PowerShell command:
 
 ```powershell
 Get-Module PSql -ListAvailable | Format-List
