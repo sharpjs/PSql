@@ -14,55 +14,52 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Management.Automation;
 using FluentAssertions;
 
-namespace PSql.Tests
+namespace PSql.Tests;
+
+internal static class PSObjectExtensions
 {
-    internal static class PSObjectExtensions
+    internal static void
+        ShouldHaveProperties(
+            this PSObject?                      obj,
+            Action<IEnumerator<PSPropertyInfo>> assertion
+        )
     {
-        internal static void
-            ShouldHaveProperties(
-                this PSObject?                      obj,
-                Action<IEnumerator<PSPropertyInfo>> assertion
-            )
-        {
-            obj.Should().NotBeNull();
+        obj.Should().NotBeNull();
 
-            using var properties = obj!.Properties.GetEnumerator();
+        using var properties = obj!.Properties.GetEnumerator();
 
-            assertion(properties);
+        assertion(properties);
 
-            properties.MoveNext().Should().BeFalse();
-        }
+        properties.MoveNext().Should().BeFalse();
+    }
 
-        internal static IEnumerator<PSPropertyInfo>
-            Property<T>(
-                this IEnumerator<PSPropertyInfo> properties,
-                string                           name,
-                T                                value,
-                Func<T, T, bool>?                comparison = null
-            )
-        {
-            properties.MoveNext().Should().BeTrue();
+    internal static IEnumerator<PSPropertyInfo>
+        Property<T>(
+            this IEnumerator<PSPropertyInfo> properties,
+            string                           name,
+            T                                value,
+            Func<T, T, bool>?                comparison = null
+        )
+    {
+        properties.MoveNext().Should().BeTrue();
 
-            var property = properties.Current;
+        var property = properties.Current;
 
-            property                .Should().NotBeNull();
-            property.Name           .Should().Be(name);
-            property.TypeNameOfValue.Should().Be(typeof(T).FullName);
-            property.IsInstance     .Should().BeTrue();
-            property.IsGettable     .Should().Be(true);
-            property.IsSettable     .Should().Be(true);
+        property                .Should().NotBeNull();
+        property.Name           .Should().Be(name);
+        property.TypeNameOfValue.Should().Be(typeof(T).FullName);
+        property.IsInstance     .Should().BeTrue();
+        property.IsGettable     .Should().Be(true);
+        property.IsSettable     .Should().Be(true);
 
-            if (comparison != null)
-                comparison((T) property.Value, value).Should().BeTrue();
-            else
-                property.Value.Should().Be(value);
+        if (comparison != null)
+            comparison((T) property.Value, value).Should().BeTrue();
+        else
+            property.Value.Should().Be(value);
 
-            return properties;
-        }
+        return properties;
     }
 }

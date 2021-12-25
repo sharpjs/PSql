@@ -17,25 +17,24 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace PSql.Tests
+namespace PSql.Tests;
+
+internal static class TcpPort
 {
-    internal static class TcpPort
+    public static bool IsListening(ushort port)
     {
-        public static bool IsListening(ushort port)
+        const int TimeoutMs = 1000;
+
+        try
         {
-            const int TimeoutMs = 1000;
+            using var client = new TcpClient();
 
-            try
-            {
-                using var client = new TcpClient();
-
-                return client.ConnectAsync(IPAddress.Loopback, port).Wait(TimeoutMs)
-                    && client.Connected;
-            }
-            catch (SocketException)
-            {
-                return false;
-            }
+            return client.ConnectAsync(IPAddress.Loopback, port).Wait(TimeoutMs)
+                && client.Connected;
+        }
+        catch (SocketException)
+        {
+            return false;
         }
     }
 }

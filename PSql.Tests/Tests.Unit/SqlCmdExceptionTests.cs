@@ -16,9 +16,8 @@
 
 using NUnit.Framework;
 
-namespace PSql.Tests.Unit
-{
-    [TestFixture]
-    [Parallelizable(ParallelScope.All)]
-    public class SqlCmdExceptionTests : ExceptionTests<SqlCmdException> { }
-}
+namespace PSql.Tests.Unit;
+
+[TestFixture]
+[Parallelizable(ParallelScope.All)]
+public class SqlCmdExceptionTests : ExceptionTests<SqlCmdException> { }

@@ -14,118 +14,115 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-using System;
 using System.Net;
-using System.Threading;
 using FluentAssertions;
 using FluentAssertions.Extensions;
 
-namespace PSql.Tests
+namespace PSql.Tests;
+
+using static FormattableString;
+using static SecureStringHelpers;
+
+internal class SqlServerContainer : IDisposable
 {
-    using static FormattableString;
-    using static SecureStringHelpers;
+    const int
+        ReadyWaitTime = 60; // seconds
 
-    internal class SqlServerContainer : IDisposable
+    const string
+        Collation     = "Latin1_General_100_CI_AI_SC_UTF8",
+        MemoryLimitMb = "2048";
+
+    public SqlServerContainer(params ushort[] ports)
     {
-        const int
-            ReadyWaitTime = 60; // seconds
+        Credential = new NetworkCredential("sa", GeneratePassword());
+        Id         = Start(ports);
 
-        const string
-            Collation     = "Latin1_General_100_CI_AI_SC_UTF8",
-            MemoryLimitMb = "2048";
-
-        public SqlServerContainer(params ushort[] ports)
+        try
         {
-            Credential = new NetworkCredential("sa", GeneratePassword());
-            Id         = Start(ports);
-
-            try
-            {
-                WaitForReady();
-            }
-            catch
-            {
-                Stop();
-                throw;
-            }
+            WaitForReady();
         }
-
-        public virtual void Dispose()
+        catch
         {
             Stop();
+            throw;
         }
+    }
 
-        public string Id { get; }
+    public virtual void Dispose()
+    {
+        Stop();
+    }
 
-        public NetworkCredential Credential { get; }
+    public string Id { get; }
 
-        private string Start(ushort[] ports)
+    public NetworkCredential Credential { get; }
+
+    private string Start(ushort[] ports)
+    {
+        var id = new ExternalProgram("docker")
+            .WithArguments("run", "-d", "--rm", "--name", "psql-test-mssql")
+            .WithArguments(Publish(ports))
+            .WithArguments(
+                "--env",                 "ACCEPT_EULA="           + "Y",
+                "--env",                 "MSSQL_SA_PASSWORD="     + Credential.Password,
+                "--env",                 "MSSQL_COLLATION="       + Collation,
+                "--env",                 "MSSQL_MEMORY_LIMIT_MB=" + MemoryLimitMb,
+                "--health-cmd",          "/opt/mssql-tools/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -Q 'PRINT HOST_NAME();'",
+                "--health-start-period", "20s",
+                "--health-interval",     "15s",
+                "--health-timeout",      "10s",
+                "--health-retries",      "2",
+                "mcr.microsoft.com/mssql/server:2019-latest"
+            )
+            .Run(expecting: 0);
+
+        id = id.TrimEnd();
+        id.Should().NotBeEmpty("docker run should output a container id");
+
+        return id;
+    }
+
+    private static string[] Publish(ushort[] ports)
+    {
+        var args  = new string[ports.Length * 2];
+        var index = 0;
+
+        foreach (var port in ports)
         {
-            var id = new ExternalProgram("docker")
-                .WithArguments("run", "-d", "--rm", "--name", "psql-test-mssql")
-                .WithArguments(Publish(ports))
-                .WithArguments(
-                    "--env",                 "ACCEPT_EULA="           + "Y",
-                    "--env",                 "MSSQL_SA_PASSWORD="     + Credential.Password,
-                    "--env",                 "MSSQL_COLLATION="       + Collation,
-                    "--env",                 "MSSQL_MEMORY_LIMIT_MB=" + MemoryLimitMb,
-                    "--health-cmd",          "/opt/mssql-tools/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -Q 'PRINT HOST_NAME();'",
-                    "--health-start-period", "20s",
-                    "--health-interval",     "15s",
-                    "--health-timeout",      "10s",
-                    "--health-retries",      "2",
-                    "mcr.microsoft.com/mssql/server:2019-latest"
-                )
-                .Run(expecting: 0);
-
-            id = id.TrimEnd();
-            id.Should().NotBeEmpty("docker run should output a container id");
-
-            return id;
+            args[index++] = "--publish";
+            args[index++] = Invariant($"{port}:1433");
         }
 
-        private static string[] Publish(ushort[] ports)
+        return args;
+    }
+
+    private void WaitForReady()
+    {
+        var deadline = DateTime.UtcNow + ReadyWaitTime.Seconds();
+
+        for(;;)
         {
-            var args  = new string[ports.Length * 2];
-            var index = 0;
+            var isHealthy = new ExternalProgram("docker")
+                .WithArguments("inspect", Id)
+                .Run(expecting: 0)
+                .Contains(@"""Status"": ""healthy""", StringComparison.OrdinalIgnoreCase);
 
-            foreach (var port in ports)
-            {
-                args[index++] = "--publish";
-                args[index++] = Invariant($"{port}:1433");
-            }
+            if (isHealthy)
+                return;
 
-            return args;
+            if (DateTime.UtcNow >= deadline)
+                throw new TimeoutException(
+                    "The SQL Server container did not become ready within the expected time."
+                );
+
+            Thread.Sleep(1.Seconds());
         }
+    }
 
-        private void WaitForReady()
-        {
-            var deadline = DateTime.UtcNow + ReadyWaitTime.Seconds();
-
-            for(;;)
-            {
-                var isHealthy = new ExternalProgram("docker")
-                    .WithArguments("inspect", Id)
-                    .Run(expecting: 0)
-                    .Contains(@"""Status"": ""healthy""", StringComparison.OrdinalIgnoreCase);
-
-                if (isHealthy)
-                    return;
-
-                if (DateTime.UtcNow >= deadline)
-                    throw new TimeoutException(
-                        "The SQL Server container did not become ready within the expected time."
-                    );
-
-                Thread.Sleep(1.Seconds());
-            }
-        }
-
-        private void Stop()
-        {
-            new ExternalProgram("docker")
-                .WithArguments("kill", Id)
-                .Run(expecting: 0);
-        }
+    private void Stop()
+    {
+        new ExternalProgram("docker")
+            .WithArguments("kill", Id)
+            .Run(expecting: 0);
     }
 }
