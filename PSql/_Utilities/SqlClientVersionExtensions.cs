@@ -25,8 +25,13 @@ internal static class SqlClientVersionExtensions
         Connection string history, distilled from:
         https://github.com/dotnet/SqlClient/tree/main/release-notes
 
+        Legacy
+        - [NOT SUPPORTED] Authentication
+        - When username and password are provided, behaves as if
+          Authentication: SqlPassword were specified.
+
         MDS 1.0 (netfx)
-        - Authentication: AadPassword, AadIntegrated, AadInteractive
+        - Authentication: SqlPassword, AadPassword, AadIntegrated, AadInteractive
 
         MDS 1.0 (others)
         - Authentication: AadPassword
