@@ -215,7 +215,7 @@ public class AzureSqlContext : SqlContext
         {
             case Default when Credential.IsNullOrEmpty():
                 mode = AadIntegrated;
-                goto case default;
+                goto default;
 
             case Default:
                 mode = SqlPassword;

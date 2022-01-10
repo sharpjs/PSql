@@ -6,10 +6,17 @@ Most lines should begin with one of these words:
 
 ## [Unreleased](https://github.com/sharpjs/PSConcurrent/compare/v2.0.0..HEAD)
 - Fix `GetConnectionString` error with `-AuthenticationMode SqlPassword` and
-  `SqlClientVersion.Legacy`.
+  `SqlClientVersion.Legacy`:
 
   > The specified SqlClient version 'Legacy' does not support
   > authentication mode 'SqlPassword'."
+
+- Fix `GetConnectionString` with `-AuthenticationMode Default` choosing mode
+  `SqlPassword` instead of `AadIntegrated` when no credential is specified.
+  This resulted in the error:
+
+  > A credential is required when connecting to Azure SQL Database using
+  > authentication mode 'SqlPassword'.
 
 <!--
 ## [2.0.1](https://github.com/sharpjs/PSConcurrent/compare/v2.0.0..v2.0.1)
