@@ -4,10 +4,14 @@ This file documents all notable changes.
 Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
-<!--
-## [Unreleased](https://github.com/sharpjs/PSConcurrent/compare/v2.0.1..HEAD)
-(none)
+## [Unreleased](https://github.com/sharpjs/PSConcurrent/compare/v2.0.0..HEAD)
+- Fix `GetConnectionString` error with `-AuthenticationMode SqlPassword` and
+  `SqlClientVersion.Legacy`.
 
+  > The specified SqlClient version 'Legacy' does not support
+  > authentication mode 'SqlPassword'."
+
+<!--
 ## [2.0.1](https://github.com/sharpjs/PSConcurrent/compare/v2.0.0..v2.0.1)
 Future release.
 -->

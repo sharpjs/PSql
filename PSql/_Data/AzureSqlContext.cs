@@ -219,6 +219,9 @@ public class AzureSqlContext : SqlContext
 
             case Default:
                 mode = SqlPassword;
+                goto case SqlPassword;
+
+            case SqlPassword:
                 // No need to specify the mode in connection string in this case
                 break;
 
