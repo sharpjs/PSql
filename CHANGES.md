@@ -4,10 +4,9 @@ This file documents all notable changes.
 Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
-<!--
+<!-- -->
 ## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.0.1..HEAD)
-Future release.
--->
+- Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)
 
 ## [2.0.1](https://github.com/sharpjs/PSql/compare/release/2.0.0..release/2.0.1)
 - Fix `GetConnectionString` error with `-AuthenticationMode SqlPassword` and
