@@ -4,8 +4,11 @@ This file documents all notable changes.
 Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
-<!-- -->
-## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.0.1..HEAD)
+<!--
+## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.1.0..HEAD)
+-->
+
+## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
 - Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)
 
 ## [2.0.1](https://github.com/sharpjs/PSql/compare/release/2.0.0..release/2.0.1)
