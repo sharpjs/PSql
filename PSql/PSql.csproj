@@ -27,6 +27,8 @@
 
     <PackageReference Include="System.Management.Automation"
                       Version="[7.0.0, 8.0.0)" PrivateAssets="All" />
+
+    <PackageReference Include="Prequel" Version="1.0.0-pre.1" />
   </ItemGroup>
 
   <ItemGroup>

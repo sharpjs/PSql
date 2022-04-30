@@ -10,6 +10,8 @@ Most lines should begin with one of these words:
 
 ## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
 - Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)
+- Add dependency [Prequel](https://www.nuget.org/packages/Prequel), which is PSql's SQLCMD preprocessor moved to its own NuGet package.
+- Add support for a line comment at end of a SQLCMD directive.
 
 ## [2.0.1](https://github.com/sharpjs/PSql/compare/release/2.0.0..release/2.0.1)
 - Fix `GetConnectionString` error with `-AuthenticationMode SqlPassword` and
