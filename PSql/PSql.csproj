@@ -19,6 +19,7 @@
   <PropertyGroup>
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
