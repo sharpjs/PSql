@@ -96,11 +96,12 @@ function Update-LocalTools {
 
 function Invoke-Clean {
     Write-Phase "Clean"
-    Invoke-Git "clean",
-        "-fxd",               # Delete all untracked files in directory tree
+    Invoke-Git -Arguments @(
+        "clean", "-fxd",      # Delete all untracked files in directory tree
         "-e", "*.suo",        # Keep Visual Studio <  2015 local options
         "-e", "*.user",       # Keep Visual Studio <  2015 local options
         "-e", ".vs/"          # Keep Visual Studio >= 2015 local options
+    )
 }
 
 function Invoke-Build {
@@ -130,9 +131,21 @@ function Export-CoverageReport {
         "reportgenerator"
         "-reports:coverage\raw\**\coverage.opencover.xml"
         "-targetdir:coverage"
-        "-reporttypes:Cobertura;HtmlInline;Badges;TeamCitySummary"
+        "-reporttypes:Cobertura;JsonSummary;Html_Dark;Badges"
         "-verbosity:Warning"
     )
+    $Summary = (Get-Content coverage\Summary.json -Raw | ConvertFrom-Json).summary
+    @(
+        ""
+        "Coverage:"
+        "    Methods:  {0,7:F3}%" -f $Summary.methodcoverage
+        "    Lines:    {0,7:F3}%" -f $Summary.linecoverage
+        "    Branches: {0,7:F3}%" -f $Summary.branchcoverage
+        ""
+    ) | Write-Host
+    if ($Summary.methodcoverage + $Summary.linecoverage + $Summary.branchcoverage -lt 300) {
+        Write-Warning "Coverage is below 100%."
+    }
 }
 
 function Invoke-DotNet {
