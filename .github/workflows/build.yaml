@@ -81,6 +81,7 @@ jobs:
         run: >
           dotnet build .root.targets -c Release
           -p:StampOnBuild=true
+          -p:SetGitHubActionsVersion=true
           -p:Branch=${{ github.ref }}
           -p:Counter=${{ github.run_number }}
           -p:RepositoryCommit=${{ github.sha }}
@@ -102,21 +103,13 @@ jobs:
           MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
 
       - name: Prepare Coverage Report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.4
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.5
         #url: https://github.com/danielpalme/ReportGenerator-GitHub-Action
         with:
           reports: ${{ runner.temp }}/coverage/raw/**/coverage.opencover.xml
           targetdir: ${{ runner.temp }}/coverage
-          reporttypes: Cobertura;HtmlInline;Badges;TeamCitySummary
+          reporttypes: Cobertura;JsonSummary;Html_Dark;Badges
           verbosity: Warning
-
-      - name: Save Package
-        uses: actions/upload-artifact@v2
-        #url: https://github.com/actions/upload-artifact
-        with:
-          name: Packages
-          path: ${{ runner.temp }}/dist
-          if-no-files-found: error
 
       - name: Save Coverage Report
         uses: actions/upload-artifact@v2
@@ -126,7 +119,15 @@ jobs:
           path: ${{ runner.temp }}/coverage
           if-no-files-found: error
 
-      - name: Publish Package
+      - name: Save Module
+        uses: actions/upload-artifact@v2
+        #url: https://github.com/actions/upload-artifact
+        with:
+          name: Packages
+          path: ${{ runner.temp }}/dist
+          if-no-files-found: error
+
+      - name: Publish Module
         if: startsWith(github.ref, 'refs/tags/release/')
         shell: pwsh
         run: >
