@@ -37,6 +37,11 @@ param (
     [Parameter(Mandatory, ParameterSetName="Coverage")]
     [switch] $Coverage
 ,
+    # Do not build before running tests.
+    [Parameter(ParameterSetName="Test")]
+    [Parameter(ParameterSetName="Coverage")]
+    [switch] $NoBuild
+,
     # The configuration to build: Debug or Release.  The default is Debug.
     [Parameter(ParameterSetName="Build")]
     [Parameter(ParameterSetName="Test")]
@@ -78,7 +83,9 @@ function Main {
         return
     }
 
-    Invoke-Build
+    if (!$NoBuild) {
+        Invoke-Build
+    }
 
     if ($Test -or $Coverage) {
         Invoke-Test
