@@ -61,7 +61,7 @@
             LicenseUri   = 'https://github.com/sharpjs/PSql/blob/master/LICENSE.txt'
             IconUri      = 'https://github.com/sharpjs/PSql/blob/master/icon.png'
             Tags         = @(
-                "SQL", "Server", "Azure", "Invoke", "SqlCmd",
+                "SQL", "SqlServer", "Azure", "Invoke", "SqlCmd",
                 "PSEdition_Core", "Windows", "Linux", "MacOS"
             )
         }
