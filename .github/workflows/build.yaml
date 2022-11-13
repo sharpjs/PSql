@@ -20,13 +20,13 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - main
       - release/*
     tags:
       - release/*
   pull_request:
     branches:
-      - master
+      - main
       - release/*
   workflow_dispatch:
     # no options

@@ -57,9 +57,9 @@
             # Additional metadata
             Prerelease   = '{VersionSuffix}'
             ProjectUri   = 'https://github.com/sharpjs/PSql'
-            ReleaseNotes = "https://github.com/sharpjs/PSql/blob/master/CHANGES.md"
-            LicenseUri   = 'https://github.com/sharpjs/PSql/blob/master/LICENSE.txt'
-            IconUri      = 'https://github.com/sharpjs/PSql/blob/master/icon.png'
+            ReleaseNotes = "https://github.com/sharpjs/PSql/blob/main/CHANGES.md"
+            LicenseUri   = 'https://github.com/sharpjs/PSql/blob/main/LICENSE.txt'
+            IconUri      = 'https://github.com/sharpjs/PSql/blob/main/icon.png'
             Tags         = @(
                 "SQL", "SqlServer", "Azure", "Invoke", "SqlCmd",
                 "PSEdition_Core", "Windows", "Linux", "MacOS"
