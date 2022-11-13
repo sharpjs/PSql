@@ -41,3 +41,6 @@ indent_size = 2
 [*.cs]
 csharp_space_after_cast = true
 dotnet_sort_system_directives_first = true
+
+[dotnet-tools.json]
+insert_final_newline = false
