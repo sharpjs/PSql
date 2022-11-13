@@ -14,19 +14,20 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+extern alias Client;
+
 using System.Data.SqlTypes;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
-using FluentAssertions;
 using FluentAssertions.Extensions;
-using NUnit.Framework;
 using Unindent;
 
 namespace PSql.Tests.Integration;
 
 using static FormattableString;
 using static SqlCompareOptions;
-using S = IntegrationTestsSetup;
+using S   = IntegrationTestsSetup;
+using MSS = Client::Microsoft.SqlServer.Server;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
@@ -981,6 +982,9 @@ public class InvokeSqlCommandTests
     [Test]
     public void ProjectHierarchyId_UseClrTypes()
     {
+        // https://github.com/dotnet/SqlClient/issues/695#issuecomment-675050743
+        // https://learn.microsoft.com/en-ca/openspecs/sql_server_protocols/ms-ssclrt/b975a433-e4d7-49a6-a510-7ae7558c31f3
+
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Assert.Inconclusive("hierarchyid seems to be unsupported on non-Windows OSes");
 
@@ -994,7 +998,7 @@ public class InvokeSqlCommandTests
         ");
 
         exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<InvalidCastException>();
+            .Which.InnerException.Should().BeOfType<MSS.InvalidUdtException>();
 
         objects.Should().BeEmpty();
     }
@@ -1002,6 +1006,9 @@ public class InvokeSqlCommandTests
     [Test]
     public void ProjectHierarchyId_UseSqlTypes()
     {
+        // https://github.com/dotnet/SqlClient/issues/695#issuecomment-675050743
+        // https://learn.microsoft.com/en-ca/openspecs/sql_server_protocols/ms-ssclrt/b975a433-e4d7-49a6-a510-7ae7558c31f3
+
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Assert.Inconclusive("hierarchyid seems to be unsupported on non-Windows OSes");
 
@@ -1015,7 +1022,7 @@ public class InvokeSqlCommandTests
         ");
 
         exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<InvalidCastException>();
+            .Which.InnerException.Should().BeOfType<MSS.InvalidUdtException>();
 
         objects.Should().BeEmpty();
     }
