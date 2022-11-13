@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Jeffrey Sharp
+    Copyright 2022 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
@@ -64,6 +64,10 @@ internal static class SqlClientVersionExtensions
         - Encrypt: true by default
         - Authentication: AadIntegrated (allows User ID)
         - [REMOVED] Asynchronous Processing
+
+        MDS 5.0
+        - Encrypt: Optional, Mandatory, Strict
+        - TDS 8
     */
 
     public static bool SupportsAuthenticationMode(

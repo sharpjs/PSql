@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Jeffrey Sharp
+    Copyright 2022 Jeffrey Sharp
 
     Permission to use, copy, modify, and distribute this software for any
     purpose with or without fee is hereby granted, provided that the above
@@ -47,12 +47,17 @@ public enum SqlClientVersion
     Mds2_1,
 
     /// <summary>
-    ///   Microsoft.Data.SqlClient 3.0.x
+    ///   Microsoft.Data.SqlClient 3.x
     /// </summary>
     Mds3,
 
     /// <summary>
-    ///   Microsoft.Data.SqlClient 4.0.x
+    ///   Microsoft.Data.SqlClient 4.x
     /// </summary>
     Mds4,
+
+    /// <summary>
+    ///   Microsoft.Data.SqlClient 5.x
+    /// </summary>
+    Mds5,
 }
