@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.11" />
-    <PackageReference Include="Subatomix.Testing" Version="2.1.0" />
+    <PackageReference Include="Subatomix.Testing" Version="2.4.0" />
     <PackageReference Include="Unindent" Version="1.1.0" />
   </ItemGroup>
 
