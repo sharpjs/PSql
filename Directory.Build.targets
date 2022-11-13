@@ -38,7 +38,7 @@
 
   <!-- Versioning -->
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.0" PrivateAssets="all" />
+    <PackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.1" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- <inheritdoc/> support -->
