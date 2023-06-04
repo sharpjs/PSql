@@ -35,7 +35,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13" />
     <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" Aliases="Client" />
-    <PackageReference Include="Subatomix.Testing" Version="2.4.0" />
+    <PackageReference Include="Subatomix.Testing" Version="2.5.0" />
     <PackageReference Include="Unindent" Version="1.1.1" />
   </ItemGroup>
 
