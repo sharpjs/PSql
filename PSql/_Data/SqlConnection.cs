@@ -155,7 +155,7 @@ public class SqlConnection : IDisposable
             // Indicate that disconnection is expected
             PSqlClient.Instance.SetDisconnecting(_connection);
 
-            // Disconect
+            // Disconnect
             _connection.Dispose();
         }
     }
