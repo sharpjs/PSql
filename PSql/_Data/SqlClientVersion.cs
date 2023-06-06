@@ -60,4 +60,9 @@ public enum SqlClientVersion
     ///   Microsoft.Data.SqlClient 5.x
     /// </summary>
     Mds5,
+
+    /// <summary>
+    ///   The latest version supported by the current code.
+    /// </summary>
+    Latest = Mds5
 }
