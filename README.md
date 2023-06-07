@@ -11,8 +11,8 @@ Cmdlets for SQL Server and Azure SQL databases.
 [![NuGet](https://img.shields.io/powershellgallery/dt/PSql.svg)](https://www.powershellgallery.com/packages/PSql)
 
 PSql 2.x is a C# rewrite of what previously was a script module.  The script
-module has been used for years in production code.  PSql 2.x has seen limited
-production use too, with more planned in 2022.
+module was used for for years in production code.  PSql 2.x has seen two years
+of production use too.
 
 ## Installation
 
