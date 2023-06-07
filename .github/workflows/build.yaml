@@ -22,6 +22,9 @@ on:
   workflow_dispatch:
     # no options
 
+permissions:
+  contents: write # required by ncipollo/release-action@v1
+
 env:
   # Minimize noise from dotnet CLI
   DOTNET_NOLOGO: 1
