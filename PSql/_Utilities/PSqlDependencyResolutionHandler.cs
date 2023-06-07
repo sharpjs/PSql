@@ -20,7 +20,7 @@ public class PSqlDependencyResolutionHandler
     : IModuleAssemblyInitializer
     , IModuleAssemblyCleanup
 {
-    // This is a technique to load PSql.Client.dll and its dependencies into a
+    // This is a technique to load PSql.private.dll and its dependencies into a
     // private AssemblyLoadContext to prevent a conflict if some other module
     // loads a different version of the same assembly.
     // See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
@@ -51,8 +51,8 @@ public class PSqlDependencyResolutionHandler
             // Assemblies that must load into the private context
             case "Microsoft.Data.SqlClient":
             case "Prequel":
-            case "PSql.Client":
-            case "PSql.Deploy.Client":
+            case "PSql.private":
+            case "PSql.Deploy.private":
                 return PSqlAssemblyLoadContext.Instance.LoadFromAssemblyName(name);
 
             // Assemblies that are OK to load into the default context

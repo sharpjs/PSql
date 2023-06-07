@@ -9,7 +9,7 @@
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateDependencyFile>false</GenerateDependencyFile>
-    <PrivateDependenciesPath>..\PSql.Client\bin\$(Configuration)\$(TargetFramework)</PrivateDependenciesPath>
+    <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)</PrivateDependenciesPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,8 +19,8 @@
     <PackageReference Include="System.Management.Automation"
                       Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
 
-    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj"
-                      PrivateAssets="all" />
+    <ProjectReference Include="..\PSql.private\PSql.private.csproj"
+                      Private="false" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

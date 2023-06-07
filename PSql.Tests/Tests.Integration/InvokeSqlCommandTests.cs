@@ -14,7 +14,7 @@
     OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-extern alias Client;
+extern alias Private;
 
 using System.Data.SqlTypes;
 using System.Management.Automation;
@@ -27,7 +27,7 @@ namespace PSql.Tests.Integration;
 using static FormattableString;
 using static SqlCompareOptions;
 using S   = IntegrationTestsSetup;
-using MSS = Client::Microsoft.SqlServer.Server;
+using MSS = Private::Microsoft.SqlServer.Server;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]

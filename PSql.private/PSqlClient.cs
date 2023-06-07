@@ -6,7 +6,7 @@ using System.Security;
 namespace PSql;
 
 /// <summary>
-///   Top-level interface between PSql and PSql.Client.
+///   Top-level interface between PSql and PSql.private
 /// </summary>
 public class PSqlClient
 {

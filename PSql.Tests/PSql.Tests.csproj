@@ -23,18 +23,18 @@
   </PropertyGroup>
 
   <!--
-    Use 'Client' alias to disambiguate between same-named types defined in both
+    Use 'Private' alias to disambiguate between same-named types defined in both
     Microsoft.Data.SqlClient and System.Data.SqlClient (or their dependencies).
   -->
 
   <ItemGroup>
     <ProjectReference Include="..\PSql\PSql.csproj" />
-    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj" Aliases="Client" />
+    <ProjectReference Include="..\PSql.private\PSql.private.csproj" Aliases="Private" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13" />
-    <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" Aliases="Client" />
+    <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" Aliases="Private" />
     <PackageReference Include="Subatomix.Testing" Version="2.5.0" />
     <PackageReference Include="Unindent" Version="1.1.1" />
   </ItemGroup>
