@@ -1,43 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Copyright 2022 Jeffrey Sharp
-
-    Permission to use, copy, modify, and distribute this software for any
-    purpose with or without fee is hereby granted, provided that the above
-    copyright notice and this permission notice appear in all copies.
-
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+    Copyright 2023 Subatomix Research Inc.
+    SPDX-License-Identifier: ISC
   -->
 
   <PropertyGroup>
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <PrivateDependenciesPath>..\PSql.Client\bin\$(Configuration)\$(TargetFramework)</PrivateDependenciesPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule"
-                      Version="1.1.1" PrivateAssets="All" />
+                      Version="1.1.1" PrivateAssets="all" />
 
     <PackageReference Include="System.Management.Automation"
-                      Version="[7.0.0, 8.0.0)" PrivateAssets="All" />
+                      Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
 
-    <PackageReference Include="Prequel" Version="1.0.3" />
+    <ProjectReference Include="..\PSql.Client\PSql.Client.csproj"
+                      PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="$(PowerShellItemIncludes)"
              Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
 
-    <None Include="..\PSql.Client\bin\$(Configuration)\$(TargetFramework)\**"
-          Visible="false" CopyToOutputDirectory="PreserveNewest" />
+    <!--
+      Isolate PSql dependencies into a subdirectory where .NET Core/5+ default
+      probing behavior will not find them.  Instead, custom resolution logic
+      will load the dependencies into a private AssemblyLoadContext, preventing
+      conflicts with dependencies of other modules.  Technique documented here:
+      https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
+
+      deps/        cross-platform managed assemblies
+        unix/      managed assemblies for unix-likes
+        win/       managed assemblies for Windows
+          x86/     native assemblies for Windows x86 processes
+          x64/     native assemblies for Windows x64 processes
+          arm/     native assemblies for Windows 32-bit ARM processes
+          arm64/   native assemblies for Windows 64-bit ARM processes
+    -->
+
+    <None Include="$(PrivateDependenciesPath)\*"
+          Link="deps\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+
+    <None Include="$(PrivateDependenciesPath)\runtimes\**"
+          Link="deps\$(
+            [System.String]::new('%(RecursiveDir)').Split('\', 2)[0].Replace('-', '\')
+          )\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" /> <!-- Visible="false" -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
+    <Using Include="System.Data" />
+    <Using Include="System.Management.Automation" />
   </ItemGroup>
 
 </Project>

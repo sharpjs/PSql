@@ -1,20 +1,5 @@
-/*
-    Copyright 2021 Jeffrey Sharp
-
-    Permission to use, copy, modify, and distribute this software for any
-    purpose with or without fee is hereby granted, provided that the above
-    copyright notice and this permission notice appear in all copies.
-
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
-
-using System.Data;
+// Copyright 2023 Subatomix Research Inc.
+// SPDX-License-Identifier: ISC
 
 namespace PSql;
 
@@ -27,7 +12,7 @@ namespace PSql;
 /// </remarks>
 public class SqlConnection : IDisposable
 {
-    private readonly dynamic _connection; // M.D.S.SqlConnection
+    private readonly Mds.SqlConnection _connection;
 
     /// <summary>
     ///   Creates a new <see cref="SqlConnection"/> instance for the specified
@@ -58,7 +43,7 @@ public class SqlConnection : IDisposable
     /// </exception>
     internal SqlConnection(SqlContext? context, string? databaseName, Cmdlet cmdlet)
     {
-        const SqlClientVersion Version = PSqlClient.Version;
+        const SqlClientVersion Version = SqlClientVersion.Latest;
 
         if (cmdlet is null)
             throw new ArgumentNullException(nameof(cmdlet));

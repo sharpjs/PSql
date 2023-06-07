@@ -1,21 +1,5 @@
-/*
-    Copyright 2021 Jeffrey Sharp
-
-    Permission to use, copy, modify, and distribute this software for any
-    purpose with or without fee is hereby granted, provided that the above
-    copyright notice and this permission notice appear in all copies.
-
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
-
-using System.Data;
-using System.Management.Automation;
+// Copyright 2023 Subatomix Research Inc.
+// SPDX-License-Identifier: ISC
 
 namespace PSql;
 
@@ -28,7 +12,7 @@ namespace PSql;
 /// </remarks>
 internal class SqlCommand : IDisposable
 {
-    private readonly dynamic _command; // M.D.S.SqlCommand
+    private readonly Mds.SqlCommand _command;
 
     /// <summary>
     ///   Creates a new <see cref="SqlCommand"/> that can execute commands on
@@ -40,7 +24,7 @@ internal class SqlCommand : IDisposable
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    internal SqlCommand(dynamic /*SqlConnection*/ connection)
+    internal SqlCommand(Mds.SqlConnection connection)
     {
         if (connection is null)
             throw new ArgumentNullException(nameof(connection));
