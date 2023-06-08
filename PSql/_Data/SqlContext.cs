@@ -571,7 +571,7 @@ public class SqlContext : ICloneable
         );
     }
 
-    internal SqlConnection CreateConnection(string? databaseName, Cmdlet cmdlet)
+    internal SqlConnection Connect(string? databaseName, Cmdlet cmdlet)
     {
         const SqlClientVersion Version = SqlClientVersion.Latest;
 

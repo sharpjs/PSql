@@ -19,7 +19,7 @@ public class ConnectSqlCommand : Cmdlet
     protected override void ProcessRecord()
     {
         var context    = Context ?? new();
-        var connection = context.CreateConnection(DatabaseName, this);
+        var connection = context.Connect(DatabaseName, this);
 
         WriteObject(connection);
     }

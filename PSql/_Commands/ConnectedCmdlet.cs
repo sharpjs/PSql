@@ -33,7 +33,7 @@ public abstract class ConnectedCmdlet : Cmdlet, IDisposable
         if (Connection is null)
         {
             Context       ??= new();
-            Connection      = Context.CreateConnection(DatabaseName, this);
+            Connection      = Context.Connect(DatabaseName, this);
             _ownsConnection = true;
         }
         else
