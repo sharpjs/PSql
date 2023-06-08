@@ -3,8 +3,6 @@
 
 namespace PSql;
 
-using static SqlConnectionHelper;
-
 /// <summary>
 ///   Base class for PSql cmdlets that use an open database connection.
 /// </summary>
@@ -32,8 +30,16 @@ public abstract class ConnectedCmdlet : Cmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        (Connection, _ownsConnection)
-            = EnsureConnection(Connection, Context, DatabaseName, this);
+        if (Connection is null)
+        {
+            Context       ??= new();
+            Connection      = Context.CreateConnection(DatabaseName, this);
+            _ownsConnection = true;
+        }
+        else
+        {
+            _ownsConnection = false;
+        }
     }
 
     ~ConnectedCmdlet()
