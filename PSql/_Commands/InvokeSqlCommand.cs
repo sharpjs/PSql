@@ -101,8 +101,27 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: _command created in BeginProcessing
         _command!.CommandText = batch;
 
-        foreach (var obj in _command.ExecuteAndProjectToObjects(UseSqlTypes))
+        foreach (var obj in _command.ExecuteAndProjectToObjects(ObjectCreator, PropertySetter, UseSqlTypes))
             WriteObject(obj);
+    }
+
+    private static readonly Func<object>
+        ObjectCreator = CreateObject;
+
+    private static readonly Action<object, string, object?>
+        PropertySetter = AddProperty;
+
+    private static object CreateObject()
+    {
+        return new PSObject();
+    }
+
+    private static void AddProperty(object obj, string name, object? value)
+    {
+        var target   = (PSObject) obj;
+        var property = new PSNoteProperty(name, value);
+
+        target.Properties.Add(property);
     }
 
     protected override void EndProcessing()

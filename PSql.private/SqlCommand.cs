@@ -8,9 +8,9 @@ namespace PSql;
 ///   SQL Server, Azure SQL Database, or compatible product.
 /// </summary>
 /// <remarks>
-///   This type is a proxy for <c>Microsoft.Data.SqlClient.SqlCommand.</c>
+///   This type is a proxy for <see cref="Mds.SqlCommand"/>.
 /// </remarks>
-internal class SqlCommand : IDisposable
+public class SqlCommand : IDisposable
 {
     private readonly Mds.SqlCommand _command;
 
@@ -24,7 +24,7 @@ internal class SqlCommand : IDisposable
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    internal SqlCommand(Mds.SqlConnection connection)
+    public /*TODO:internal*/ SqlCommand(Mds.SqlConnection connection)
     {
         if (connection is null)
             throw new ArgumentNullException(nameof(connection));
@@ -68,30 +68,14 @@ internal class SqlCommand : IDisposable
     ///     <see cref="System.Data.SqlTypes"/> namespace, such as
     ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
     /// </param>
-    internal IEnumerator<object> ExecuteAndProjectToObjects(SwitchParameter useSqlTypes)
+    public IEnumerator<object> ExecuteAndProjectToObjects(
+        Func<object> objectCreator,
+        Action<object, string, object?> propertySetter,
+        bool useSqlTypes)
     {
         return PSqlClient.Instance.ExecuteAndProject(
-            _command, ObjectCreator, PropertySetter, useSqlTypes
+            _command, objectCreator, propertySetter, useSqlTypes
         );
-    }
-
-    private static readonly Func<object>
-        ObjectCreator = CreateObject;
-
-    private static readonly Action<object, string, object?>
-        PropertySetter = AddProperty;
-
-    private static object CreateObject()
-    {
-        return new PSObject();
-    }
-
-    private static void AddProperty(object obj, string name, object? value)
-    {
-        var target   = (PSObject) obj;
-        var property = new PSNoteProperty(name, value);
-
-        target.Properties.Add(property);
     }
 
     /// <summary>

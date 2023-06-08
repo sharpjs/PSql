@@ -221,8 +221,8 @@ public class PSqlClient
     ///   <paramref name="createObject"/>, and/or
     ///   <paramref name="setProperty"/> is <see langword="null"/>.
     /// </exception>
-    public IEnumerator<object> ExecuteAndProject(
-        SqlCommand                      command,
+    internal IEnumerator<object> ExecuteAndProject(
+        Mds.SqlCommand                  command,
         Func<object>                    createObject,
         Action<object, string, object?> setProperty,
         bool                            useSqlTypes = false)

@@ -21,7 +21,8 @@
 
   <ItemGroup>
     <Using Include="System.Data"/>
-    <Using Include="Microsoft.Data.SqlClient"/>
+    <Using Include="Microsoft.Data.SqlClient" />
+    <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
   </ItemGroup>
 
 </Project>
