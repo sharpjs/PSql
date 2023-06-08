@@ -227,7 +227,7 @@ public readonly ref struct SqlConnectionStringBuilder
             return;
 
         if (value.Contains('\0'))
-            throw new FormatException(@"Value cannot contain a NUL (U+0000) character.");
+            throw new FormatException("Value cannot contain a NUL (U+0000) character.");
 
         var builder = _builder;
 
