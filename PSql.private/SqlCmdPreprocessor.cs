@@ -33,15 +33,14 @@ public class SqlCmdPreprocessor
     /// <param name="entries">
     ///   The variables to define.
     /// </param>
-    /// <returns>
-    ///   The preprocessor instance, to facilitate chaining.
-    /// </returns>
-    public SqlCmdPreprocessor WithVariables(IDictionary? entries)
+    public void SetVariables(IDictionary? entries)
     {
         if (entries == null)
-            return this;
+            return;
 
         var variables = _preprocessor.Variables;
+
+        variables.Clear();
 
         foreach (var obj in entries)
         {
@@ -60,8 +59,6 @@ public class SqlCmdPreprocessor
 
             variables[key] = value ?? string.Empty;
         }
-
-        return this;
     }
 
     /// <summary>

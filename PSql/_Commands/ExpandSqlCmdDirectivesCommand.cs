@@ -21,13 +21,15 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
 
     protected override void BeginProcessing()
     {
-        _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
+        _preprocessor = new SqlCmdPreprocessor();
     }
 
     protected override void ProcessRecord()
     {
         if (Sql is not string?[] scripts)
             return;
+
+        _preprocessor!.SetVariables(Define);
 
         foreach (var script in scripts)
             if (!string.IsNullOrEmpty(script))

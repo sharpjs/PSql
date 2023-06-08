@@ -52,7 +52,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: Connection ensured not null by base.BeginProcessing
         Connection!.ClearErrors();
 
-        _preprocessor = new SqlCmdPreprocessor().WithVariables(Define);
+        _preprocessor = new SqlCmdPreprocessor();
         _command      = Connection.CreateCommand();
 
         if (Timeout.HasValue)
@@ -87,7 +87,8 @@ public class InvokeSqlCommand : ConnectedCmdlet
     private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
     {
         // NULLS: _preprocessor created in BeginProcessing
-        return scripts.SelectMany(s => _preprocessor!.Process(s));
+        _preprocessor!.SetVariables(Define);
+        return scripts.SelectMany(s => _preprocessor.Process(s));
     }
 
     private void Execute(IEnumerable<string> batches)
