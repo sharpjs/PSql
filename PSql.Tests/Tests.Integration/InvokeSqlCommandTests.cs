@@ -14,7 +14,6 @@ namespace PSql.Tests.Integration;
 using static FormattableString;
 using static SqlCompareOptions;
 using S   = IntegrationTestsSetup;
-using MSS = Private::Microsoft.SqlServer.Server;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
@@ -967,7 +966,6 @@ public class InvokeSqlCommandTests
     }
 
     [Test]
-    [Ignore("Fails, work in progresss")]
     public void ProjectHierarchyId_UseClrTypes()
     {
         // https://github.com/dotnet/SqlClient/issues/695#issuecomment-675050743
@@ -985,14 +983,14 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<MSS.InvalidUdtException>();
+        exception                                .Should().BeOfType<CmdletInvocationException>();
+        exception!.InnerException                .Should().NotBeNull();
+        exception!.InnerException!.GetType().Name.Should().Be("InvalidUdtException");
 
         objects.Should().BeEmpty();
     }
 
     [Test]
-    [Ignore("Fails, work in progresss")]
     public void ProjectHierarchyId_UseSqlTypes()
     {
         // https://github.com/dotnet/SqlClient/issues/695#issuecomment-675050743
@@ -1010,8 +1008,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<MSS.InvalidUdtException>();
+        exception                                .Should().BeOfType<CmdletInvocationException>();
+        exception!.InnerException                .Should().NotBeNull();
+        exception!.InnerException!.GetType().Name.Should().Be("InvalidUdtException");
 
         objects.Should().BeEmpty();
     }

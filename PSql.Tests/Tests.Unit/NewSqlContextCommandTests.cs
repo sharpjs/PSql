@@ -397,7 +397,7 @@ public class NewSqlContextCommandTests
     public static IEnumerable<Case> ValidCredentialCases = new[]
     {
         new Case("$null",                   null),
-        new Case("([PSCredential]::Empty)", PSCredential.Empty),
+        new Case("([PSCredential]::Empty)", null),
         new Case("$Credential",             new PSCredential("a", "p".Secure())),
     };
 
