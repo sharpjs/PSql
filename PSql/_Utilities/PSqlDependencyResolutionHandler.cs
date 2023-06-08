@@ -22,6 +22,9 @@ public class PSqlDependencyResolutionHandler
     : IModuleAssemblyInitializer
     , IModuleAssemblyCleanup
 {
+    private static readonly object _importCountLock = new();
+    private static          int    _importCount     = 0;
+
     // This is a technique to load PSql.private.dll and its dependencies into a
     // private AssemblyLoadContext to prevent a conflict if some other module
     // loads a different version of the same assembly.
@@ -32,7 +35,7 @@ public class PSqlDependencyResolutionHandler
     /// </summary>
     void IModuleAssemblyInitializer.OnImport()
     {
-        AssemblyLoadContext.Default.Resolving += HandleResolving;
+        Initialize();
     }
 
     /// <summary>
@@ -43,10 +46,33 @@ public class PSqlDependencyResolutionHandler
     /// </param>
     void IModuleAssemblyCleanup.OnRemove(PSModuleInfo module)
     {
-        AssemblyLoadContext.Default.Resolving -= HandleResolving;
+        CleanUp();
     }
 
-    private Assembly? HandleResolving(AssemblyLoadContext _, AssemblyName name)
+    internal static void Initialize()
+    {
+        lock (_importCountLock)
+        {
+            if (_importCount++ > 0)
+                return;
+
+            AssemblyLoadContext.Default.Resolving += HandleResolving;
+        }
+    }
+
+    internal static void CleanUp()
+    {
+        lock (_importCountLock)
+        {
+            if (--_importCount > 0)
+                return;
+
+            _importCount = 0;
+            AssemblyLoadContext.Default.Resolving -= HandleResolving;
+        }
+    }
+
+    private static Assembly? HandleResolving(AssemblyLoadContext context, AssemblyName name)
     {
         switch (name.Name)
         {
@@ -60,7 +86,7 @@ public class PSqlDependencyResolutionHandler
             case "Prequel":
                 if (Debugger.IsAttached)
                     Debugger.Break();
-                throw new NotSupportedException(
+                throw new InvalidOperationException(
                     $"Attempted to load private dependency {name.Name} into the default context. This is a bug."
                 );
 

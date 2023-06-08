@@ -81,7 +81,7 @@ jobs:
 
       - name: Build
         run: >
-          dotnet build --no-restore -c Release
+          dotnet build --no-restore -c Release -m:1
           -p:TreatWarningsAsErrors=true
           -p:PackageOutputPath=${{ runner.temp }}/dist
 

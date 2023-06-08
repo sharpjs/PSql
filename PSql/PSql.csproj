@@ -42,16 +42,14 @@
           arm/     native assemblies for Windows 32-bit ARM processes
           arm64/   native assemblies for Windows 64-bit ARM processes
     -->
-
-    <None Include="$(PrivateDependenciesPath)\*"
-          Link="deps\%(Filename)%(Extension)"
-          CopyToOutputDirectory="PreserveNewest" />
-
-    <None Include="$(PrivateDependenciesPath)\runtimes\**"
-          Link="deps\$(
-            [System.String]::new('%(RecursiveDir)').Split('\', 2)[0].Replace('-', '\')
-          )\%(Filename)%(Extension)"
-          CopyToOutputDirectory="PreserveNewest" /> <!-- Visible="false" -->
+    <!-- Refactor to reduce duplication somehow -->
+    <None Include="$(PrivateDependenciesPath)\*"                     Link="deps\%(Filename)%(Extension)"           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\unix\**"      Link="deps\unix\%(Filename)%(Extension)"      CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\win\**"       Link="deps\win\%(Filename)%(Extension)"       CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\win-arm\**"   Link="deps\win\arm\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\win-arm64\**" Link="deps\win\arm64\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\win-x86\**"   Link="deps\win\x86\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(PrivateDependenciesPath)\runtimes\win-x64\**"   Link="deps\win\x64\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

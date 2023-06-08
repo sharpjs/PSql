@@ -61,6 +61,8 @@ public static class IntegrationTestsSetup
             DefaultServerPassword   = _container.Credential.Password;
             AlternateServerPassword = _container.Credential.Password;
         }
+
+        PSqlDependencyResolutionHandler.Initialize();
     }
 
     [OneTimeTearDown]

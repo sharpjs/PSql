@@ -1,8 +1,6 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
-extern alias Private;
-
 using System.Data.SqlTypes;
 using System.Management.Automation;
 using System.Runtime.InteropServices;

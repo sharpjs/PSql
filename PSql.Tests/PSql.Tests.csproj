@@ -11,20 +11,12 @@
     <RootNamespace>PSql</RootNamespace>
   </PropertyGroup>
 
-  <!--
-    Use 'Private' alias to disambiguate between same-named types defined in both
-    Microsoft.Data.SqlClient and System.Data.SqlClient (or their dependencies).
-  -->
-
   <ItemGroup>
-    <ProjectReference Include="..\PSql\PSql.csproj" />
-    <ProjectReference Include="..\PSql.private\PSql.private.csproj" Aliases="Private"
-                      Private="false" IncludeAssets="compile" />
+    <ProjectReference Include="..\PSql\PSql.csproj" Private="true" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13" />
-    <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" Aliases="Private" />
     <PackageReference Include="Subatomix.Testing" Version="2.5.0" />
     <PackageReference Include="Unindent" Version="1.1.1" />
   </ItemGroup>
