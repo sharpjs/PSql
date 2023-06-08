@@ -17,11 +17,11 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
     [Parameter(Position = 1)]
     public Hashtable? Define { get; set; }
 
-    private SqlCmdPreprocessor? _preprocessor;
+    private readonly SqlCmdPreprocessor _preprocessor;
 
-    protected override void BeginProcessing()
+    public ExpandSqlCmdDirectivesCommand()
     {
-        _preprocessor = new SqlCmdPreprocessor();
+        _preprocessor = new();
     }
 
     protected override void ProcessRecord()
@@ -29,7 +29,7 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
         if (Sql is not string?[] scripts)
             return;
 
-        _preprocessor!.SetVariables(Define);
+        _preprocessor.SetVariables(Define);
 
         foreach (var script in scripts)
             if (!string.IsNullOrEmpty(script))
@@ -38,8 +38,7 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
 
     private void ProcessScript(string script)
     {
-        // NULLS: _preprocessor created in BeginProcessing
-        foreach (var batch in _preprocessor!.Process(script))
+        foreach (var batch in _preprocessor.Process(script))
             WriteObject(batch);
     }
 }

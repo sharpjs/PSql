@@ -34,14 +34,19 @@ public class InvokeSqlCommand : ConnectedCmdlet
     [Parameter]
     public TimeSpan? Timeout { get; set; }
 
-    private SqlCmdPreprocessor? _preprocessor;
-    private SqlCommand?         _command;
+    private readonly SqlCmdPreprocessor _preprocessor;
+    private          SqlCommand?        _command;
 
     private bool ShouldUsePreprocessing
         => !NoPreprocessing;
 
     private bool ShouldUseErrorHandling
         => !NoErrorHandling;
+
+    public InvokeSqlCommand()
+    {
+        _preprocessor = new();
+    }
 
     protected override void BeginProcessing()
     {
@@ -52,8 +57,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: Connection ensured not null by base.BeginProcessing
         Connection!.ClearErrors();
 
-        _preprocessor = new SqlCmdPreprocessor();
-        _command      = Connection.CreateCommand();
+        _command = Connection.CreateCommand();
 
         if (Timeout.HasValue)
             _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
@@ -86,8 +90,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
 
     private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
     {
-        // NULLS: _preprocessor created in BeginProcessing
-        _preprocessor!.SetVariables(Define);
+        _preprocessor.SetVariables(Define);
         return scripts.SelectMany(s => _preprocessor.Process(s));
     }
 
