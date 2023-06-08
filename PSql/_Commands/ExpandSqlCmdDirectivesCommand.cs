@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: ISC
 
 using System.Collections;
-using Prequel;
 
 namespace PSql;
 
