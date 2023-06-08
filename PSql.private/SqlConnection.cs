@@ -1,7 +1,6 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
-using System.Net;
 using System.Security;
 
 namespace PSql;
@@ -17,77 +16,80 @@ public class SqlConnection : IDisposable
 {
     private readonly Mds.SqlConnection _connection;
 
-#if EARLIER
+    static SqlConnection()
+    {
+        SniLoader.Load();
+    }
+
     /// <summary>
-    ///   Creates a new <see cref="SqlConnection"/> instance for the specified
-    ///   context and database name, logging server messages via the specified
-    ///   cmdlet.
+    ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
+    ///   the specified connection string and logging delegates.
     /// </summary>
-    /// <param name="context">
-    ///   An object containing information necessary to connect to a database.
-    ///   If not provided, the constructor will use a context with default
-    ///   property values.
+    /// <param name="connectionString">
+    ///   A string that specifies parameters for the connection.
     /// </param>
-    /// <param name="databaseName">
-    ///   The name of the database to which to connect.  If not provided, the
-    ///   constructor connects to the default database for the context.
+    /// <param name="writeInformation">
+    ///   A delegate that logs server informational messages.
     /// </param>
-    /// <param name="cmdlet">
-    ///   The cmdlet whose
-    ///     <see cref="Cmdlet.WriteHost(string, bool, ConsoleColor?, ConsoleColor?)"/>
-    ///   and
-    ///     <see cref="System.Management.Automation.Cmdlet.WriteWarning(string)"/>
-    ///   methods will be used to print messges received from the server.
+    /// <param name="writeWarning">
+    ///   A delegate that logs server warning or error messages.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
+    ///   <paramref name="connectionString"/>,
+    ///   <paramref name="writeInformation"/>, and/or
+    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="System.Data.Common.DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
-    internal SqlConnection(SqlContext? context, string? databaseName, Cmdlet cmdlet)
-    {
-        const SqlClientVersion Version = SqlClientVersion.Latest;
-
-        if (cmdlet is null)
-            throw new ArgumentNullException(nameof(cmdlet));
-
-        context ??= new SqlContext();
-
-        var client           = PSqlClient.Instance;
-        var connectionString = context.GetConnectionString(databaseName, Version, true);
-        var credential       = context.Credential;
-        var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
-        var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));
-
-        var passCredentialSeparately
-            =  !credential.IsNullOrEmpty()
-            && !context.ExposeCredentialInConnectionString;
-
-        _connection = passCredentialSeparately
-            ? client.Connect(
-                connectionString,
-                credential!.UserName,
-                credential!.Password,
-                writeInformation,
-                writeWarning
-            )
-            : client.Connect(
-                connectionString,
-                writeInformation,
-                writeWarning
-            );
-    }
-#endif
-
     public SqlConnection(
         string         connectionString,
         Action<string> writeInformation,
         Action<string> writeWarning)
     {
-        _connection = PSqlClient.Instance.Connect(connectionString, writeInformation, writeWarning);
+        if (connectionString is null)
+            throw new ArgumentNullException(nameof(connectionString));
+        if (writeInformation is null)
+            throw new ArgumentNullException(nameof(writeInformation));
+        if (writeWarning is null)
+            throw new ArgumentNullException(nameof(writeWarning));
+
+        _connection = ConnectCore(
+            new Mds.SqlConnection(connectionString),
+            writeInformation,
+            writeWarning
+        );
     }
 
+    /// <summary>
+    ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
+    ///   the specified connection string, credential, and logging delegates.
+    /// </summary>
+    /// <param name="connectionString">
+    ///   A string that specifies parameters for the connection.
+    /// </param>
+    /// <param name="username">
+    ///   The username to use to authenticate with the database server.
+    /// </param>
+    /// <param name="password">
+    ///   The password to use to authenticate with the database server.
+    /// </param>
+    /// <param name="writeInformation">
+    ///   A delegate that logs server informational messages.
+    /// </param>
+    /// <param name="writeWarning">
+    ///   A delegate that logs server warning or error messages.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="connectionString"/>,
+    ///   <paramref name="username"/>,
+    ///   <paramref name="password"/>,
+    ///   <paramref name="writeInformation"/>, and/or
+    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="System.Data.Common.DbException">
+    ///   A connection-level error occurred while opening the connection.
+    /// </exception>
     public SqlConnection(
         string         connectionString,
         string         username,
@@ -95,9 +97,53 @@ public class SqlConnection : IDisposable
         Action<string> writeInformation,
         Action<string> writeWarning)
     {
-        _connection = PSqlClient.Instance.Connect(
-            connectionString, username, password, writeInformation, writeWarning
+        if (connectionString is null)
+            throw new ArgumentNullException(nameof(connectionString));
+        if (username is null)
+            throw new ArgumentNullException(nameof(username));
+        if (password is null)
+            throw new ArgumentNullException(nameof(password));
+        if (writeInformation is null)
+            throw new ArgumentNullException(nameof(writeInformation));
+        if (writeWarning is null)
+            throw new ArgumentNullException(nameof(writeWarning));
+
+        if (!password.IsReadOnly())
+            (password = password.Copy()).MakeReadOnly();
+
+        var credential = new SqlCredential(username, password);
+
+        _connection = ConnectCore(
+            new Mds.SqlConnection(connectionString, credential),
+            writeInformation,
+            writeWarning
         );
+    }
+
+    private static Mds.SqlConnection ConnectCore(
+        Mds.SqlConnection connection,
+        Action<string>    writeInformation,
+        Action<string>    writeWarning)
+    {
+        var info = null as ConnectionInfo;
+
+        try
+        {
+            info = ConnectionInfo.Get(connection);
+
+            SqlConnectionLogger.Use(connection, writeInformation, writeWarning);
+
+            connection.Open();
+            return connection;
+        }
+        catch
+        {
+            if (info != null)
+                info.IsDisconnecting = true;
+
+            connection?.Dispose();
+            throw;
+        }
     }
 
     /// <summary>
@@ -122,7 +168,7 @@ public class SqlConnection : IDisposable
     ///   connection.
     /// </summary>
     public bool HasErrors
-        => PSqlClient.Instance.HasErrors(_connection);
+        => ConnectionInfo.Get(_connection).HasErrors;
 
     /// <summary>
     ///   Sets <see cref="HasErrors"/> to <see langword="false"/>, forgetting
@@ -130,7 +176,7 @@ public class SqlConnection : IDisposable
     /// </summary>
     public /*TODO: internal?*/ void ClearErrors()
     {
-        PSqlClient.Instance.ClearErrors(_connection);
+        ConnectionInfo.Get(_connection).HasErrors = false;
     }
 
     /// <summary>
@@ -163,7 +209,7 @@ public class SqlConnection : IDisposable
         if (managed)
         {
             // Indicate that disconnection is expected
-            PSqlClient.Instance.SetDisconnecting(_connection);
+            ConnectionInfo.Get(_connection).IsDisconnecting = true;
 
             // Disconnect
             _connection.Dispose();

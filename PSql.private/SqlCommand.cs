@@ -61,6 +61,12 @@ public class SqlCommand : IDisposable
     ///   Executes the command and projets its result sets to PowerShell
     ///   object (<see cref="PSObject"/>) instances.
     /// </summary>
+    /// <param name="createObject">
+    ///   A delegate that creates a result object.
+    /// </param>
+    /// <param name="setProperty">
+    ///   A delegate that sets a property on a result object.
+    /// </param>
     /// <param name="useSqlTypes">
     ///   <see langword="false"/> to project fields using CLR types from the
     ///     <see cref="System"/> namespace, such as <see cref="int"/>.
@@ -68,14 +74,39 @@ public class SqlCommand : IDisposable
     ///     <see cref="System.Data.SqlTypes"/> namespace, such as
     ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
     /// </param>
+    /// <returns>
+    ///   A sequence of objects created by executing the command and projecting
+    ///   each result row to an object using
+    ///     <paramref name="createObject"/>,
+    ///     <paramref name="setProperty"/>, and
+    ///     <paramref name="useSqlTypes"/>,
+    ///   in the order produced by the command.  If the command produces no
+    ///   result rows, this method returns an empty sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="createObject"/> and/or
+    ///   <paramref name="setProperty"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="SqlException">
+    /// </exception>
+    /// <exception cref="IOException">
+    /// </exception>
     public IEnumerator<object> ExecuteAndProjectToObjects(
-        Func<object> objectCreator,
-        Action<object, string, object?> propertySetter,
-        bool useSqlTypes)
+        Func<object>                    createObject,
+        Action<object, string, object?> setProperty,
+        bool                            useSqlTypes = false)
     {
-        return PSqlClient.Instance.ExecuteAndProject(
-            _command, objectCreator, propertySetter, useSqlTypes
-        );
+        if (createObject is null)
+            throw new ArgumentNullException(nameof(createObject));
+        if (setProperty is null)
+            throw new ArgumentNullException(nameof(setProperty));
+
+        if (_command.Connection.State == ConnectionState.Closed)
+            _command.Connection.Open();
+
+        var reader = _command.ExecuteReader();
+
+        return new ObjectResultSet(reader, createObject, setProperty, useSqlTypes);
     }
 
     /// <summary>
