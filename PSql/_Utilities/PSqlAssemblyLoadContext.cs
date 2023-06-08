@@ -1,6 +1,7 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
@@ -8,6 +9,7 @@ using System.Runtime.Loader;
 namespace PSql;
 
 using static RuntimeInformation;
+using Void = ValueTuple;
 
 /// <summary>
 ///   A private <see cref="AssemblyLoadContext"/> that isolates dependencies
@@ -24,19 +26,20 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
     /// </summary>
     public static PSqlAssemblyLoadContext Instance { get; } = new PSqlAssemblyLoadContext();
 
-    private readonly string                     _basePath;
-    private readonly string                     _os;
-    private readonly string?                    _architecture;
-    private readonly HashSet   <string>         _doneManaged;
-    private readonly Dictionary<string, IntPtr> _doneNative;
+    private readonly string  _basePath;
+    private readonly string  _os;
+    private readonly string? _architecture;
+
+    private readonly ConcurrentDictionary<string, Void>   _doneManaged;
+    private readonly ConcurrentDictionary<string, IntPtr> _doneNative;
 
     private PSqlAssemblyLoadContext()
     {
         _basePath     = Path.Combine(GetPSqlDirectory(), "deps");
         _os           = GetOperatingSystem();
         _architecture = GetArchitecture();
-        _doneManaged  = new(capacity: 40);
-        _doneNative   = new(capacity:  4);
+        _doneManaged  = new(concurrencyLevel: 1, capacity: 40);
+        _doneNative   = new(concurrencyLevel: 1, capacity:  4);
     }
 
     /// <inheritdoc/>
@@ -47,7 +50,7 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
             return null;
 
         // Try to resolve an assembly only once
-        if (!_doneManaged.Add(name))
+        if (!_doneManaged.TryAdd(name, default))
             return null;
 
         // Actually result
@@ -104,8 +107,7 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
         };
 
         // Cache and return result
-        _doneNative.Add(name, result);
-        return result;
+        return _doneNative.GetOrAdd(name, result);
     }
 
     private IntPtr LoadUnmanagedDllCore(string name)
