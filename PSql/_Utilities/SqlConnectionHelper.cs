@@ -54,6 +54,6 @@ internal static class SqlConnectionHelper
     {
         return connection != null
             ? (connection,                                       owned: false)
-            : (new SqlConnection(context, databaseName, cmdlet), owned: true );
+            : ((context ?? new()).CreateConnection(databaseName, cmdlet), owned: true );
     }
 }

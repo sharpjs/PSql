@@ -354,6 +354,13 @@ public class SqlContext : ICloneable
     private protected virtual string GetDefaultServerName()
         => LocalServerName;
 
+    public NetworkCredential? GetNetworkCredential()
+    {
+        return Credential.IsNullOrEmpty()
+            ? null
+            : Credential.GetNetworkCredential();
+    }
+
     /// <summary>
     ///   Gets a connection string built from the property values of the
     ///   current context, optionally with the specified database name,
@@ -562,5 +569,33 @@ public class SqlContext : ICloneable
             "The context is frozen and cannot be modified. " +
             "Create a copy and modify the copy instead."
         );
+    }
+
+    internal SqlConnection CreateConnection(string? databaseName, Cmdlet cmdlet)
+    {
+        const SqlClientVersion Version = SqlClientVersion.Latest;
+
+        var connectionString = GetConnectionString(databaseName, Version, true);
+        var credential       = Credential;
+        var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
+        var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));
+
+        var passCredentialSeparately
+            =  !credential.IsNullOrEmpty()
+            && !ExposeCredentialInConnectionString;
+
+        return passCredentialSeparately
+            ? new(
+                connectionString,
+                credential!.UserName,
+                credential!.Password,
+                writeInformation,
+                writeWarning
+            )
+            : new(
+                connectionString,
+                writeInformation,
+                writeWarning
+            );
     }
 }

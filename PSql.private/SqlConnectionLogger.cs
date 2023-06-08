@@ -6,7 +6,7 @@ namespace PSql;
 internal class SqlConnectionLogger
 {
     public static void Use(
-        SqlConnection  connection,
+        Mds.SqlConnection  connection,
         Action<string> writeInformation,
         Action<string> writeWarning)
     {
@@ -27,7 +27,7 @@ internal class SqlConnectionLogger
     public Action<string> WriteInformation { get; }
     public Action<string> WriteWarning     { get; }
 
-    public void Attach(SqlConnection connection)
+    public void Attach(Mds.SqlConnection connection)
     {
         if (connection is null)
             throw new ArgumentNullException(nameof(connection));
@@ -40,7 +40,7 @@ internal class SqlConnectionLogger
     {
         const int MaxInformationalSeverity = 10;
 
-        if (sender is not SqlConnection connection)
+        if (sender is not Mds.SqlConnection connection)
             return;
 
         foreach (SqlError? error in e.Errors)

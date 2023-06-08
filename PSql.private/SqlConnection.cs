@@ -1,6 +1,9 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+using System.Net;
+using System.Security;
+
 namespace PSql;
 
 /// <summary>
@@ -14,6 +17,7 @@ public class SqlConnection : IDisposable
 {
     private readonly Mds.SqlConnection _connection;
 
+#if EARLIER
     /// <summary>
     ///   Creates a new <see cref="SqlConnection"/> instance for the specified
     ///   context and database name, logging server messages via the specified
@@ -74,6 +78,27 @@ public class SqlConnection : IDisposable
                 writeWarning
             );
     }
+#endif
+
+    public SqlConnection(
+        string         connectionString,
+        Action<string> writeInformation,
+        Action<string> writeWarning)
+    {
+        _connection = PSqlClient.Instance.Connect(connectionString, writeInformation, writeWarning);
+    }
+
+    public SqlConnection(
+        string         connectionString,
+        string         username,
+        SecureString   password,
+        Action<string> writeInformation,
+        Action<string> writeWarning)
+    {
+        _connection = PSqlClient.Instance.Connect(
+            connectionString, username, password, writeInformation, writeWarning
+        );
+    }
 
     /// <summary>
     ///   Gets the connection string used to create this connection.  The
@@ -103,7 +128,7 @@ public class SqlConnection : IDisposable
     ///   Sets <see cref="HasErrors"/> to <see langword="false"/>, forgetting
     ///   about any errors prevously logged on the connection.
     /// </summary>
-    internal void ClearErrors()
+    public /*TODO: internal?*/ void ClearErrors()
     {
         PSqlClient.Instance.ClearErrors(_connection);
     }
@@ -112,7 +137,7 @@ public class SqlConnection : IDisposable
     ///   Creates a new <see cref="SqlCommand"/> instance that can execute
     ///   commands on the connection.
     /// </summary>
-    internal SqlCommand CreateCommand()
+    public SqlCommand CreateCommand()
     {
         return new SqlCommand(_connection);
     }

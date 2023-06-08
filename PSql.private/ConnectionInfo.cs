@@ -8,8 +8,8 @@ namespace PSql;
 /// </summary>
 internal class ConnectionInfo
 {
-    private static readonly Dictionary<SqlConnection, ConnectionInfo>
-        Entries = new Dictionary<SqlConnection, ConnectionInfo>();
+    private static readonly Dictionary<Mds.SqlConnection, ConnectionInfo>
+        Entries = new Dictionary<Mds.SqlConnection, ConnectionInfo>();
 
     private ConnectionInfo() { }
 
@@ -32,7 +32,7 @@ internal class ConnectionInfo
     /// <returns>
     ///   The metadata for <paramref name="connection"/>.
     /// </returns>
-    public static ConnectionInfo Get(SqlConnection connection)
+    public static ConnectionInfo Get(Mds.SqlConnection connection)
     {
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
@@ -56,7 +56,7 @@ internal class ConnectionInfo
 
     private static void HandleConnectionDisposed(object? sender, EventArgs e)
     {
-        if (sender is not SqlConnection connection)
+        if (sender is not Mds.SqlConnection connection)
             return;
 
         lock (Entries)

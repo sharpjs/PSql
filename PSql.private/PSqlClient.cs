@@ -18,7 +18,7 @@ public class PSqlClient
     }
 
     /// <summary>
-    ///   Creates and opens a new <see cref="SqlConnection"/> instance
+    ///   Creates and opens a new <see cref="Mds.SqlConnection"/> instance
     ///   using the specified connection string, logging server messages
     ///   via the specified delegates.
     /// </summary>
@@ -38,7 +38,7 @@ public class PSqlClient
     ///   <paramref name="writeInformation"/>, and/or
     ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
-    public SqlConnection Connect(
+    public Mds.SqlConnection Connect(
         string         connectionString,
         Action<string> writeInformation,
         Action<string> writeWarning)
@@ -51,14 +51,14 @@ public class PSqlClient
             throw new ArgumentNullException(nameof(writeWarning));
 
         return ConnectCore(
-            new SqlConnection(connectionString),
+            new Mds.SqlConnection(connectionString),
             writeInformation,
             writeWarning
         );
     }
 
     /// <summary>
-    ///   Creates and opens a new <see cref="SqlConnection"/> instance
+    ///   Creates and opens a new <see cref="Mds.SqlConnection"/> instance
     ///   using the specified connection string and credential, logging
     ///   server messages via the specified delegates.
     /// </summary>
@@ -86,7 +86,7 @@ public class PSqlClient
     ///   <paramref name="writeInformation"/>, and/or
     ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
-    public SqlConnection Connect(
+    public Mds.SqlConnection Connect(
         string         connectionString,
         string         username,
         SecureString   password,
@@ -110,14 +110,14 @@ public class PSqlClient
         var credential = new SqlCredential(username, password);
 
         return ConnectCore(
-            new SqlConnection(connectionString, credential),
+            new Mds.SqlConnection(connectionString, credential),
             writeInformation,
             writeWarning
         );
     }
 
-    private SqlConnection ConnectCore(
-        SqlConnection  connection,
+    private Mds.SqlConnection ConnectCore(
+        Mds.SqlConnection  connection,
         Action<string> writeInformation,
         Action<string> writeWarning)
     {
@@ -152,7 +152,7 @@ public class PSqlClient
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    public bool HasErrors(SqlConnection connection)
+    public bool HasErrors(Mds.SqlConnection connection)
     {
         return ConnectionInfo.Get(connection).HasErrors;
     }
@@ -166,7 +166,7 @@ public class PSqlClient
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    public void ClearErrors(SqlConnection connection)
+    public void ClearErrors(Mds.SqlConnection connection)
     {
         ConnectionInfo.Get(connection).HasErrors = false;
     }
@@ -181,7 +181,7 @@ public class PSqlClient
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    public void SetDisconnecting(SqlConnection connection)
+    public void SetDisconnecting(Mds.SqlConnection connection)
     {
         ConnectionInfo.Get(connection).IsDisconnecting = true;
     }
