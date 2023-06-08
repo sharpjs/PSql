@@ -55,7 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
     <Using Include="System.Data" />
     <Using Include="System.Management.Automation" />
   </ItemGroup>

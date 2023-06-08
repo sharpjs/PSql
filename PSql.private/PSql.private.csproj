@@ -15,8 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prequel" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    <PackageReference Include="Prequel" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
