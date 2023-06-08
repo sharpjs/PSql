@@ -1,9 +1,6 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
-// TODO: enable
-#nullable disable
-
 namespace PSql;
 
 using static ApplicationIntent;
@@ -24,21 +21,21 @@ public class NewSqlContextCommand : PSCmdlet
     // -Source
     [Parameter(ParameterSetName = CloneName, Mandatory = true, ValueFromPipeline = true)]
     [ValidateNotNull]
-    public SqlContext Source { get; set; }
+    public SqlContext? Source { get; set; }
 
     // -ResourceGroupName
     [Alias("ResourceGroup", "ServerResourceGroupName")]
     [Parameter(ParameterSetName = AzureName, Position = 0)]
     [Parameter(ParameterSetName = CloneName)]
     [AllowNull, AllowEmptyString]
-    public string ResourceGroupName { get; set; }
+    public string? ResourceGroupName { get; set; }
 
     // -ServerResourceName
     [Alias("Resource")]
     [Parameter(ParameterSetName = AzureName,  Position = 1)]
     [Parameter(ParameterSetName = CloneName)]
     [AllowNull, AllowEmptyString]
-    public string ServerResourceName { get; set; }
+    public string? ServerResourceName { get; set; }
 
     // -ServerName
     [Alias("Server")]
@@ -46,7 +43,7 @@ public class NewSqlContextCommand : PSCmdlet
     [Parameter(ParameterSetName = AzureName)]
     [Parameter(ParameterSetName = CloneName,   Position = 0)]
     [AllowNull, AllowEmptyString]
-    public string ServerName { get; set; }
+    public string? ServerName { get; set; }
 
     // -DatabaseName
     [Alias("Database")]
@@ -54,7 +51,7 @@ public class NewSqlContextCommand : PSCmdlet
     [Parameter(ParameterSetName = AzureName,   Position = 2)]
     [Parameter(ParameterSetName = CloneName,   Position = 1)]
     [AllowNull, AllowEmptyString]
-    public string DatabaseName { get; set; }
+    public string? DatabaseName { get; set; }
 
     // -AuthenticationMode
     [Alias("Auth")]
@@ -66,7 +63,7 @@ public class NewSqlContextCommand : PSCmdlet
     [Parameter]
     [Credential]
     [AllowNull]
-    public PSCredential Credential { get; set; } = PSCredential.Empty;
+    public PSCredential? Credential { get; set; } = PSCredential.Empty;
 
     // -EncryptionMode
     [Alias("Encryption")]
@@ -86,7 +83,7 @@ public class NewSqlContextCommand : PSCmdlet
     [Parameter(ParameterSetName = GenericName)]
     [Parameter(ParameterSetName = CloneName)]
     [AllowNull, AllowEmptyString]
-    public string InstanceName { get; set; }
+    public string? InstanceName { get; set; }
 
     // -ReadOnlyIntent
     [Alias("ReadOnly")]
@@ -97,13 +94,13 @@ public class NewSqlContextCommand : PSCmdlet
     [Alias("Client")]
     [Parameter]
     [AllowNull, AllowEmptyString]
-    public string ClientName { get; set; }
+    public string? ClientName { get; set; }
 
     // -ApplicationName
     [Alias("Application")]
     [Parameter]
     [AllowNull, AllowEmptyString]
-    public string ApplicationName { get; set; }
+    public string? ApplicationName { get; set; }
 
     // -ConnectTimeout
     [Alias("Timeout")]
@@ -217,8 +214,7 @@ public class NewSqlContextCommand : PSCmdlet
 
     private void SetCredential(SqlContext context)
     {
-        //var credential = Credential.IsNullOrEmpty() ? null : Credential;
-        context.Credential = Credential;
+        context.Credential = Credential.NullIfEmpty();
     }
 
     private void SetEncryptionMode(SqlContext context)

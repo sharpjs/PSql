@@ -13,16 +13,8 @@ public class DisconnectSqlCommand : Cmdlet
 
     protected override void ProcessRecord()
     {
-        var connections = Connection;
-        if (connections is null)
-            return;
-
-        foreach (var connection in connections)
-        {
-            if (connection is null)
-                continue;
-
-            connection.Dispose();
-        }
+        if (Connection is { } connections)
+            foreach (var connection in connections)
+                connection?.Dispose();
     }
 }

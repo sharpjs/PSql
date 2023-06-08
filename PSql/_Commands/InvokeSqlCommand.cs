@@ -66,7 +66,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
     protected override void ProcessRecord()
     {
         // Check if scripts were provided at all
-        if (Sql is not IEnumerable<string?> items)
+        if (Sql is not { } items)
             return;
 
         // No need to send empty scripts to server
@@ -105,8 +105,14 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: _command created in BeginProcessing
         _command!.CommandText = batch;
 
-        foreach (var obj in _command.ExecuteAndProjectToObjects(ObjectCreator, PropertySetter, UseSqlTypes))
+        foreach (var obj in ExecuteAndProjectToObjects())
             WriteObject(obj);
+    }
+
+    private IEnumerator<object> ExecuteAndProjectToObjects()
+    {
+        // NULLS: _command created in BeginProcessing
+        return _command!.ExecuteAndProjectToObjects(ObjectCreator, PropertySetter, UseSqlTypes);
     }
 
     private static readonly Func<object>

@@ -26,7 +26,7 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
 
     protected override void ProcessRecord()
     {
-        if (Sql is not string?[] scripts)
+        if (Sql is not { } scripts)
             return;
 
         _preprocessor.SetVariables(Define);
