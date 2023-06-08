@@ -24,30 +24,38 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
     /// </summary>
     public static PSqlAssemblyLoadContext Instance { get; } = new PSqlAssemblyLoadContext();
 
-    private readonly string _basePath;
-    private readonly string _rid;
+    private readonly string                     _basePath;
+    private readonly string                     _os;
+    private readonly string?                    _architecture;
+    private readonly HashSet   <string>         _doneManaged;
+    private readonly Dictionary<string, IntPtr> _doneNative;
 
     private PSqlAssemblyLoadContext()
     {
-        _basePath = Path.Combine(GetPSqlDirectory(), "deps");
-        _rid      = GetRuntimeIdentifier();
+        _basePath     = Path.Combine(GetPSqlDirectory(), "deps");
+        _os           = GetOperatingSystem();
+        _architecture = GetArchitecture();
+        _doneManaged  = new(capacity: 40);
+        _doneNative   = new(capacity:  4);
     }
 
     /// <inheritdoc/>
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        var assembly = LoadCore(assemblyName);
-        if (assembly != null)
-            Console.WriteLine("Loaded {0}", assembly.Location);
-        return assembly;
-    }
-
-    private Assembly? LoadCore(AssemblyName assemblyName)
-    {
         // This context resolves named assemblies only
         if (assemblyName.Name is not { } name)
             return null;
 
+        // Try to resolve an assembly only once
+        if (!_doneManaged.Add(name))
+            return null;
+
+        // Actually result
+        return LoadCore(name);
+    }
+
+    private Assembly? LoadCore(string name)
+    {
         // The default AssemblyLoadContext uses .NET Core/5+ default probing
         // behavior, featuring .deps.json files and a fairly complex directory
         // structure.  Custom contexts like this one inherit no such behavior.
@@ -66,7 +74,7 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
         name += ".dll";
 
         // First, try runtime-specific path
-        var path = Path.Combine(_basePath, _rid, name);
+        var path = Path.Combine(_basePath, _os, name);
         if (File.Exists(path))
             return LoadFromAssemblyPath(path);
 
@@ -79,15 +87,65 @@ internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
         return null;
     }
 
+    protected override IntPtr LoadUnmanagedDll(string name)
+    {
+        // This method is invoked several times for the same DLL name, even if
+        // that DLL was loaded previously.  Use caching to speed things up.
+
+        // Return cached result on repeated invocations
+        if (_doneNative.TryGetValue(name, out var result))
+            return result;
+
+        // Resolve only unmanaged DLLs known to ship with PSql
+        result = name switch 
+        {
+            "Microsoft.Data.SqlClient.SNI.dll" => LoadUnmanagedDllCore(name),
+            _                                  => default,
+        };
+
+        // Cache and return result
+        _doneNative.Add(name, result);
+        return result;
+    }
+
+    private IntPtr LoadUnmanagedDllCore(string name)
+    {
+        // Is process architecture recognized?
+        if (_architecture is null)
+            return default; // no
+
+        // Does PSql have a native DLL to load?
+        var path = Path.Combine(_basePath, _os, _architecture, name);
+        if (!File.Exists(path))
+            return default; // no
+
+        // Load
+        return LoadUnmanagedDllFromPath(path);
+    }
+
     private static string GetPSqlDirectory()
     {
         // NULLS: PSql.dll always is loaded from a DLL file (not a byte array).
-        // Location is a valid file path, and GetDirectoryName returns non-null.
-        return Path.GetDirectoryName(typeof(PSqlAssemblyLoadContext).Assembly.Location)!;
+        // Location is a valid file path, so GetDirectoryName returns non-null.
+        return Path.GetDirectoryName(
+            typeof(PSqlAssemblyLoadContext).Assembly.Location
+        )!;
     }
 
-    private static string GetRuntimeIdentifier()
+    private static string GetOperatingSystem()
     {
         return IsOSPlatform(OSPlatform.Windows) ? "win" : "unix";
+    }
+
+    private static string? GetArchitecture()
+    {
+        return ProcessArchitecture switch
+        {
+            Architecture.X86   => "x86",
+            Architecture.X64   => "x64",
+            Architecture.Arm   => "arm",
+            Architecture.Arm64 => "arm64",
+            _                  => null
+        };
     }
 }

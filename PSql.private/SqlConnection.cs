@@ -16,11 +16,6 @@ public class SqlConnection : IDisposable
 {
     private readonly Mds.SqlConnection _connection;
 
-    static SqlConnection()
-    {
-        SniLoader.Load();
-    }
-
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
     ///   the specified connection string and logging delegates.
