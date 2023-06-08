@@ -51,17 +51,18 @@ public class PSqlDependencyResolutionHandler
         switch (name.Name)
         {
             // Assemblies that load explicitly into the private context
-            case "Microsoft.Data.SqlClient": // TODO: move to next category
             case "PSql.private":
             case "PSql.Deploy.private":
                 return PSqlAssemblyLoadContext.Instance.LoadFromAssemblyName(name);
 
             // Assemblies that load implicitly into the private context
+            case "Microsoft.Data.SqlClient":
             case "Prequel":
                 if (Debugger.IsAttached)
                     Debugger.Break();
-                // Attempted to load private dependency into default context
-                goto default;
+                throw new NotSupportedException(
+                    $"Attempted to load private dependency {name.Name} into the default context. This is a bug."
+                );
 
             // Assemblies that are OK to load into the default context
             default:
