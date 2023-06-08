@@ -18,7 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PSql\PSql.csproj" />
-    <ProjectReference Include="..\PSql.private\PSql.private.csproj" Aliases="Private" />
+    <ProjectReference Include="..\PSql.private\PSql.private.csproj" Aliases="Private"
+                      Private="false" IncludeAssets="compile" />
   </ItemGroup>
 
   <ItemGroup>
