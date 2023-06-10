@@ -6,6 +6,7 @@ Most lines should begin with one of these words:
 
 ## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.1.0..HEAD)
 - Update Microsoft.Data.SqlClient to [5.0.1](https://github.com/dotnet/SqlClient/blob/5.0-servicing/release-notes/5.0/5.0.1.md#microsoftdatasqlclient-501-released-7-october-2022)
+- Improve dependency isolation.
 
 ## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
 - Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)
