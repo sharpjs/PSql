@@ -223,7 +223,7 @@ public readonly ref struct SqlConnectionStringBuilder
 
     private void AppendValue(string? value)
     {
-        if (string.IsNullOrEmpty(value))
+        if (value.IsNullOrEmpty())
             return;
 
         if (value.Contains('\0'))

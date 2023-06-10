@@ -85,7 +85,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
 
     private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string?> scripts)
     {
-        return scripts.Where(s => !string.IsNullOrEmpty(s))!;
+        return scripts.Where(s => s.HasContent())!;
     }
 
     private IEnumerable<string> Preprocess(IEnumerable<string> scripts)

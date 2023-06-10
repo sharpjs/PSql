@@ -52,7 +52,7 @@ public class SqlCmdPreprocessor
 
             var key = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
 
-            if (string.IsNullOrEmpty(key))
+            if (key.IsNullOrEmpty())
                 continue;
 
             var value = Convert.ToString(entry.Value, CultureInfo.InvariantCulture);

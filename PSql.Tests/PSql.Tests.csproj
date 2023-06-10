@@ -21,4 +21,8 @@
     <PackageReference Include="Unindent"                 Version="1.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\PSql.private\**\*.x.cs" LinkBase="_Utilities\" />
+  </ItemGroup>
+
 </Project>

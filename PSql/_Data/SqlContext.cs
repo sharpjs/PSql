@@ -404,7 +404,7 @@ public class SqlContext : ICloneable
         SqlClientVersion  sqlClientVersion = SqlClientVersion.Legacy,
         bool              omitCredential   = false)
     {
-        if (string.IsNullOrEmpty(databaseName))
+        if (databaseName.IsNullOrEmpty())
             databaseName = DatabaseName;
 
         var builder = new SqlConnectionStringBuilder(sqlClientVersion);
@@ -419,11 +419,11 @@ public class SqlContext : ICloneable
             builder.AppendConnectTimeout(ConnectTimeout.Value);
 
         // Client Name
-        if (!string.IsNullOrEmpty(ClientName))
+        if (ClientName.HasContent())
             builder.AppendClientName(ClientName);
 
         // Application Name
-        if (!string.IsNullOrEmpty(ApplicationName))
+        if (ApplicationName.HasContent())
             builder.AppendApplicationName(ApplicationName);
 
         // Application Intent
@@ -465,7 +465,7 @@ public class SqlContext : ICloneable
     private protected virtual void
         ConfigureDatabaseName(SqlConnectionStringBuilder builder, string? databaseName)
     {
-        if (!string.IsNullOrEmpty(databaseName))
+        if (databaseName.HasContent())
             builder.AppendDatabaseName(databaseName);
         //else
         //  server determines database

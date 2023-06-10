@@ -32,7 +32,7 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
         _preprocessor.SetVariables(Define);
 
         foreach (var script in scripts)
-            if (!string.IsNullOrEmpty(script))
+            if (script.HasContent())
                 ProcessScript(script);
     }
 

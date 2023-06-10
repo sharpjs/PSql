@@ -25,4 +25,8 @@
     <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="PSql" />
+  </ItemGroup>
+
 </Project>

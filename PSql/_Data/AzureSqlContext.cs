@@ -137,8 +137,8 @@ public class AzureSqlContext : SqlContext
         if (_serverResolvedName is string existing)
             return existing;
 
-        if (string.IsNullOrEmpty(ServerResourceGroupName) ||
-            string.IsNullOrEmpty(ServerResourceName))
+        if (ServerResourceGroupName.IsNullOrEmpty() ||
+            ServerResourceName     .IsNullOrEmpty())
         {
             throw new InvalidOperationException(
                 "Cannot determine the server DNS name. "                    +
@@ -160,7 +160,7 @@ public class AzureSqlContext : SqlContext
             ?.Properties["FullyQualifiedDomainName"]
             ?.Value as string;
 
-        if (string.IsNullOrEmpty(value))
+        if (value.IsNullOrEmpty())
         {
             throw new InvalidOperationException(
                 "Failed to determine the server DNS name. "                    +
@@ -184,7 +184,7 @@ public class AzureSqlContext : SqlContext
     private protected override void
         ConfigureDatabaseName(SqlConnectionStringBuilder builder, string? databaseName)
     {
-        if (string.IsNullOrEmpty(databaseName))
+        if (databaseName.IsNullOrEmpty())
             databaseName = MasterDatabaseName;
 
         builder.AppendDatabaseName(databaseName);
