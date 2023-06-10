@@ -16,7 +16,7 @@ using Void = ValueTuple;
 ///   of PSql so that they do not conflict with dependencies of other modules.
 /// </summary>
 /// <remarks>
-///   This type implements the technique recommended
+///   This type is part of the dependency isolation technique described
 ///   <a href="https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts">here</a>.
 /// </remarks>
 internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext

@@ -13,29 +13,22 @@ namespace PSql;
 ///   resolution.
 /// </summary>
 /// <remarks>
-///   This type implements the technique recommended
-///   <a href="https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts">here</a>
-///   to isolate dependencies of PSql so that they do not conflict with
-///   dependencies of other modules.
+///   This type is part of the dependency isolation technique described
+///   <a href="https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts">here</a>.
 /// </remarks>
 public class PSqlDependencyResolutionHandler
     : IModuleAssemblyInitializer
     , IModuleAssemblyCleanup
 {
-    private static readonly object _importCountLock = new();
-    private static          int    _importCount     = 0;
-
-    // This is a technique to load PSql.private.dll and its dependencies into a
-    // private AssemblyLoadContext to prevent a conflict if some other module
-    // loads a different version of the same assembly.
-    // See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
+    private static readonly object _registrationLock  = new();
+    private static          int    _registrationCount = 0;
 
     /// <summary>
     ///   Invoked by PowerShell when the module is imported into a runspace.
     /// </summary>
     void IModuleAssemblyInitializer.OnImport()
     {
-        Initialize();
+        Register();
     }
 
     /// <summary>
@@ -46,28 +39,38 @@ public class PSqlDependencyResolutionHandler
     /// </param>
     void IModuleAssemblyCleanup.OnRemove(PSModuleInfo module)
     {
-        CleanUp();
+        Unregister();
     }
 
-    internal static void Initialize()
+    /// <summary>
+    ///   Registers the PSql dependency resolution handler.
+    /// </summary>
+    /// <remarks>
+    ///   This method must be invoked prior to using types defined by
+    ///   <c>PSql.private.dll</c> or by its dependencies.
+    /// </remarks>
+    internal static void Register()
     {
-        lock (_importCountLock)
+        lock (_registrationLock)
         {
-            if (_importCount++ > 0)
+            if (_registrationCount++ > 0)
                 return;
 
             AssemblyLoadContext.Default.Resolving += HandleResolving;
         }
     }
 
-    internal static void CleanUp()
+    /// <summary>
+    ///   Unregisters the PSql dependency resolution handler.
+    /// </summary>
+    internal static void Unregister()
     {
-        lock (_importCountLock)
+        lock (_registrationLock)
         {
-            if (--_importCount > 0)
+            if (--_registrationCount > 0)
                 return;
 
-            _importCount = 0;
+            _registrationCount = 0;
             AssemblyLoadContext.Default.Resolving -= HandleResolving;
         }
     }
@@ -76,21 +79,27 @@ public class PSqlDependencyResolutionHandler
     {
         switch (name.Name)
         {
-            // Assemblies that load explicitly into the private context
+            // Assemblies that load directly into the PSql private context
             case "PSql.private":
             case "PSql.Deploy.private":
                 return PSqlAssemblyLoadContext.Instance.LoadFromAssemblyName(name);
 
-            // Assemblies that load implicitly into the private context
+#if DEBUG
+            // If PSql attempts to load the below assemblies into the default
+            // context, it is a bug.  However, PSql must not prevent other
+            // modules from doing so.  Thus, check for this bug only in debug
+            // builds.  If this bug occurs in release builds, it might manifest
+            // as an assembly-not-found error or as a stack overflow.
+
+            // Assemblies that load transitively into the PSql private context
             case "Microsoft.Data.SqlClient":
             case "Prequel":
                 if (Debugger.IsAttached)
                     Debugger.Break();
-                throw new InvalidOperationException(
-                    $"Attempted to load private dependency {name.Name} into the default context. This is a bug."
-                );
+                goto default;
+#endif
 
-            // Assemblies that are OK to load into the default context
+            // Everything else
             default:
                 return null;
         }
