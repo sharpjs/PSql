@@ -9,7 +9,7 @@
     <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateDependencyFile>false</GenerateDependencyFile>
-    <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)</PrivateDependenciesPath>
+    <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)\</PrivateDependenciesPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,14 +42,18 @@
           arm/     native assemblies for Windows 32-bit ARM processes
           arm64/   native assemblies for Windows 64-bit ARM processes
     -->
-    <!-- Refactor to reduce duplication somehow -->
-    <None Include="$(PrivateDependenciesPath)\*"                     Link="deps\%(Filename)%(Extension)"           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\unix\**"      Link="deps\unix\%(Filename)%(Extension)"      CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\win\**"       Link="deps\win\%(Filename)%(Extension)"       CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\win-arm\**"   Link="deps\win\arm\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\win-arm64\**" Link="deps\win\arm64\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\win-x86\**"   Link="deps\win\x86\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(PrivateDependenciesPath)\runtimes\win-x64\**"   Link="deps\win\x64\%(Filename)%(Extension)"   CopyToOutputDirectory="PreserveNewest" />
+
+    <Deps Include="$(PrivateDependenciesPath)**"
+          Exclude="$(PrivateDependenciesPath)runtimes\**"           SubDir=""           />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\unix\**"      SubDir="unix\"      />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\win\**"       SubDir="win\"       />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\win-arm\**"   SubDir="win\arm\"   />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\win-arm64\**" SubDir="win\arm64\" />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\win-x86\**"   SubDir="win\x86\"   />
+    <Deps Include="$(PrivateDependenciesPath)runtimes\win-x64\**"   SubDir="win\x64\"   />
+
+    <None Include="@(Deps)" Link="deps\%(SubDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" Visible="true" />
   </ItemGroup>
 
   <ItemGroup>
