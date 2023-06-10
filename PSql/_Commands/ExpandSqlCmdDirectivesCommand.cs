@@ -39,6 +39,7 @@ public class ExpandSqlCmdDirectivesCommand : Cmdlet
     private void ProcessScript(string script)
     {
         foreach (var batch in _preprocessor.Process(script))
-            WriteObject(batch);
+            if (batch.HasContent())
+                WriteObject(batch);
     }
 }
