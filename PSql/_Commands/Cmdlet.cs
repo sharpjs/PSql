@@ -10,8 +10,7 @@ namespace PSql;
 /// </summary>
 public abstract class Cmdlet : System.Management.Automation.Cmdlet
 {
-    private static readonly string[]
-        HostTag = { "PSHOST" };
+    private static readonly string[] HostTag = { "PSHOST" };
 
     /// <summary>
     ///   Writes the specified message to the host.

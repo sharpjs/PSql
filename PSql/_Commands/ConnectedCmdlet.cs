@@ -26,10 +26,16 @@ public abstract class ConnectedCmdlet : Cmdlet, IDisposable
     [Parameter(ParameterSetName = ContextName)]
     public string? DatabaseName { get; set; }
 
+    // Whether this object is responsible for disposing its connection
     private bool _ownsConnection;
 
     protected override void BeginProcessing()
     {
+        // NOTE: If any of the parameters above are made to take their values
+        // from the pipeline, then this implicit connection setup must move out
+        // of BeginProcessing() and into something that runs once for each call
+        // to ProcessRecord().
+
         if (Connection is null)
         {
             Context       ??= new();

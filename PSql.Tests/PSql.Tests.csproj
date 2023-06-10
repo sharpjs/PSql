@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.13" />
-    <PackageReference Include="Subatomix.Testing" Version="2.5.0" />
-    <PackageReference Include="Unindent" Version="1.1.1" />
+    <PackageReference Include="Subatomix.Testing"        Version="2.5.0" />
+    <PackageReference Include="Unindent"                 Version="1.1.1" />
   </ItemGroup>
 
 </Project>

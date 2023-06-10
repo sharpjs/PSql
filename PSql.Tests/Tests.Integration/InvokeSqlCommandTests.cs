@@ -11,7 +11,7 @@ namespace PSql.Tests.Integration;
 
 using static FormattableString;
 using static SqlCompareOptions;
-using S   = IntegrationTestsSetup;
+using S = IntegrationTestsSetup;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
@@ -1034,7 +1034,7 @@ public class InvokeSqlCommandTests
         GreenlandicCulture = "kl-GL";
 
     private static readonly string Prelude = Invariant($@"
-        $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText -Force
+        $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText
         $Credential = New-Object PSCredential sa, $Password
         $Context    = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
         function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}

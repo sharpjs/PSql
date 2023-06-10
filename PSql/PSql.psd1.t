@@ -1,7 +1,5 @@
-<#
-    Copyright 2023 Subatomix Research Inc.
-    SPDX-License-Identifier: ISC
-#>
+# Copyright 2023 Subatomix Research Inc.
+# SPDX-License-Identifier: ISC
 @{
     # Identity
     GUID          = '218cb4b2-911a-46b1-b47c-d3504acd4627'
