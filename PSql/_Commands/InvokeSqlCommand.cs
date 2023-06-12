@@ -151,8 +151,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
     private void ReportErrors()
     {
         // NULLS: Connection ensured not null by BeginProcessing
-        if (Connection!.HasErrors)
-            throw new DataException("An error occurred while executing the SQL batch.");
+        Connection!.ThrowIfHasErrors();
     }
 
     protected override void Dispose(bool managed)

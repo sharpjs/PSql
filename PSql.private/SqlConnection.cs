@@ -176,6 +176,20 @@ public class SqlConnection : IDisposable
     }
 
     /// <summary>
+    ///   Throws <see cref="DataException"/> if errors have been logged on the
+    ///   connection since the most recent call to <see cref="ClearErrors"/>.
+    /// </summary>
+    /// <exception cref="DataException">
+    ///   At least one error was logged on the connection since the most recent
+    ///   call to <see cref="ClearErrors"/>.
+    /// </exception>
+    public void ThrowIfHasErrors()
+    {
+        if (HasErrors)
+            throw new DataException("An error occurred while executing the SQL batch.");
+    }
+
+    /// <summary>
     ///   Creates a new <see cref="SqlCommand"/> instance that can execute
     ///   commands on the connection.
     /// </summary>
