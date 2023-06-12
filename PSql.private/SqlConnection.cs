@@ -12,7 +12,7 @@ namespace PSql;
 /// <remarks>
 ///   This type is a simplified proxy for <see cref="Mds.SqlConnection"/>.
 /// </remarks>
-public class SqlConnection : IDisposable
+public sealed class SqlConnection : IDisposable, IAsyncDisposable
 {
     private static readonly SqlRetryLogicBaseProvider RetryLogic
         = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(new()
@@ -206,27 +206,23 @@ public class SqlConnection : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Dispose(managed: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///   Closes the connection and frees resources owned by it.
-    /// </summary>
-    /// <param name="managed">
-    ///   Whether to dispose managed resources.  This method always disposes
-    ///   unmanaged resources.
-    /// </param>
-    protected virtual void Dispose(bool managed)
-    {
-        if (!managed)
-            return;
-
         // Closing is now expected
         _connection.Disposed -= HandleUnexpectedClose;
 
         // Close the connection
         _connection.Dispose();
+    }
+
+    /// <summary>
+    ///   Closes the connection and frees resources owned by it asynchronously.
+    /// </summary>
+    public ValueTask DisposeAsync()
+    {
+        // Closing is now expected
+        _connection.Disposed -= HandleUnexpectedClose;
+
+        // Close the connection
+        return _connection.DisposeAsync();
     }
 
     private void HandleMessage(object sender, SqlInfoMessageEventArgs e)

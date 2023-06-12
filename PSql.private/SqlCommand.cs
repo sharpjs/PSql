@@ -10,7 +10,7 @@ namespace PSql;
 /// <remarks>
 ///   This type is a simplified proxy for <see cref="Mds.SqlCommand"/>.
 /// </remarks>
-public class SqlCommand : IDisposable
+public sealed class SqlCommand : IDisposable, IAsyncDisposable
 {
     private readonly Mds.SqlCommand _command;
 
@@ -133,20 +133,14 @@ public class SqlCommand : IDisposable
     /// </summary>
     public void Dispose()
     {
-        Dispose(managed: true);
-        GC.SuppressFinalize(this);
+        _command.Dispose();
     }
 
     /// <summary>
-    ///   Frees resources owned by the object.
+    ///   Frees resources owned by the object asynchronously.
     /// </summary>
-    /// <param name="managed">
-    ///   Whether to dispose managed resources.  Unmanaged resources are always
-    ///   disposed.
-    /// </param>
-    protected virtual void Dispose(bool managed)
+    public ValueTask DisposeAsync()
     {
-        if (managed)
-            _command.Dispose();
+        return _command.DisposeAsync();
     }
 }
