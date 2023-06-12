@@ -9,6 +9,7 @@
     <Description>Cmdlets to connect and invoke commands against SQL Server, Azure SQL Database, or compatible products.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)\</PrivateDependenciesPath>
   </PropertyGroup>
 
