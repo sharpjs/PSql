@@ -15,6 +15,8 @@ namespace PSql;
 public class SqlConnection : IDisposable
 {
     private readonly Mds.SqlConnection _connection;
+    private readonly Action<string>    _writeInformation;
+    private readonly Action<string>    _writeWarning;
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
@@ -49,11 +51,11 @@ public class SqlConnection : IDisposable
         if (writeWarning is null)
             throw new ArgumentNullException(nameof(writeWarning));
 
-        _connection = ConnectCore(
-            new Mds.SqlConnection(connectionString),
-            writeInformation,
-            writeWarning
-        );
+        _connection       = new Mds.SqlConnection(connectionString);
+        _writeInformation = writeInformation;
+        _writeWarning     = writeWarning;
+
+        ConnectCore();
     }
 
     /// <summary>
@@ -108,35 +110,26 @@ public class SqlConnection : IDisposable
 
         var credential = new SqlCredential(username, password);
 
-        _connection = ConnectCore(
-            new Mds.SqlConnection(connectionString, credential),
-            writeInformation,
-            writeWarning
-        );
+        _connection       = new Mds.SqlConnection(connectionString, credential);
+        _writeInformation = writeInformation;
+        _writeWarning     = writeWarning;
+
+        ConnectCore();
     }
 
-    private static Mds.SqlConnection ConnectCore(
-        Mds.SqlConnection connection,
-        Action<string>    writeInformation,
-        Action<string>    writeWarning)
+    private void ConnectCore()
     {
-        var info = null as ConnectionInfo;
+        _connection.FireInfoMessageEventOnUserErrors  = true;
+        _connection.InfoMessage                      += HandleMessage;
+        _connection.Disposed                         += HandleUnexpectedClose;
 
         try
         {
-            info = ConnectionInfo.Get(connection);
-
-            SqlConnectionLogger.Use(connection, writeInformation, writeWarning);
-
-            connection.Open();
-            return connection;
+            _connection.Open();
         }
         catch
         {
-            if (info != null)
-                info.IsDisconnecting = true;
-
-            connection?.Dispose();
+            Dispose();
             throw;
         }
     }
@@ -162,8 +155,7 @@ public class SqlConnection : IDisposable
     ///   Gets a value indicating whether errors have been logged on the
     ///   connection.
     /// </summary>
-    public bool HasErrors
-        => ConnectionInfo.Get(_connection).HasErrors;
+    public bool HasErrors { get; private set; }
 
     /// <summary>
     ///   Sets <see cref="HasErrors"/> to <see langword="false"/>, forgetting
@@ -171,7 +163,7 @@ public class SqlConnection : IDisposable
     /// </summary>
     public /*TODO: internal?*/ void ClearErrors()
     {
-        ConnectionInfo.Get(_connection).HasErrors = false;
+        HasErrors = false;
     }
 
     /// <summary>
@@ -181,6 +173,51 @@ public class SqlConnection : IDisposable
     public SqlCommand CreateCommand()
     {
         return new SqlCommand(_connection);
+    }
+
+    private void HandleMessage(object sender, SqlInfoMessageEventArgs e)
+    {
+        const int MaxInformationalSeverity = 10;
+
+        foreach (SqlError? error in e.Errors)
+        {
+            if (error is null)
+            {
+                // Do nothing
+            }
+            else if (error.Class <= MaxInformationalSeverity)
+            {
+                // Output as normal text
+                _writeInformation(error.Message);
+            }
+            else
+            {
+                // Output as warning
+                _writeWarning(Format(error));
+
+                // Mark current command as failed
+                HasErrors = true;
+            }
+        }
+    }
+
+    private static string Format(SqlError error)
+    {
+        const string NonProcedureLocationName = "(batch)";
+
+        var procedure
+            =  error.Procedure.NullIfEmpty()
+            ?? NonProcedureLocationName;
+
+        return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
+    }
+
+    private void HandleUnexpectedClose(object? sender, EventArgs e)
+    {
+        // Present unexpected close
+        throw new DataException(
+            "The connection to the database server was closed unexpectedly."
+        );
     }
 
     /// <summary>
@@ -203,8 +240,8 @@ public class SqlConnection : IDisposable
     {
         if (managed)
         {
-            // Indicate that disconnection is expected
-            ConnectionInfo.Get(_connection).IsDisconnecting = true;
+            // Close is now expected
+            _connection.Disposed -= HandleUnexpectedClose;
 
             // Disconnect
             _connection.Dispose();
