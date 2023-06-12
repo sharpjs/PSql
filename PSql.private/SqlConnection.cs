@@ -14,6 +14,14 @@ namespace PSql;
 /// </remarks>
 public class SqlConnection : IDisposable
 {
+    private static readonly SqlRetryLogicBaseProvider RetryLogic
+        = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(new()
+        {
+            NumberOfTries   = 5,
+            DeltaTime       = TimeSpan.FromSeconds(2),
+            MaxTimeInterval = TimeSpan.FromMinutes(2),
+        });
+
     private readonly Mds.SqlConnection _connection;
     private readonly Action<string>    _writeInformation;
     private readonly Action<string>    _writeWarning;
@@ -119,6 +127,7 @@ public class SqlConnection : IDisposable
 
     private void ConnectCore()
     {
+        _connection.RetryLogicProvider                = RetryLogic;
         _connection.FireInfoMessageEventOnUserErrors  = true;
         _connection.InfoMessage                      += HandleMessage;
         _connection.Disposed                         += HandleUnexpectedClose;

@@ -29,9 +29,10 @@ public class SqlCommand : IDisposable
         if (connection is null)
             throw new ArgumentNullException(nameof(connection));
 
-        _command             = connection.CreateCommand();
-        _command.Connection  = connection;
-        _command.CommandType = CommandType.Text;
+        _command                    = connection.CreateCommand();
+        _command.Connection         = connection;
+        _command.RetryLogicProvider = connection.RetryLogicProvider;
+        _command.CommandType        = CommandType.Text;
     }
 
     /// <summary>
