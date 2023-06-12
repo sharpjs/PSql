@@ -24,7 +24,7 @@ public class SqlCommand : IDisposable
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connection"/> is <see langword="null"/>.
     /// </exception>
-    public /*TODO:internal*/ SqlCommand(Mds.SqlConnection connection)
+    internal SqlCommand(Mds.SqlConnection connection)
     {
         if (connection is null)
             throw new ArgumentNullException(nameof(connection));
@@ -36,7 +36,7 @@ public class SqlCommand : IDisposable
 
     /// <summary>
     ///   Gets or sets the duration in seconds after which command execution
-    ///   times out.  A value of <c>0</c> indicates no timeout: a command is
+    ///   times out.  A value of <c>0</c> indicates no timeout: the command is
     ///   allowed to execute indefinitely.
     /// </summary>
     /// <exception cref="AggregateException">
