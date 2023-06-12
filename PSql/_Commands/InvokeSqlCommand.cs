@@ -74,7 +74,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
 
         // Add optional preprocessing
         if (ShouldUsePreprocessing)
-            scripts = Preprocess(scripts);
+            scripts = ExcludeNullOrEmpty(Preprocess(scripts));
 
         // Execute with optional error handling
         if (ShouldUseErrorHandling)
