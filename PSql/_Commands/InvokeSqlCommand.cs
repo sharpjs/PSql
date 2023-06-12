@@ -91,7 +91,8 @@ public class InvokeSqlCommand : ConnectedCmdlet
     private IEnumerable<string> Preprocess(IEnumerable<string> scripts)
     {
         _preprocessor.SetVariables(Define);
-        return scripts.SelectMany(s => _preprocessor.Process(s));
+
+        return scripts.SelectMany(_preprocessor.Process);
     }
 
     private void Execute(IEnumerable<string> batches)
@@ -137,14 +138,12 @@ public class InvokeSqlCommand : ConnectedCmdlet
     protected override void EndProcessing()
     {
         base.EndProcessing();
-
         ReportErrors();
     }
 
     protected override void StopProcessing()
     {
         base.StopProcessing();
-
         ReportErrors();
     }
 

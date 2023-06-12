@@ -10,7 +10,7 @@ namespace PSql;
 ///   product.
 /// </summary>
 /// <remarks>
-///   This type is a proxy for <see cref="Mds.SqlConnection"/>.
+///   This type is a simplified proxy for <see cref="Mds.SqlConnection"/>.
 /// </remarks>
 public class SqlConnection : IDisposable
 {
@@ -44,7 +44,10 @@ public class SqlConnection : IDisposable
     ///   <paramref name="writeInformation"/>, and/or
     ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="System.Data.Common.DbException">
+    /// <exception cref="ArgumentException">
+    ///   <paramref name="connectionString"/> is invalid.
+    /// </exception>
+    /// <exception cref="DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
     public SqlConnection(
@@ -63,7 +66,7 @@ public class SqlConnection : IDisposable
         _writeInformation = writeInformation;
         _writeWarning     = writeWarning;
 
-        ConnectCore();
+        Initialize();
     }
 
     /// <summary>
@@ -92,7 +95,10 @@ public class SqlConnection : IDisposable
     ///   <paramref name="writeInformation"/>, and/or
     ///   <paramref name="writeWarning"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="System.Data.Common.DbException">
+    /// <exception cref="ArgumentException">
+    ///   <paramref name="connectionString"/> is invalid.
+    /// </exception>
+    /// <exception cref="DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
     public SqlConnection(
@@ -122,10 +128,10 @@ public class SqlConnection : IDisposable
         _writeInformation = writeInformation;
         _writeWarning     = writeWarning;
 
-        ConnectCore();
+        Initialize();
     }
 
-    private void ConnectCore()
+    private void Initialize()
     {
         _connection.RetryLogicProvider                = RetryLogic;
         _connection.FireInfoMessageEventOnUserErrors  = true;
@@ -144,25 +150,22 @@ public class SqlConnection : IDisposable
     }
 
     /// <summary>
-    ///   Gets the connection string used to create this connection.  The
-    ///   connection string includes server name, database name, and other
-    ///   parameters that control the initial opening of the connection.
+    ///   Gets the connection string used to create the connection.
     /// </summary>
     public string ConnectionString
         => _connection.ConnectionString;
 
     /// <summary>
-    ///   Gets a value indicating whether the connection is open.  The
-    ///   value is <see langword="true"/> (open) for new connections and
-    ///   transitions permanently to <see langword="false"/> (closed) when the
-    ///   connection closes.
+    ///   Gets a value indicating whether the connection is open.  The value is
+    ///   <see langword="true"/> for new connections and transitions to
+    ///   <see langword="false"/> permanently when the connection closes.
     /// </summary>
     public bool IsOpen
         => (int) _connection.State == (int) ConnectionState.Open;
 
     /// <summary>
     ///   Gets a value indicating whether errors have been logged on the
-    ///   connection.
+    ///   connection since the most recent call to <see cref="ClearErrors"/>.
     /// </summary>
     public bool HasErrors { get; private set; }
 
@@ -170,7 +173,7 @@ public class SqlConnection : IDisposable
     ///   Sets <see cref="HasErrors"/> to <see langword="false"/>, forgetting
     ///   about any errors prevously logged on the connection.
     /// </summary>
-    public /*TODO: internal?*/ void ClearErrors()
+    public void ClearErrors()
     {
         HasErrors = false;
     }
@@ -198,51 +201,6 @@ public class SqlConnection : IDisposable
         return new SqlCommand(_connection);
     }
 
-    private void HandleMessage(object sender, SqlInfoMessageEventArgs e)
-    {
-        const int MaxInformationalSeverity = 10;
-
-        foreach (SqlError? error in e.Errors)
-        {
-            if (error is null)
-            {
-                // Do nothing
-            }
-            else if (error.Class <= MaxInformationalSeverity)
-            {
-                // Output as normal text
-                _writeInformation(error.Message);
-            }
-            else
-            {
-                // Output as warning
-                _writeWarning(Format(error));
-
-                // Mark current command as failed
-                HasErrors = true;
-            }
-        }
-    }
-
-    private static string Format(SqlError error)
-    {
-        const string NonProcedureLocationName = "(batch)";
-
-        var procedure
-            =  error.Procedure.NullIfEmpty()
-            ?? NonProcedureLocationName;
-
-        return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
-    }
-
-    private void HandleUnexpectedClose(object? sender, EventArgs e)
-    {
-        // Present unexpected close
-        throw new DataException(
-            "The connection to the database server was closed unexpectedly."
-        );
-    }
-
     /// <summary>
     ///   Closes the connection and frees resources owned by it.
     /// </summary>
@@ -261,13 +219,60 @@ public class SqlConnection : IDisposable
     /// </param>
     protected virtual void Dispose(bool managed)
     {
-        if (managed)
-        {
-            // Close is now expected
-            _connection.Disposed -= HandleUnexpectedClose;
+        if (!managed)
+            return;
 
-            // Disconnect
-            _connection.Dispose();
+        // Closing is now expected
+        _connection.Disposed -= HandleUnexpectedClose;
+
+        // Close the connection
+        _connection.Dispose();
+    }
+
+    private void HandleMessage(object sender, SqlInfoMessageEventArgs e)
+    {
+        const int MaxInformationalSeverity = 10;
+
+        foreach (SqlError? error in e.Errors)
+        {
+            if (error is null)
+                continue;
+
+            if (error.Class <= MaxInformationalSeverity)
+                LogInformation(error);
+            else
+                LogWarning(error);
         }
+    }
+
+    private void LogInformation(SqlError error)
+    {
+        _writeInformation(error.Message);
+    }
+
+    private void LogWarning(SqlError error)
+    {
+        _writeWarning(Format(error));
+
+        // Mark current command as failed
+        HasErrors = true;
+    }
+
+    private static string Format(SqlError error)
+    {
+        const string NonProcedureLocationName = "(batch)";
+
+        var procedure
+            =  error.Procedure.NullIfEmpty()
+            ?? NonProcedureLocationName;
+
+        return $"{procedure}:{error.LineNumber}: E{error.Class}: {error.Message}";
+    }
+
+    private static void HandleUnexpectedClose(object? sender, EventArgs e)
+    {
+        throw new DataException(
+            "The connection to the database server was closed unexpectedly."
+        );
     }
 }

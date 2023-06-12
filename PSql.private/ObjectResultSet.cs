@@ -107,4 +107,3 @@ internal sealed class ObjectResultSet : IEnumerator<object>
         );
     }
 }
-

@@ -4,11 +4,11 @@
 namespace PSql;
 
 /// <summary>
-///   Represents a SQL command (statement batch) to execute against
-///   SQL Server, Azure SQL Database, or compatible product.
+///   Represents a SQL command (statement batch) to execute against SQL Server,
+///   Azure SQL Database, or compatible product.
 /// </summary>
 /// <remarks>
-///   This type is a proxy for <see cref="Mds.SqlCommand"/>.
+///   This type is a simplified proxy for <see cref="Mds.SqlCommand"/>.
 /// </remarks>
 public class SqlCommand : IDisposable
 {
@@ -40,7 +40,7 @@ public class SqlCommand : IDisposable
     ///   times out.  A value of <c>0</c> indicates no timeout: the command is
     ///   allowed to execute indefinitely.
     /// </summary>
-    /// <exception cref="AggregateException">
+    /// <exception cref="ArgumentException">
     ///   Attempted to set a value less than <c>0</c>.
     /// </exception>
     public int CommandTimeout
@@ -59,14 +59,16 @@ public class SqlCommand : IDisposable
     }
 
     /// <summary>
-    ///   Executes the command and projets its result sets to PowerShell
-    ///   object (<see cref="PSObject"/>) instances.
+    ///   Executes the command and projets its result sets to objects using the
+    ///   specified delegates.
     /// </summary>
     /// <param name="createObject">
     ///   A delegate that creates a result object.
+    ///   The method invokes this delegate once per result row.
     /// </param>
     /// <param name="setProperty">
     ///   A delegate that sets a property on a result object.
+    ///   The method invokes this delegate once per column per result row.
     /// </param>
     /// <param name="useSqlTypes">
     ///   <see langword="false"/> to project fields using CLR types from the
@@ -88,14 +90,30 @@ public class SqlCommand : IDisposable
     ///   <paramref name="createObject"/> and/or
     ///   <paramref name="setProperty"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="SqlException">
+    /// <exception cref="InvalidCastException">
+    ///   Thrown by <see cref="Mds.SqlConnection.Open"/>
+    ///          or <see cref="Mds.SqlCommand.ExecuteReader"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///   Thrown by <see cref="Mds.SqlConnection.Open"/>
+    ///          or <see cref="Mds.SqlCommand.ExecuteReader"/>.
     /// </exception>
     /// <exception cref="IOException">
+    ///   Thrown by <see cref="Mds.SqlConnection.Open"/>
+    ///          or <see cref="Mds.SqlCommand.ExecuteReader"/>.
+    /// </exception>
+    /// <exception cref="SqlException">
+    ///   Thrown by <see cref="Mds.SqlConnection.Open"/>
+    ///          or <see cref="Mds.SqlCommand.ExecuteReader"/>.
+    /// </exception>
+    /// <exception cref="ObjectDisposedException">
+    ///   Thrown by <see cref="Mds.SqlConnection.Open"/>
+    ///          or <see cref="Mds.SqlCommand.ExecuteReader"/>.
     /// </exception>
     public IEnumerator<object> ExecuteAndProjectToObjects(
-        Func<object>                    createObject,
-        Action<object, string, object?> setProperty,
-        bool                            useSqlTypes = false)
+        Func   <object>                  createObject,
+        Action <object, string, object?> setProperty,
+        bool                             useSqlTypes = false)
     {
         if (createObject is null)
             throw new ArgumentNullException(nameof(createObject));
