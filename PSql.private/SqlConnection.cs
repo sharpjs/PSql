@@ -6,11 +6,11 @@ using System.Security;
 namespace PSql;
 
 /// <summary>
-///   Represents a connection to SQL Server, Azure SQL Database, or
-///   compatible product.
+///   Represents a connection to SQL Server, Azure SQL Database, or compatible
+///   product.
 /// </summary>
 /// <remarks>
-///   This type is a proxy for <c>Microsoft.Data.SqlClient.SqlConnection.</c>
+///   This type is a proxy for <see cref="Mds.SqlConnection"/>.
 /// </remarks>
 public class SqlConnection : IDisposable
 {

@@ -122,7 +122,7 @@ public class SqlCommand : IDisposable
     ///   Frees resources owned by the object.
     /// </summary>
     /// <param name="managed">
-    ///   Whether to dispose managed resources.  Unmanaged are always
+    ///   Whether to dispose managed resources.  Unmanaged resources are always
     ///   disposed.
     /// </param>
     protected virtual void Dispose(bool managed)

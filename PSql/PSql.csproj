@@ -6,7 +6,7 @@
   -->
 
   <PropertyGroup>
-    <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL databases.</Description>
+    <Description>Cmdlets to connect and invoke commands against SQL Server, Azure SQL Database, or compatible products.</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)\</PrivateDependenciesPath>
@@ -21,6 +21,11 @@
 
     <ProjectReference Include="..\PSql.private\PSql.private.csproj"
                       Private="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Data" />
+    <Using Include="System.Management.Automation" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,11 +59,6 @@
 
     <None Include="@(Deps)" Link="deps\%(SubDir)%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" Visible="true" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System.Data" />
-    <Using Include="System.Management.Automation" />
   </ItemGroup>
 
 </Project>

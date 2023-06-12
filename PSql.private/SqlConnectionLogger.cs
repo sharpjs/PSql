@@ -6,9 +6,9 @@ namespace PSql;
 internal class SqlConnectionLogger
 {
     public static void Use(
-        Mds.SqlConnection  connection,
-        Action<string> writeInformation,
-        Action<string> writeWarning)
+        Mds.SqlConnection connection,
+        Action<string>    writeInformation,
+        Action<string>    writeWarning)
     {
         new SqlConnectionLogger(writeInformation, writeWarning).Attach(connection);
     }
