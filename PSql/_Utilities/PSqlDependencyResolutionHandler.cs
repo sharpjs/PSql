@@ -56,6 +56,11 @@ public class PSqlDependencyResolutionHandler
             if (_registrationCount++ > 0)
                 return;
 
+            // The PSql.Abstractions assembly must be loaded before activating
+            // the private AssemblyLoadContext.  In case it is not loaded yet,
+            // do something to force loading to occur.
+            typeof(ICmdlet).GetHashCode();
+
             AssemblyLoadContext.Default.Resolving += HandleResolving;
         }
     }
