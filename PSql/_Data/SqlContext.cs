@@ -577,8 +577,6 @@ public class SqlContext : ICloneable
 
         var connectionString = GetConnectionString(databaseName, Version, true);
         var credential       = Credential;
-        var writeInformation = new Action<string>(s => cmdlet.WriteHost   (s));
-        var writeWarning     = new Action<string>(s => cmdlet.WriteWarning(s));
 
         var passCredentialSeparately
             =  !credential.IsNullOrEmpty()
@@ -589,13 +587,11 @@ public class SqlContext : ICloneable
                 connectionString,
                 credential!.UserName,
                 credential!.Password,
-                writeInformation,
-                writeWarning
+                cmdlet
             )
             : new(
                 connectionString,
-                writeInformation,
-                writeWarning
+                cmdlet
             );
     }
 }

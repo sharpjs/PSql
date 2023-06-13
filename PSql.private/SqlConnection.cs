@@ -23,8 +23,7 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
         });
 
     private readonly Mds.SqlConnection _connection;
-    private readonly Action<string>    _writeInformation;
-    private readonly Action<string>    _writeWarning;
+    private readonly ICmdlet           _cmdlet;
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
@@ -33,16 +32,12 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.
     /// </param>
-    /// <param name="writeInformation">
-    ///   A delegate that logs server informational messages.
-    /// </param>
-    /// <param name="writeWarning">
-    ///   A delegate that logs server warning or error messages.
+    /// <param name="cmdlet">
+    ///   The cmdlet whose output methodes to use to log server messages.
     /// </param>
     /// <exception cref="ArgumentNullException">
-    ///   <paramref name="connectionString"/>,
-    ///   <paramref name="writeInformation"/>, and/or
-    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
+    ///   <paramref name="connectionString"/> and/or
+    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -50,21 +45,15 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
     /// <exception cref="DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
-    public SqlConnection(
-        string         connectionString,
-        Action<string> writeInformation,
-        Action<string> writeWarning)
+    public SqlConnection(string connectionString, ICmdlet cmdlet)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
-        if (writeInformation is null)
-            throw new ArgumentNullException(nameof(writeInformation));
-        if (writeWarning is null)
-            throw new ArgumentNullException(nameof(writeWarning));
+        if (cmdlet is null)
+            throw new ArgumentNullException(nameof(cmdlet));
 
-        _connection       = new Mds.SqlConnection(connectionString);
-        _writeInformation = writeInformation;
-        _writeWarning     = writeWarning;
+        _connection = new Mds.SqlConnection(connectionString);
+        _cmdlet     = cmdlet;
 
         Initialize();
     }
@@ -82,18 +71,14 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
     /// <param name="password">
     ///   The password to use to authenticate with the database server.
     /// </param>
-    /// <param name="writeInformation">
-    ///   A delegate that logs server informational messages.
-    /// </param>
-    /// <param name="writeWarning">
-    ///   A delegate that logs server warning or error messages.
+    /// <param name="cmdlet">
+    ///   The cmdlet whose output methodes to use to log server messages.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/>,
     ///   <paramref name="username"/>,
-    ///   <paramref name="password"/>,
-    ///   <paramref name="writeInformation"/>, and/or
-    ///   <paramref name="writeWarning"/> is <see langword="null"/>.
+    ///   <paramref name="password"/>, and/or
+    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -102,11 +87,10 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
     public SqlConnection(
-        string         connectionString,
-        string         username,
-        SecureString   password,
-        Action<string> writeInformation,
-        Action<string> writeWarning)
+        string       connectionString,
+        string       username,
+        SecureString password,
+        ICmdlet      cmdlet)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
@@ -114,19 +98,16 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
             throw new ArgumentNullException(nameof(username));
         if (password is null)
             throw new ArgumentNullException(nameof(password));
-        if (writeInformation is null)
-            throw new ArgumentNullException(nameof(writeInformation));
-        if (writeWarning is null)
-            throw new ArgumentNullException(nameof(writeWarning));
+        if (cmdlet is null)
+            throw new ArgumentNullException(nameof(cmdlet));
 
         if (!password.IsReadOnly())
             (password = password.Copy()).MakeReadOnly();
 
         var credential = new SqlCredential(username, password);
 
-        _connection       = new Mds.SqlConnection(connectionString, credential);
-        _writeInformation = writeInformation;
-        _writeWarning     = writeWarning;
+        _connection = new Mds.SqlConnection(connectionString, credential);
+        _cmdlet     = cmdlet;
 
         Initialize();
     }
@@ -243,12 +224,12 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
 
     private void LogInformation(SqlError error)
     {
-        _writeInformation(error.Message);
+        _cmdlet.WriteHost(error.Message);
     }
 
     private void LogWarning(SqlError error)
     {
-        _writeWarning(Format(error));
+        _cmdlet.WriteWarning(Format(error));
 
         // Mark current command as failed
         HasErrors = true;
