@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Copyright 2023 Subatomix Research Inc.
+    SPDX-License-Identifier: ISC
+  -->
+
+  <PropertyGroup>
+    <Description>PSql core types</Description>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>PSql</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PSql" />
+    <InternalsVisibleTo Include="PSql.private" />
+  </ItemGroup>
+
+</Project>

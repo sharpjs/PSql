@@ -20,6 +20,8 @@
     <PackageReference Include="System.Management.Automation"
                       Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
 
+    <ProjectReference Include="..\PSql.Core\PSql.Core.csproj" />
+
     <ProjectReference Include="..\PSql.private\PSql.private.csproj"
                       Private="false" PrivateAssets="all" />
   </ItemGroup>
