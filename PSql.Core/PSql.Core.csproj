@@ -19,11 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="PSql" />
-    <InternalsVisibleTo Include="PSql.private" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="System.Data" />
     <Using Include="System.Data.Common" />
     <Using Include="System.Management.Automation" />
