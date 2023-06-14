@@ -14,7 +14,7 @@ public abstract class ConnectedCmdlet : Cmdlet, IDisposable
 
     // -Connection
     [Parameter(ParameterSetName = ConnectionName, Mandatory = true)]
-    public SqlConnection? Connection { get; set; }
+    public ISqlConnection? Connection { get; set; }
 
     // -Context
     [Parameter(ParameterSetName = ContextName)]

@@ -91,7 +91,7 @@
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>Microsoft.Data.SqlClient.SqlConnection</maml:name>
+          <maml:name>PSql.ISqlConnection</maml:name>
         </dev:type>
         <maml:description>
           <maml:para>A new, open connection to the specifed SQL Server instance or Azure SQL Database resource.</maml:para>
@@ -136,7 +136,7 @@
         <maml:name>Disconnect-Sql</maml:name>
         <command:parameter required="false" position="0" pipelineInput="True (ByValue, FromRemainingArguments)" globbing="false">
           <maml:name>Connection</maml:name>
-          <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection[]</command:parameterValue>
+          <command:parameterValue required="true">PSql.ISqlConnection[]</command:parameterValue>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
@@ -148,9 +148,9 @@
         <maml:description>
           <maml:para>The connections to close.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection[]</command:parameterValue>
+        <command:parameterValue required="true">PSql.ISqlConnection[]</command:parameterValue>
         <dev:type>
-          <maml:name>Microsoft.Data.SqlClient.SqlConnection[]</maml:name>
+          <maml:name>PSql.ISqlConnection[]</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
@@ -160,7 +160,7 @@
     <command:inputTypes>
       <command:inputType>
         <dev:type>
-          <maml:name>Microsoft.Data.SqlClient.SqlConnection[]</maml:name>
+          <maml:name>PSql.ISqlConnection[]</maml:name>
         </dev:type>
         <maml:description>
           <maml:para>The connections to close.</maml:para>
@@ -398,7 +398,7 @@
         </command:parameter>
         <command:parameter required="true" position="named" pipelineInput="False" globbing="false">
           <maml:name>Connection</maml:name>
-          <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection</command:parameterValue>
+          <command:parameterValue required="true">PSql.ISqlConnection</command:parameterValue>
         </command:parameter>
         <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
           <maml:name>NoPreprocessing</maml:name>
@@ -459,9 +459,9 @@
         <maml:description>
           <maml:para>The SQL connection on which to execute commands.</maml:para>
         </maml:description>
-        <command:parameterValue required="true">Microsoft.Data.SqlClient.SqlConnection</command:parameterValue>
+        <command:parameterValue required="true">PSql.ISqlConnection</command:parameterValue>
         <dev:type>
-          <maml:name>Microsoft.Data.SqlClient.SqlConnection</maml:name>
+          <maml:name>PSql.ISqlConnection</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>

@@ -223,7 +223,7 @@ public class SqlContext : ICloneable
 
     /// <summary>
     ///   Gets or sets whether the credential used for authentication should
-    ///   be exposed in the <see cref="SqlConnection.ConnectionString"/>
+    ///   be exposed in the <see cref="DbConnection.ConnectionString"/>
     ///   property.  This is a potential security risk, so use only when
     ///   necessary.  The default is <see langword="false"/>.
     /// </summary>
@@ -571,7 +571,7 @@ public class SqlContext : ICloneable
         );
     }
 
-    internal SqlConnection Connect(string? databaseName, Cmdlet cmdlet)
+    internal ISqlConnection Connect(string? databaseName, Cmdlet cmdlet)
     {
         const SqlClientVersion Version = SqlClientVersion.Latest;
 
@@ -583,13 +583,13 @@ public class SqlContext : ICloneable
             && !ExposeCredentialInConnectionString;
 
         return passCredentialSeparately
-            ? new(
+            ? new SqlConnection(
                 connectionString,
                 credential!.UserName,
                 credential!.Password,
                 cmdlet
             )
-            : new(
+            : new SqlConnection(
                 connectionString,
                 cmdlet
             );

@@ -57,7 +57,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: Connection ensured not null by base.BeginProcessing
         Connection!.ClearErrors();
 
-        _command = Connection.CreateCommand();
+        _command = ((SqlConnection) Connection).CreateCommand();
 
         if (Timeout.HasValue)
             _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;

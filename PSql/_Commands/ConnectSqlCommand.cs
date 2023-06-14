@@ -4,7 +4,7 @@
 namespace PSql;
 
 [Cmdlet(VerbsCommunications.Connect, "Sql")]
-[OutputType(typeof(SqlConnection))]
+[OutputType(typeof(ISqlConnection))]
 public class ConnectSqlCommand : Cmdlet
 {
     // -Context

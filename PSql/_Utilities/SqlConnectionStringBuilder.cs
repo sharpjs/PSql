@@ -101,7 +101,7 @@ public readonly ref struct SqlConnectionStringBuilder
     /// <summary>
     ///   Appends a property that specifies whether security-sensitive
     ///   information such as password appears in a connection's
-    ///   <see cref="SqlConnection.ConnectionString"/> property after the
+    ///   <see cref="DbConnection.ConnectionString"/> property after the
     ///   connection transitions to the open state.
     /// </summary>
     public void AppendPersistSecurityInfo(bool enable)

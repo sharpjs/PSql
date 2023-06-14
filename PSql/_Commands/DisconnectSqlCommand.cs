@@ -9,7 +9,7 @@ public class DisconnectSqlCommand : Cmdlet
 {
     // -Connection
     [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]
-    public SqlConnection?[]? Connection { get; set; }
+    public ISqlConnection?[]? Connection { get; set; }
 
     protected override void ProcessRecord()
     {

@@ -5,14 +5,8 @@ using System.Security;
 
 namespace PSql;
 
-/// <summary>
-///   Represents a connection to SQL Server, Azure SQL Database, or compatible
-///   product.
-/// </summary>
-/// <remarks>
-///   This type is a simplified proxy for <see cref="Mds.SqlConnection"/>.
-/// </remarks>
-public sealed class SqlConnection : IDisposable, IAsyncDisposable
+/// <inheritdoc/>
+public sealed class SqlConnection : ISqlConnection
 {
     private static readonly SqlRetryLogicBaseProvider RetryLogic
         = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(new()
@@ -130,43 +124,26 @@ public sealed class SqlConnection : IDisposable, IAsyncDisposable
         }
     }
 
-    /// <summary>
-    ///   Gets the connection string used to create the connection.
-    /// </summary>
+    /// <inheritdoc/>
+    public DbConnection UnderlyingConnection
+        => _connection;
+
+    /// <inheritdoc/>
     public string ConnectionString
         => _connection.ConnectionString;
 
-    /// <summary>
-    ///   Gets a value indicating whether the connection is open.  The value is
-    ///   <see langword="true"/> for new connections and transitions to
-    ///   <see langword="false"/> permanently when the connection closes.
-    /// </summary>
+    /// <inheritdoc/>
     public bool IsOpen
         => (int) _connection.State == (int) ConnectionState.Open;
 
-    /// <summary>
-    ///   Gets a value indicating whether errors have been logged on the
-    ///   connection since the most recent call to <see cref="ClearErrors"/>.
-    /// </summary>
+    /// <inheritdoc/>
     public bool HasErrors { get; private set; }
 
-    /// <summary>
-    ///   Sets <see cref="HasErrors"/> to <see langword="false"/>, forgetting
-    ///   about any errors prevously logged on the connection.
-    /// </summary>
+    /// <inheritdoc/>
     public void ClearErrors()
-    {
-        HasErrors = false;
-    }
+        => HasErrors = false;
 
-    /// <summary>
-    ///   Throws <see cref="DataException"/> if errors have been logged on the
-    ///   connection since the most recent call to <see cref="ClearErrors"/>.
-    /// </summary>
-    /// <exception cref="DataException">
-    ///   At least one error was logged on the connection since the most recent
-    ///   call to <see cref="ClearErrors"/>.
-    /// </exception>
+    /// <inheritdoc/>
     public void ThrowIfHasErrors()
     {
         if (HasErrors)
