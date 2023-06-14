@@ -35,7 +35,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
     public TimeSpan? Timeout { get; set; }
 
     private readonly SqlCmdPreprocessor _preprocessor;
-    private          SqlCommand?        _command;
+    private          ISqlCommand?       _command;
 
     private bool ShouldUsePreprocessing
         => !NoPreprocessing;
@@ -57,7 +57,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
         // NULLS: Connection ensured not null by base.BeginProcessing
         Connection!.ClearErrors();
 
-        _command = ((SqlConnection) Connection).CreateCommand();
+        _command = Connection.CreateCommand();
 
         if (Timeout.HasValue)
             _command.CommandTimeout = (int) Timeout.Value.TotalSeconds;
