@@ -15,7 +15,7 @@ namespace PSql;
 ///   to isolate dependencies of PSql so that they do not conflict with
 ///   dependencies of other modules.
 /// </remarks>
-public class SqlCmdPreprocessor
+internal class SqlCmdPreprocessor
 {
     private readonly Prequel.SqlCmdPreprocessor _preprocessor;
 

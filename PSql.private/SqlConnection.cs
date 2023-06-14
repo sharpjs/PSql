@@ -6,7 +6,7 @@ using System.Security;
 namespace PSql;
 
 /// <inheritdoc/>
-public sealed class SqlConnection : ISqlConnection
+internal sealed class SqlConnection : ISqlConnection
 {
     private static readonly SqlRetryLogicBaseProvider RetryLogic
         = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(new()

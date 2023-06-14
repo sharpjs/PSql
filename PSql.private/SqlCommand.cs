@@ -4,7 +4,7 @@
 namespace PSql;
 
 /// <inheritdoc/>
-public sealed class SqlCommand : ISqlCommand
+internal sealed class SqlCommand : ISqlCommand
 {
     private readonly Mds.SqlCommand _command;
 
