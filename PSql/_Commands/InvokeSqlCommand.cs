@@ -113,26 +113,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
     private IEnumerator<object> ExecuteAndProjectToObjects()
     {
         // NULLS: _command created in BeginProcessing
-        return _command!.ExecuteAndProjectToObjects(ObjectCreator, PropertySetter, UseSqlTypes);
-    }
-
-    private static readonly Func<object>
-        ObjectCreator = CreateObject;
-
-    private static readonly Action<object, string, object?>
-        PropertySetter = AddProperty;
-
-    private static object CreateObject()
-    {
-        return new PSObject();
-    }
-
-    private static void AddProperty(object obj, string name, object? value)
-    {
-        var target   = (PSObject) obj;
-        var property = new PSNoteProperty(name, value);
-
-        target.Properties.Add(property);
+        return _command!.ExecuteAndProjectToPSObjects(UseSqlTypes);
     }
 
     protected override void EndProcessing()

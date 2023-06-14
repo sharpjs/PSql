@@ -12,12 +12,13 @@
     <RootNamespace>PSql</RootNamespace>
     <IsPackable>false</IsPackable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- ^^ Opt dependencies out via IncludeAssets="compile" -->
   </PropertyGroup>
 
   <!-- Public dependencies -->
   <ItemGroup>
     <PackageReference Include="System.Management.Automation"
-                      Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
+                      Version="[7.0.0, 8.0.0)" IncludeAssets="compile" PrivateAssets="all" />
 
     <ProjectReference Include="..\PSql.Core\PSql.Core.csproj" Private="false" />
   </ItemGroup>
@@ -31,6 +32,7 @@
   <ItemGroup>
     <Using Include="System.Data" />
     <Using Include="System.Data.Common" />
+    <Using Include="System.Management.Automation" />
     <Using Include="Microsoft.Data.SqlClient" />
     <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
   </ItemGroup>

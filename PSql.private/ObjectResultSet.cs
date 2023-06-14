@@ -1,33 +1,33 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+using System.Collections;
+
 namespace PSql;
 
 using static FormattableString;
 
-internal sealed class ObjectResultSet : IEnumerator<object>
+internal sealed class ObjectResultSet : IEnumerator<PSObject>
 {
-    private readonly SqlDataReader                    _reader;
-    private readonly Func   <object>                  _createObject;
-    private readonly Action <object, string, object?> _setProperty;
-    private readonly bool                             _useSqlTypes;
+    private readonly SqlDataReader _reader;
+    private readonly bool          _useSqlTypes;
 
-    private object?   _current;
+    private PSObject? _current;
     private string[]? _columnNames;
 
-    public ObjectResultSet(
-        SqlDataReader                    reader,
-        Func   <object>                  createObject,
-        Action <object, string, object?> setProperty,
-        bool                             useSqlTypes)
+    public ObjectResultSet(SqlDataReader reader, bool useSqlTypes)
     {
-        _reader       = reader       ?? throw new ArgumentNullException(nameof(reader));
-        _createObject = createObject ?? throw new ArgumentNullException(nameof(createObject));
-        _setProperty  = setProperty  ?? throw new ArgumentNullException(nameof(setProperty));
-        _useSqlTypes  = useSqlTypes;
+        if (reader is null)
+            throw new ArgumentNullException(nameof(reader));
+
+        _reader      = reader;
+        _useSqlTypes = useSqlTypes;
     }
 
-    public object Current
+    object? IEnumerator.Current
+        => _current;
+
+    public PSObject Current
         => _current ?? throw OnNoCurrentItem();
 
     public bool MoveNext()
@@ -75,15 +75,17 @@ internal sealed class ObjectResultSet : IEnumerator<object>
         return names;
     }
 
-    private object ProjectToObject()
+    private PSObject ProjectToObject()
     {
-        var obj = _createObject();
+        var obj = new PSObject();
 
         for (var i = 0; i < _columnNames!.Length; i++)
         {
-            var name  = _columnNames[i];
-            var value = GetValue(_reader, i, _useSqlTypes);
-            _setProperty(obj, name, value);
+            var name     = _columnNames[i];
+            var value    = GetValue(_reader, i, _useSqlTypes);
+            var property = new PSNoteProperty(name, value);
+
+            obj.Properties.Add(property);
         }
 
         return obj;

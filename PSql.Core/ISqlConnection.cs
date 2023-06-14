@@ -8,7 +8,7 @@ namespace PSql;
 ///   product.
 /// </summary>
 /// <remarks>
-///   This type is wrapper for <c>Microsoft.Data.SqlClient.SqlConnection</c>.
+///   This type is a proxy for <c>Microsoft.Data.SqlClient.SqlConnection</c>.
 /// </remarks>
 public interface ISqlConnection : IDisposable, IAsyncDisposable
 {
@@ -50,4 +50,10 @@ public interface ISqlConnection : IDisposable, IAsyncDisposable
     ///   call to <see cref="ClearErrors"/>.
     /// </exception>
     void ThrowIfHasErrors();
+
+    /// <summary>
+    ///   Creates a new <see cref="ISqlCommand"/> instance that can execute
+    ///   commands on the connection.
+    /// </summary>
+    ISqlCommand CreateCommand();
 }

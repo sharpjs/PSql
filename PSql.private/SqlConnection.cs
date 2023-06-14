@@ -150,6 +150,10 @@ public sealed class SqlConnection : ISqlConnection
             throw new DataException("An error occurred while executing the SQL batch.");
     }
 
+    /// <inheritdoc/>
+    ISqlCommand ISqlConnection.CreateCommand()
+        => CreateCommand();
+
     /// <summary>
     ///   Creates a new <see cref="SqlCommand"/> instance that can execute
     ///   commands on the connection.
