@@ -27,7 +27,7 @@ public sealed class SqlConnection : ISqlConnection
     ///   A string that specifies parameters for the connection.
     /// </param>
     /// <param name="cmdlet">
-    ///   The cmdlet whose output methodes to use to log server messages.
+    ///   The cmdlet providing output methods to log server messages.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/> and/or
@@ -66,7 +66,7 @@ public sealed class SqlConnection : ISqlConnection
     ///   The password to use to authenticate with the database server.
     /// </param>
     /// <param name="cmdlet">
-    ///   The cmdlet whose output methodes to use to log server messages.
+    ///   The cmdlet providing output methods to log server messages.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/>,

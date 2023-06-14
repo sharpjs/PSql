@@ -536,6 +536,45 @@ public class SqlContext : ICloneable
             || comparer.Equals(ServerName, Dns.GetHostName());
     }
 
+    /// <summary>
+    ///   Opens a connection as determined by the property values of the
+    ///   current context, optionally with the specified database name, logging
+    ///   server messages via the output methods of the specified cmdlet.
+    /// </summary>
+    /// <param name="databaseName">
+    ///   A database name.  If not <see langword="null"/>, this parameter
+    ///   overrides the value of the <see cref="DatabaseName"/> property.
+    /// </param>
+    /// <param name="cmdlet">
+    ///   The cmdlet providing output methods to log server messages.
+    /// </param>
+    /// <returns>
+    ///   An object representing the open connection.
+    /// </returns>
+    public ISqlConnection Connect(string? databaseName, Cmdlet cmdlet)
+    {
+        const SqlClientVersion Version = SqlClientVersion.Latest;
+
+        var connectionString = GetConnectionString(databaseName, Version, true);
+        var credential       = Credential;
+
+        var passCredentialSeparately
+            =  !credential.IsNullOrEmpty()
+            && !ExposeCredentialInConnectionString;
+
+        return passCredentialSeparately
+            ? new SqlConnection(
+                connectionString,
+                credential!.UserName,
+                credential!.Password,
+                cmdlet
+            )
+            : new SqlConnection(
+                connectionString,
+                cmdlet
+            );
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void Set<T>(out T slot, T value)
     {
@@ -569,29 +608,5 @@ public class SqlContext : ICloneable
             "The context is frozen and cannot be modified. " +
             "Create a copy and modify the copy instead."
         );
-    }
-
-    internal ISqlConnection Connect(string? databaseName, Cmdlet cmdlet)
-    {
-        const SqlClientVersion Version = SqlClientVersion.Latest;
-
-        var connectionString = GetConnectionString(databaseName, Version, true);
-        var credential       = Credential;
-
-        var passCredentialSeparately
-            =  !credential.IsNullOrEmpty()
-            && !ExposeCredentialInConnectionString;
-
-        return passCredentialSeparately
-            ? new SqlConnection(
-                connectionString,
-                credential!.UserName,
-                credential!.Password,
-                cmdlet
-            )
-            : new SqlConnection(
-                connectionString,
-                cmdlet
-            );
     }
 }
