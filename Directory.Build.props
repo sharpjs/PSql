@@ -15,7 +15,7 @@
   <!-- Descriptive properties -->
   <PropertyGroup>
     <Product>PSql</Product>
-    <VersionPrefix>2.2.0</VersionPrefix>
+    <VersionPrefix>3.0.0</VersionPrefix>
     <Authors>Subatomix Research Inc.</Authors>
     <Company>Subatomix Research Inc.</Company>
     <Copyright>© $([System.DateTime]::UtcNow.Year) $(Company)</Copyright>
