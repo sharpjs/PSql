@@ -99,8 +99,14 @@ jobs:
         with:
           reports: ${{ runner.temp }}/coverage/raw/**/coverage.opencover.xml
           targetdir: ${{ runner.temp }}/coverage
-          reporttypes: Cobertura;JsonSummary;Html_Dark;Badges
+          reporttypes: Html;MarkdownSummaryGithub;Badges
           verbosity: Warning
+
+      #- name: Publish Coverage Summary
+      #  run: >
+      #    cat "$env:REPORT_PATH" >> "$env:GITHUB_STEP_SUMMARY"
+      #  env:
+      #    REPORT_PATH: ${{ runner.temp }}/coverage/SummaryGithub.md
 
       - name: Save Coverage Report
         uses: actions/upload-artifact@v3
