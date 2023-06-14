@@ -6,7 +6,7 @@
   -->
 
   <PropertyGroup>
-    <Description>PSql core types</Description>
+    <Description>PSql Core Types Library</Description>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
     <IsPackable>false</IsPackable>
