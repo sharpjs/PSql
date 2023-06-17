@@ -10,7 +10,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PrivateDependenciesPath>..\PSql.private\bin\$(Configuration)\$(TargetFramework)\</PrivateDependenciesPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,32 +36,12 @@
              Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
 
     <!--
-      Isolate PSql dependencies into a subdirectory where .NET Core/5+ default
-      probing behavior will not find them.  Instead, custom resolution logic
-      will load the dependencies into a private AssemblyLoadContext, preventing
-      conflicts with dependencies of other modules.  Technique documented here:
-      https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
-
-      deps/        cross-platform managed assemblies
-        unix/      managed assemblies for unix-likes
-        win/       managed assemblies for Windows
-          x86/     native assemblies for Windows x86 processes
-          x64/     native assemblies for Windows x64 processes
-          arm/     native assemblies for Windows 32-bit ARM processes
-          arm64/   native assemblies for Windows 64-bit ARM processes
+      Isolate PSql private dependencies into a subdirectory for consumption by
+      a private AssemblyLoadContext, preventing conflicts with other modules.
+      See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
     -->
-
-    <Deps Include="$(PrivateDependenciesPath)**"
-          Exclude="$(PrivateDependenciesPath)runtimes\**"           SubDir=""           />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\unix\**"      SubDir="unix\"      />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\win\**"       SubDir="win\"       />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\win-arm\**"   SubDir="win\arm\"   />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\win-arm64\**" SubDir="win\arm64\" />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\win-x86\**"   SubDir="win\x86\"   />
-    <Deps Include="$(PrivateDependenciesPath)runtimes\win-x64\**"   SubDir="win\x64\"   />
-
-    <None Include="@(Deps)" Link="deps\%(SubDir)%(Filename)%(Extension)"
-          CopyToOutputDirectory="PreserveNewest" Visible="true" />
+    <None Include="..\PSql.private\bin\$(Configuration)\$(TargetFramework)\**"
+          LinkBase="deps\" CopyToOutputDirectory="PreserveNewest" Visible="true" />
   </ItemGroup>
 
 </Project>
