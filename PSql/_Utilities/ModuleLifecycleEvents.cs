@@ -10,14 +10,14 @@ public class ModuleLifecycleEvents : IModuleAssemblyInitializer, IModuleAssembly
 {
     // PSql.private.dll
     private static readonly PrivateDependencyRegistration
-        Registration = new();
+        PrivateDependency = new();
 
     /// <summary>
     ///   Invoked by PowerShell when the module is imported into a runspace.
     /// </summary>
     public void OnImport()
     {
-        Registration.Reference();
+        PrivateDependency.Reference();
     }
 
     /// <summary>
@@ -28,6 +28,6 @@ public class ModuleLifecycleEvents : IModuleAssemblyInitializer, IModuleAssembly
     /// </param>
     public void OnRemove(PSModuleInfo module)
     {
-        Registration.Unreference();
+        PrivateDependency.Unreference();
     }
 }
