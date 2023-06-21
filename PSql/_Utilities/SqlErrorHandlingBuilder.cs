@@ -8,17 +8,30 @@ namespace PSql;
 
 using static RegexOptions;
 
+/// <summary>
+///   A builder that combines SQL batches into a single superbatch with an
+///   error-handling wrapper that improves the diagnostic experience.
+/// </summary>
 public class SqlErrorHandlingBuilder
 {
     private readonly StringBuilder            _builder;
     private readonly List<(string, int, int)> _chunks;
 
+    /// <summary>
+    ///   Initializes a new <see cref="SqlErrorHandlingBuilder"/> instance.
+    /// </summary>
     public SqlErrorHandlingBuilder()
     {
         _builder = new(Prologue, capacity: 4096);
-        _chunks  = new(          capacity:    2);
+        _chunks  = new();
     }
 
+    /// <summary>
+    ///   Ends the current batch and begins a new batch.
+    /// </summary>
+    /// <remarks>
+    ///   If the current batch is empty, this method has no effect.
+    /// </remarks>
     public void StartNewBatch()
     {
         if (_chunks.Count == 0)
@@ -28,14 +41,46 @@ public class SqlErrorHandlingBuilder
         _chunks.Clear();
     }
 
+    /// <summary>
+    ///   Appends the specified SQL code to the current batch.
+    /// </summary>
+    /// <param name="sql">
+    ///   The SQL code to append to the current batch.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="sql"/> is <see langword="null"/>.
+    /// </exception>
+    /// <remarks>
+    ///   If <paramref name="sql"/> is empty, this method has no effect.
+    /// </remarks>
     public void Append(string sql)
     {
         if (sql is null)
             throw new ArgumentNullException(nameof(sql));
+        if (sql.Length == 0)
+            return;
 
         Append(sql, 0, sql.Length);
     }
 
+    /// <summary>
+    ///   Appends the specified span of SQL code to the current batch.
+    /// </summary>
+    /// <param name="sql">
+    ///   A string that contains SQL code to append to the current batch.
+    /// </param>
+    /// <param name="capture">
+    ///   A regular expression capture whose <see cref="Capture.Index"/> and
+    ///   <see cref="Capture.Length"/> properties specify the span of SQL code
+    ///   within <paramref name="sql"/> to add to the current batch.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="sql"/> and/or <paramref name="capture"/> is
+    ///   <see langword="null"/>.
+    /// </exception>
+    /// <remarks>
+    ///   If <paramref name="capture"/> zero-length, this method has no effect.
+    /// </remarks>
     public void Append(string sql, Capture capture)
     {
         if (sql is null)
@@ -46,11 +91,38 @@ public class SqlErrorHandlingBuilder
         Append(sql, capture.Index, capture.Length);
     }
 
+    /// <summary>
+    ///   Appends the specified span of SQL code to the current batch.
+    /// </summary>
+    /// <param name="sql">
+    ///   A string that contains SQL code to append to the current batch.
+    /// </param>
+    /// <param name="index">
+    ///   The index of the span of SQL code within <paramref name="sql"/> to
+    ///   add to the current batch.
+    /// </param>
+    /// <param name="length">
+    ///   The length of the span of SQL code within <paramref name="sql"/> to
+    ///   add to the current batch.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="sql"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///   <paramref name="index"/> is negative or greater than the length of
+    ///     <paramref name="sql"/>; or,
+    ///   <paramref name="length"/> is negative or greater than the length of
+    ///     the maximum span within <paramref name="sql"/> starting at
+    ///     <paramref name="index"/>.
+    /// </exception>
+    /// <remarks>
+    ///   If <paramref name="length"/> is zero, this method has no effect.
+    /// </remarks>
     public void Append(string sql, int index, int length)
     {
         if (sql is null)
             throw new ArgumentNullException(nameof(sql));
-        if (index < 0 || index >= sql.Length)
+        if (index < 0 || index > sql.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
         if (length < 0 || length > sql.Length - index)
             throw new ArgumentOutOfRangeException(nameof(length));
@@ -60,13 +132,27 @@ public class SqlErrorHandlingBuilder
         _chunks.Add((sql, index, length));
     }
 
-    private bool ShouldWrap()
+    /// <summary>
+    ///   Ends the current batch and returns the accumulated superbatch with
+    ///   error-handling wrapper.
+    /// </summary>
+    /// <returns>
+    ///   The accumulated superbatch with error-handling wrapper.
+    /// </returns>
+    /// <remarks>
+    ///   If the builder has accumulated no batches, then this method returns
+    ///   an empty string.
+    /// </remarks>
+    public string Complete()
     {
-        foreach (var (sql, start, length) in _chunks)
-            if (NoWrapRegex.Match(sql, start, length).Success)
-                return false;
+        StartNewBatch();
 
-        return true;
+        if (_builder.Length <= Prologue.Length)
+            return ""; // no batches specified
+
+        _builder.Append(Epilogue);
+
+        return _builder.ToString();
     }
 
     private void FinalizeBatch()
@@ -82,6 +168,15 @@ public class SqlErrorHandlingBuilder
             _builder.AppendLine("    EXEC sp_executesql @__sql__;");
         else
             AppendChunks();
+    }
+
+    private bool ShouldWrap()
+    {
+        foreach (var (sql, start, length) in _chunks)
+            if (NoWrapRegex.Match(sql, start, length).Success)
+                return false;
+
+        return true;
     }
 
     private void AppendChunks()
@@ -117,26 +212,13 @@ public class SqlErrorHandlingBuilder
         }
     }
 
-    public string Complete()
-    {
-        StartNewBatch();
-
-        _builder.Append(Epilogue);
-
-        return _builder.ToString();
-    }
-
     private static readonly Regex NoWrapRegex = new Regex(
         @"^--#[ \t]*NOWRAP[ \t]*\r?$",
-        Options
+        Multiline        |  // m: ^/$ match BOL/EOL
+        IgnoreCase       |  // i: not case sensitive
+        CultureInvariant |  //    invariant comparison
+        Compiled            //    compile to an assembly
     );
-
-    private const RegexOptions Options
-        = Multiline
-        | IgnoreCase
-        | CultureInvariant
-        | ExplicitCapture
-        | Compiled;
 
     private const string Prologue = 
         """
