@@ -102,7 +102,8 @@ function Invoke-Clean {
 
 function Invoke-Build {
     Write-Phase "Build"
-    Invoke-DotNet build --configuration:$Configuration
+    Invoke-DotNet build PSql.Deploy.private --configuration:$Configuration
+    Invoke-DotNet build                     --configuration:$Configuration
 }
 
 function Invoke-Test {

@@ -79,9 +79,14 @@ jobs:
       - name: Restore NuGet Packages
         run: dotnet restore
 
-      - name: Build
+      - name: Build 1
         run: >
-          dotnet build --no-restore -c Release -m:1
+          dotnet build PSql.private --no-restore -c Release
+          -p:TreatWarningsAsErrors=true
+
+      - name: Build 2
+        run: >
+          dotnet build --no-restore -c Release
           -p:TreatWarningsAsErrors=true
           -p:PackageOutputPath=${{ runner.temp }}/dist
 
