@@ -17,7 +17,7 @@ internal sealed class SqlConnection : ISqlConnection
         });
 
     private readonly Mds.SqlConnection _connection;
-    private readonly ICmdlet           _cmdlet;
+    private readonly ISqlMessageLogger _logger;
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
@@ -26,12 +26,12 @@ internal sealed class SqlConnection : ISqlConnection
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.
     /// </param>
-    /// <param name="cmdlet">
-    ///   The cmdlet providing output methods to log server messages.
+    /// <param name="logger">
+    ///   An object that logs server messages received over the connection.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/> and/or
-    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
+    ///   <paramref name="logger"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -39,15 +39,15 @@ internal sealed class SqlConnection : ISqlConnection
     /// <exception cref="DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
-    public SqlConnection(string connectionString, ICmdlet cmdlet)
+    public SqlConnection(string connectionString, ISqlMessageLogger logger)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
-        if (cmdlet is null)
-            throw new ArgumentNullException(nameof(cmdlet));
+        if (logger is null)
+            throw new ArgumentNullException(nameof(logger));
 
         _connection = new Mds.SqlConnection(connectionString);
-        _cmdlet     = cmdlet;
+        _logger     = logger;
 
         Initialize();
     }
@@ -65,14 +65,14 @@ internal sealed class SqlConnection : ISqlConnection
     /// <param name="password">
     ///   The password to use to authenticate with the database server.
     /// </param>
-    /// <param name="cmdlet">
-    ///   The cmdlet providing output methods to log server messages.
+    /// <param name="logger">
+    ///   An object that logs server messages received over the connection.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/>,
     ///   <paramref name="username"/>,
     ///   <paramref name="password"/>, and/or
-    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
+    ///   <paramref name="logger"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -81,10 +81,10 @@ internal sealed class SqlConnection : ISqlConnection
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
     public SqlConnection(
-        string       connectionString,
-        string       username,
-        SecureString password,
-        ICmdlet      cmdlet)
+        string            connectionString,
+        string            username,
+        SecureString      password,
+        ISqlMessageLogger logger)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
@@ -92,8 +92,8 @@ internal sealed class SqlConnection : ISqlConnection
             throw new ArgumentNullException(nameof(username));
         if (password is null)
             throw new ArgumentNullException(nameof(password));
-        if (cmdlet is null)
-            throw new ArgumentNullException(nameof(cmdlet));
+        if (logger is null)
+            throw new ArgumentNullException(nameof(logger));
 
         if (!password.IsReadOnly())
             (password = password.Copy()).MakeReadOnly();
@@ -101,7 +101,7 @@ internal sealed class SqlConnection : ISqlConnection
         var credential = new SqlCredential(username, password);
 
         _connection = new Mds.SqlConnection(connectionString, credential);
-        _cmdlet     = cmdlet;
+        _logger     = logger;
 
         Initialize();
     }
@@ -205,12 +205,12 @@ internal sealed class SqlConnection : ISqlConnection
 
     private void LogInformation(SqlError error)
     {
-        _cmdlet.WriteHost(error.Message);
+        _logger.LogInformation(error.Message);
     }
 
     private void LogWarning(SqlError error)
     {
-        _cmdlet.WriteWarning(Format(error));
+        _logger.LogWarning(Format(error));
 
         // Mark current command as failed
         HasErrors = true;

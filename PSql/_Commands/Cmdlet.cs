@@ -8,11 +8,28 @@ namespace PSql;
 /// <summary>
 ///   Base class for PSql cmdlets.
 /// </summary>
-public abstract class Cmdlet : System.Management.Automation.Cmdlet, ICmdlet
+public abstract class Cmdlet : System.Management.Automation.Cmdlet, ISqlMessageLogger
 {
     private static readonly string[] HostTag = { "PSHOST" };
 
-    /// <inheritdoc cref="ICmdlet.WriteHost"/>
+    /// <summary>
+    ///   Writes the specified message to the host.
+    /// </summary>
+    /// <param name="message">
+    ///   The message to write.
+    /// </param>
+    /// <param name="newLine">
+    ///   Whether a newline should follow the message.
+    /// </param>
+    /// <param name="foregroundColor">
+    ///   The foreground color to use.
+    /// </param>
+    /// <param name="backgroundColor">
+    ///   The background color to use.
+    /// </param>
+    /// <remarks>
+    ///   This method is similar to the PowerShell <c>Write-Host</c> cmdlet.
+    /// </remarks>
     public void WriteHost(
         string        message,
         bool          newLine         = true,
@@ -46,7 +63,11 @@ public abstract class Cmdlet : System.Management.Automation.Cmdlet, ICmdlet
         WriteInformation(data, HostTag);
     }
 
-    /// <inheritdoc cref="ICmdlet.WriteWarning"/>
-    public new void WriteWarning(string message)
-        => base.WriteWarning(message);
+    /// <inheritdoc/>
+    void ISqlMessageLogger.LogInformation(string message)
+        => WriteHost(message);
+
+    /// <inheritdoc/>
+    void ISqlMessageLogger.LogWarning(string message)
+        => WriteWarning(message);
 }
