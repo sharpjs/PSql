@@ -539,19 +539,20 @@ public class SqlContext : ICloneable
     /// <summary>
     ///   Opens a connection as determined by the property values of the
     ///   current context, optionally with the specified database name, logging
-    ///   server messages via the output methods of the specified cmdlet.
+    ///   server messages on the specified console.
     /// </summary>
     /// <param name="databaseName">
     ///   A database name.  If not <see langword="null"/>, this parameter
     ///   overrides the value of the <see cref="DatabaseName"/> property.
     /// </param>
-    /// <param name="logger">
-    ///   An object that logs server messages received over the connection.
+    /// <param name="console">
+    ///   The console on which to log server messages received over the
+    ///   connection.
     /// </param>
     /// <returns>
     ///   An object representing the open connection.
     /// </returns>
-    public ISqlConnection Connect(string? databaseName, ISqlMessageLogger logger)
+    public ISqlConnection Connect(string? databaseName, IConsole console)
     {
         const SqlClientVersion Version = SqlClientVersion.Latest;
 
@@ -567,11 +568,11 @@ public class SqlContext : ICloneable
                 connectionString,
                 credential!.UserName,
                 credential!.Password,
-                logger
+                console
             )
             : new SqlConnection(
                 connectionString,
-                logger
+                console
             );
     }
 

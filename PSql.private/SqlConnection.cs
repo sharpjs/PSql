@@ -17,21 +17,22 @@ internal sealed class SqlConnection : ISqlConnection
         });
 
     private readonly Mds.SqlConnection _connection;
-    private readonly ISqlMessageLogger _logger;
+    private readonly IConsole          _console;
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
-    ///   the specified connection string and logging delegates.
+    ///   the specified connection string and console.
     /// </summary>
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.
     /// </param>
-    /// <param name="logger">
-    ///   An object that logs server messages received over the connection.
+    /// <param name="console">
+    ///   The console on which to log server messages received over the
+    ///   connection.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/> and/or
-    ///   <paramref name="logger"/> is <see langword="null"/>.
+    ///   <paramref name="console"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -39,22 +40,22 @@ internal sealed class SqlConnection : ISqlConnection
     /// <exception cref="DbException">
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
-    public SqlConnection(string connectionString, ISqlMessageLogger logger)
+    public SqlConnection(string connectionString, IConsole console)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
+        if (console is null)
+            throw new ArgumentNullException(nameof(console));
 
         _connection = new Mds.SqlConnection(connectionString);
-        _logger     = logger;
+        _console     = console;
 
         Initialize();
     }
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
-    ///   the specified connection string, credential, and logging delegates.
+    ///   the specified connection string, credential, and console.
     /// </summary>
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.
@@ -65,14 +66,15 @@ internal sealed class SqlConnection : ISqlConnection
     /// <param name="password">
     ///   The password to use to authenticate with the database server.
     /// </param>
-    /// <param name="logger">
-    ///   An object that logs server messages received over the connection.
+    /// <param name="console">
+    ///   The console on which to log server messages received over the
+    ///   connection.
     /// </param>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="connectionString"/>,
     ///   <paramref name="username"/>,
     ///   <paramref name="password"/>, and/or
-    ///   <paramref name="logger"/> is <see langword="null"/>.
+    ///   <paramref name="console"/> is <see langword="null"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     ///   <paramref name="connectionString"/> is invalid.
@@ -81,10 +83,10 @@ internal sealed class SqlConnection : ISqlConnection
     ///   A connection-level error occurred while opening the connection.
     /// </exception>
     public SqlConnection(
-        string            connectionString,
-        string            username,
-        SecureString      password,
-        ISqlMessageLogger logger)
+        string       connectionString,
+        string       username,
+        SecureString password,
+        IConsole     console)
     {
         if (connectionString is null)
             throw new ArgumentNullException(nameof(connectionString));
@@ -92,8 +94,8 @@ internal sealed class SqlConnection : ISqlConnection
             throw new ArgumentNullException(nameof(username));
         if (password is null)
             throw new ArgumentNullException(nameof(password));
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
+        if (console is null)
+            throw new ArgumentNullException(nameof(console));
 
         if (!password.IsReadOnly())
             (password = password.Copy()).MakeReadOnly();
@@ -101,7 +103,7 @@ internal sealed class SqlConnection : ISqlConnection
         var credential = new SqlCredential(username, password);
 
         _connection = new Mds.SqlConnection(connectionString, credential);
-        _logger     = logger;
+        _console    = console;
 
         Initialize();
     }
@@ -205,12 +207,12 @@ internal sealed class SqlConnection : ISqlConnection
 
     private void LogInformation(SqlError error)
     {
-        _logger.LogInformation(error.Message);
+        _console.WriteHost(error.Message);
     }
 
     private void LogWarning(SqlError error)
     {
-        _logger.LogWarning(Format(error));
+        _console.WriteWarning(Format(error));
 
         // Mark current command as failed
         HasErrors = true;

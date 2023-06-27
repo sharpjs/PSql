@@ -8,7 +8,7 @@ namespace PSql;
 /// <summary>
 ///   Base class for PSql cmdlets.
 /// </summary>
-public abstract class Cmdlet : System.Management.Automation.Cmdlet, ISqlMessageLogger
+public abstract class Cmdlet : System.Management.Automation.Cmdlet, IConsole
 {
     private static readonly string[] HostTag = { "PSHOST" };
 
@@ -62,12 +62,4 @@ public abstract class Cmdlet : System.Management.Automation.Cmdlet, ISqlMessageL
 
         WriteInformation(data, HostTag);
     }
-
-    /// <inheritdoc/>
-    void ISqlMessageLogger.LogInformation(string message)
-        => WriteHost(message);
-
-    /// <inheritdoc/>
-    void ISqlMessageLogger.LogWarning(string message)
-        => WriteWarning(message);
 }
