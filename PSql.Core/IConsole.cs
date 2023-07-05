@@ -9,7 +9,8 @@ namespace PSql;
 public interface IConsole
 {
     /// <summary>
-    ///   Writes the specified object to the output stream.
+    ///   Writes the specified object to the output stream as a single object,
+    ///   even if the object is enumerable.
     /// </summary>
     /// <param name="obj">
     ///   The object to write.
@@ -17,10 +18,16 @@ public interface IConsole
     void WriteObject(object obj);
 
     /// <summary>
-    ///   Writes the specified object to the output stream.
+    ///   Writes the specified object to the output stream, optionally
+    ///   enumerating the object if it is enumerable.
     /// </summary>
     /// <param name="obj">
     ///   The object to write.
+    /// </param>
+    /// <param name="enumerate">
+    ///   <see langword="true"/> to enumerate <paramref name="obj"/> if it is
+    ///     enumerable;
+    ///   <see langword="false"/> otherwise.
     /// </param>
     void WriteObject(object obj, bool enumerate);
 
