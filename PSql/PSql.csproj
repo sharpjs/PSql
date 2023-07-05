@@ -41,7 +41,7 @@
       See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
     -->
     <None Include="..\PSql.private\bin\$(Configuration)\$(TargetFramework)\**"
-          LinkBase="deps\" CopyToOutputDirectory="PreserveNewest" Visible="true" />
+          LinkBase="deps\" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
 </Project>
