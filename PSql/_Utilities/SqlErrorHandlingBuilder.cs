@@ -27,6 +27,19 @@ public class SqlErrorHandlingBuilder
     }
 
     /// <summary>
+    ///   Gets whether the builder is empty.
+    /// </summary>
+    public bool IsEmpty
+        => SuperbatchIsEmpty
+        && CurrentBatchIsEmpty;
+
+    private bool SuperbatchIsEmpty
+        => _builder.Length <= Prologue.Length;
+
+    private bool CurrentBatchIsEmpty
+        => _chunks.Count == 0;
+
+    /// <summary>
     ///   Ends the current batch and begins a new batch.
     /// </summary>
     /// <remarks>
@@ -34,7 +47,7 @@ public class SqlErrorHandlingBuilder
     /// </remarks>
     public void StartNewBatch()
     {
-        if (_chunks.Count == 0)
+        if (CurrentBatchIsEmpty)
             return;
 
         FinalizeBatch();
@@ -147,8 +160,8 @@ public class SqlErrorHandlingBuilder
     {
         StartNewBatch();
 
-        if (_builder.Length <= Prologue.Length)
-            return ""; // no batches specified
+        if (SuperbatchIsEmpty)
+            return "";
 
         _builder.Append(Epilogue);
 
