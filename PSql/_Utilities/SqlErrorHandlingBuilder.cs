@@ -146,8 +146,8 @@ public class SqlErrorHandlingBuilder
     }
 
     /// <summary>
-    ///   Ends the current batch and returns the accumulated superbatch with
-    ///   error-handling wrapper.
+    ///   Ends the current batch, returns the accumulated superbatch with
+    ///   error-handling wrapper, and resets the builder to its initial state.
     /// </summary>
     /// <returns>
     ///   The accumulated superbatch with error-handling wrapper.
@@ -163,9 +163,13 @@ public class SqlErrorHandlingBuilder
         if (SuperbatchIsEmpty)
             return "";
 
-        _builder.Append(Epilogue);
+        var result = _builder.Append(Epilogue).ToString();
 
-        return _builder.ToString();
+        // Reset
+        _builder.Clear();
+        _builder.Append(Prologue);
+
+        return result;
     }
 
     private void FinalizeBatch()
