@@ -30,9 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="System.Data" />
-    <Using Include="System.Data.Common" />
-    <Using Include="System.Management.Automation" />
     <Using Include="Microsoft.Data.SqlClient" />
     <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
   </ItemGroup>

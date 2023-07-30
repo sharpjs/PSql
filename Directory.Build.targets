@@ -24,6 +24,12 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     <!-- Required for Moq to mock a class with an internal abstract method. -->
   </ItemGroup>
+  <ItemGroup>
+    <Using Remove="System.Net.Http" />
+    <Using Include="System.Data" />
+    <Using Include="System.Data.Common" />
+    <Using Include="System.Management.Automation" />
+  </ItemGroup>
 
   <!-- Versioning -->
   <ItemGroup>

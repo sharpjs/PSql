@@ -26,12 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="System.Data" />
-    <Using Include="System.Data.Common" />
-    <Using Include="System.Management.Automation" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="$(PowerShellItemIncludes)"
              Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
 

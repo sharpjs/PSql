@@ -18,10 +18,4 @@
                       Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Using Include="System.Data" />
-    <Using Include="System.Data.Common" />
-    <Using Include="System.Management.Automation" />
-  </ItemGroup>
-
 </Project>
