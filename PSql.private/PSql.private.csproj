@@ -15,18 +15,22 @@
     <!-- ^^ Opt dependencies out via IncludeAssets="compile" -->
   </PropertyGroup>
 
-  <!-- Public dependencies -->
+  <!-- Public dependencies (loaded in default AssemblyLoadContext) -->
   <ItemGroup>
-    <PackageReference Include="System.Management.Automation"
-                      Version="[7.0.0, 8.0.0)" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="System.Management.Automation" Version="[7.0.0, 8.0.0)"
+                      IncludeAssets="compile" PrivateAssets="all" />
 
-    <ProjectReference Include="..\PSql.Core\PSql.Core.csproj" Private="false" />
+    <ProjectReference Include="..\PSql.Core\PSql.Core.csproj"
+                      Private="false" />
   </ItemGroup>
 
-  <!-- Private dependencies -->
+  <!-- Private dependencies (loaded in private AssemblyLoadContext) -->
   <ItemGroup>
-    <PackageReference Include="Prequel"                  Version="1.0.3" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" PrivateAssets="all" />
+    <PackageReference Include="Prequel" Version="1.0.3"
+                      PrivateAssets="all" />
+
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1"
+                      PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

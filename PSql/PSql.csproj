@@ -23,6 +23,7 @@
 
     <ProjectReference Include="..\PSql.private\PSql.private.csproj"
                       Private="false" PrivateAssets="all" />
+                      <!-- Copied to deps\ directory as None items below -->
   </ItemGroup>
 
   <ItemGroup>
@@ -30,8 +31,8 @@
              Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
 
     <!--
-      Isolate PSql private dependencies into a subdirectory for consumption by
-      a private AssemblyLoadContext, preventing conflicts with other modules.
+      Isolate private dependencies into a subdirectory for consumption by a
+      private AssemblyLoadContext, preventing conflicts with other modules.
       See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
     -->
     <None Include="..\PSql.private\bin\$(Configuration)\$(TargetFramework)\**"
