@@ -88,6 +88,7 @@ jobs:
         run: >
           dotnet build --no-restore -c Release
           -p:TreatWarningsAsErrors=true
+          -p:GeneratePackageOnBuild=true
           -p:PackageOutputPath=${{ runner.temp }}/dist
 
       - name: Test
@@ -125,17 +126,16 @@ jobs:
         uses: actions/upload-artifact@v3
         #url: https://github.com/actions/upload-artifact
         with:
-          name: Packages
+          name: Module
           path: ${{ runner.temp }}/dist
           if-no-files-found: error
 
       - name: Publish Module
         if: startsWith(github.ref, 'refs/tags/release/')
-        shell: pwsh
         run: >
           dotnet nuget push "${{ runner.temp }}/dist/*.nupkg"
           -s https://www.powershellgallery.com/
-          -k $env:PSGALLERY_API_KEY
+          -k "$PSGALLERY_API_KEY"
           --skip-duplicate
           --no-symbols
         env:
