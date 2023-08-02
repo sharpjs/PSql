@@ -121,6 +121,7 @@ jobs:
           targetdir: ${{ runner.temp }}/coverage
           reporttypes: Html;MarkdownSummaryGithub;Badges
           verbosity: Warning
+          tag: null
 
       - name: Publish Coverage Summary
         run: >
