@@ -76,6 +76,20 @@ jobs:
           -p:Counter=${{ github.run_number }}
           -p:RepositoryCommit=${{ github.sha }}
 
+      - name: Publish Version
+        run: |
+          echo "
+          |            |                           |
+          |:-----------|:--------------------------|
+          | Version    | \`$VERSION\`              |
+          | Branch/Tag | \`$GITHUB_REF\` $HEAD_REF |
+          | Commit     | \`$GITHUB_SHA\` $HEAD_SHA |
+          " >> "$GITHUB_STEP_SUMMARY"
+        env:
+          VERSION:  ${{ steps.stamp.outputs.version }}
+          HEAD_REF: ${{ github.event.pull_request && format('(head = `{0}`)', github.event.pull_request.head.ref) }}
+          HEAD_SHA: ${{ github.event.pull_request && format('(head = `{0}`)', github.event.pull_request.head.sha) }}
+
       - name: Restore NuGet Packages
         run: dotnet restore
 
@@ -108,11 +122,11 @@ jobs:
           reporttypes: Html;MarkdownSummaryGithub;Badges
           verbosity: Warning
 
-      #- name: Publish Coverage Summary
-      #  run: >
-      #    cat "$env:REPORT_PATH" >> "$env:GITHUB_STEP_SUMMARY"
-      #  env:
-      #    REPORT_PATH: ${{ runner.temp }}/coverage/SummaryGithub.md
+      - name: Publish Coverage Summary
+        run: >
+          { echo '## Coverage'; sed '/^#/d' "$REPORT_PATH"; } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          REPORT_PATH: ${{ runner.temp }}/coverage/SummaryGithub.md
 
       - name: Save Coverage Report
         uses: actions/upload-artifact@v3
