@@ -545,14 +545,17 @@ public class SqlContext : ICloneable
     ///   A database name.  If not <see langword="null"/>, this parameter
     ///   overrides the value of the <see cref="DatabaseName"/> property.
     /// </param>
-    /// <param name="console">
-    ///   The console on which to log server messages received over the
+    /// <param name="logger">
+    ///   The object to use to log server messages received over the
     ///   connection.
     /// </param>
     /// <returns>
     ///   An object representing the open connection.
     /// </returns>
-    public ISqlConnection Connect(string? databaseName, IConsole console)
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="logger"/> is <see langword="null"/>.
+    /// </exception>
+    public ISqlConnection Connect(string? databaseName, ISqlMessageLogger logger)
     {
         const SqlClientVersion Version = SqlClientVersion.Latest;
 
@@ -568,12 +571,36 @@ public class SqlContext : ICloneable
                 connectionString,
                 credential!.UserName,
                 credential!.Password,
-                console
+                logger
             )
             : new SqlConnection(
                 connectionString,
-                console
+                logger
             );
+    }
+
+    /// <summary>
+    ///   Opens a connection as determined by the property values of the
+    ///   current context, optionally with the specified database name, logging
+    ///   server messages on the specified console.
+    /// </summary>
+    /// <param name="databaseName">
+    ///   A database name.  If not <see langword="null"/>, this parameter
+    ///   overrides the value of the <see cref="DatabaseName"/> property.
+    /// </param>
+    /// <param name="cmdlet">
+    ///   The PowerShell cmdlet to use to log server messages received over the
+    ///   connection.
+    /// </param>
+    /// <returns>
+    ///   An object representing the open connection.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
+    /// </exception>
+    public ISqlConnection Connect(string? databaseName, Cmdlet cmdlet)
+    {
+        return Connect(databaseName, new CmdletSqlMessageLogger(cmdlet));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

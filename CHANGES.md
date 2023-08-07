@@ -5,9 +5,12 @@ Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
 ## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.1.0..HEAD)
+- Change how the module loads dependencies.  Now, the module loads dependencies
+  into a private context using [the recommended technique](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts)
+  to prevent errors if other moduels load conflicting dependencies.
+- Remove `IConsole`, replacing it with a simpler `ISqlMessageLogger`.
 - Update Microsoft.Data.SqlClient to [5.0.1](https://github.com/dotnet/SqlClient/blob/5.0-servicing/release-notes/5.0/5.0.1.md#microsoftdatasqlclient-501-released-7-october-2022)
 - Add retries on transient failures.
-- Improve dependency isolation.
 
 ## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
 - Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)

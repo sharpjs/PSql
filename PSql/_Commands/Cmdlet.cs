@@ -8,7 +8,7 @@ namespace PSql;
 /// <summary>
 ///   Base class for PSql cmdlets.
 /// </summary>
-public abstract class Cmdlet : PSCmdlet, IConsole
+public abstract class Cmdlet : PSCmdlet
 {
     private static readonly string[] HostTag = { "PSHOST" };
 
