@@ -5,7 +5,7 @@ namespace PSql;
 
 [Cmdlet(VerbsCommunications.Connect, "Sql")]
 [OutputType(typeof(ISqlConnection))]
-public class ConnectSqlCommand : Cmdlet
+public class ConnectSqlCommand : PSCmdlet
 {
     // -Context
     [Parameter(Position = 0, ValueFromPipeline = true)]

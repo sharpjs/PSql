@@ -8,6 +8,7 @@ Most lines should begin with one of these words:
 - Change how the module loads dependencies.  Now, the module loads dependencies
   into a private context using [the recommended technique](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts)
   to prevent errors if other moduels load conflicting dependencies.
+- Remove `Cmdlet`, moving its `WriteHost` method to an extension method.
 - Remove `IConsole`, replacing it with a simpler `ISqlMessageLogger`.
 - Update Microsoft.Data.SqlClient to [5.0.1](https://github.com/dotnet/SqlClient/blob/5.0-servicing/release-notes/5.0/5.0.1.md#microsoftdatasqlclient-501-released-7-october-2022)
 - Add retries on transient failures.

@@ -5,7 +5,7 @@ namespace PSql;
 
 [Cmdlet(VerbsCommunications.Disconnect, "Sql")]
 [OutputType(typeof(void))]
-public class DisconnectSqlCommand : Cmdlet
+public class DisconnectSqlCommand : PSCmdlet
 {
     // -Connection
     [Parameter(Position = 0, ValueFromPipeline = true, ValueFromRemainingArguments = true)]

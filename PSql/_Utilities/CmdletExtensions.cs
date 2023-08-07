@@ -6,15 +6,18 @@ using System.Management.Automation.Host;
 namespace PSql;
 
 /// <summary>
-///   Base class for PSql cmdlets.
+///   Extension methods for <see cref="Cmdlet"/> and <see cref="PSCmdlet"/>.
 /// </summary>
-public abstract class Cmdlet : PSCmdlet
+public static class CmdletExtensions
 {
     private static readonly string[] HostTag = { "PSHOST" };
 
     /// <summary>
-    ///   Writes the specified message to the host.
+    ///   Writes the specified message as a host information message.
     /// </summary>
+    /// <param name="cmdlet">
+    ///   The cmdlet that should write the message.
+    /// </param>
     /// <param name="message">
     ///   The message to write.
     /// </param>
@@ -27,15 +30,22 @@ public abstract class Cmdlet : PSCmdlet
     /// <param name="backgroundColor">
     ///   The background color to use.
     /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///   <paramref name="cmdlet"/> is <see langword="null"/>.
+    /// </exception>
     /// <remarks>
     ///   This method is similar to the PowerShell <c>Write-Host</c> cmdlet.
     /// </remarks>
-    public void WriteHost(
+    public static void WriteHost(
+        this Cmdlet   cmdlet,
         string        message,
         bool          newLine         = true,
         ConsoleColor? foregroundColor = null,
         ConsoleColor? backgroundColor = null)
     {
+        if (cmdlet is null)
+            throw new ArgumentNullException(nameof(cmdlet));
+
         // Technique learned from PSv5+ Write-Host implementation, which works
         // by sending specially-marked messages to the information stream.
         //
@@ -60,6 +70,6 @@ public abstract class Cmdlet : PSCmdlet
             }
         }
 
-        WriteInformation(data, HostTag);
+        cmdlet.WriteInformation(data, HostTag);
     }
 }

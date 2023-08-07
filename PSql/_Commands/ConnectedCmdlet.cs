@@ -6,7 +6,7 @@ namespace PSql;
 /// <summary>
 ///   Base class for PSql cmdlets that use an open database connection.
 /// </summary>
-public abstract class ConnectedCmdlet : Cmdlet, IDisposable
+public abstract class ConnectedCmdlet : PSCmdlet, IDisposable
 {
     protected const string
         ConnectionName = nameof(Connection),
