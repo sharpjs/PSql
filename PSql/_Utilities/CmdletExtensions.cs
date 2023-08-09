@@ -38,7 +38,7 @@ public static class CmdletExtensions
     /// </remarks>
     public static void WriteHost(
         this Cmdlet   cmdlet,
-        string        message,
+        string?       message,
         bool          newLine         = true,
         ConsoleColor? foregroundColor = null,
         ConsoleColor? backgroundColor = null)
