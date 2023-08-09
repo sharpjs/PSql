@@ -21,7 +21,7 @@ internal sealed class SqlConnection : ISqlConnection
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
-    ///   the specified connection string and console.
+    ///   the specified connection string and message logger.
     /// </summary>
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.
@@ -55,7 +55,7 @@ internal sealed class SqlConnection : ISqlConnection
 
     /// <summary>
     ///   Initializes and opens a new <see cref="SqlConnection"/> instance with
-    ///   the specified connection string, credential, and console.
+    ///   the specified connection string, credential, and message logger.
     /// </summary>
     /// <param name="connectionString">
     ///   A string that specifies parameters for the connection.

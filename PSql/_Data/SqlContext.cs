@@ -539,7 +539,7 @@ public class SqlContext : ICloneable
     /// <summary>
     ///   Opens a connection as determined by the property values of the
     ///   current context, optionally with the specified database name, logging
-    ///   server messages on the specified console.
+    ///   server messages with the specified logger.
     /// </summary>
     /// <param name="databaseName">
     ///   A database name.  If not <see langword="null"/>, this parameter
@@ -582,7 +582,7 @@ public class SqlContext : ICloneable
     /// <summary>
     ///   Opens a connection as determined by the property values of the
     ///   current context, optionally with the specified database name, logging
-    ///   server messages on the specified console.
+    ///   server messages on the specified cmdlet.
     /// </summary>
     /// <param name="databaseName">
     ///   A database name.  If not <see langword="null"/>, this parameter
