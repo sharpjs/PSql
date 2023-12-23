@@ -10,7 +10,7 @@ Most lines should begin with one of these words:
   to prevent errors if other moduels load conflicting dependencies.
 - Remove `Cmdlet`, moving its `WriteHost` method to an extension method.
 - Remove `IConsole`, replacing it with a simpler `ISqlMessageLogger`.
-- Update Microsoft.Data.SqlClient to [5.0.1](https://github.com/dotnet/SqlClient/blob/5.0-servicing/release-notes/5.0/5.0.1.md#microsoftdatasqlclient-501-released-7-october-2022)
+- Update Microsoft.Data.SqlClient to [5.1.2](https://github.com/dotnet/SqlClient/blob/main/release-notes/5.1/5.1.2.md)
 - Add retries on transient failures.
 
 ## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
