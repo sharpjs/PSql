@@ -30,7 +30,7 @@
 
   <!-- Build properties -->
   <PropertyGroup>
-    <LangVersion>11</LangVersion>
+    <LangVersion>12</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InheritDocEnabled>true</InheritDocEnabled>
