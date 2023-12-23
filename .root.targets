@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+﻿<Project Sdk="Microsoft.Build.NoTargets/3.7.56">
   <!-- https://github.com/microsoft/MSBuildSdks/tree/main/src/NoTargets -->
 
   <!--
