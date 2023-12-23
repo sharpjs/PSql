@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Management.Automation"
-                      Version="[7.0.0, 8.0.0)" PrivateAssets="all" />
+                      PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
