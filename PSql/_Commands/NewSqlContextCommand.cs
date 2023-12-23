@@ -1,6 +1,9 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+// Don't require doc comments.  Commands are documented via a help file.
+#pragma warning disable CS1591
+
 namespace PSql;
 
 using static ApplicationIntent;

@@ -7,7 +7,6 @@
 
   <PropertyGroup>
     <Description>PSql Core Types Library</Description>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

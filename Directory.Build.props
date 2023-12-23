@@ -30,6 +30,7 @@
 
   <!-- Build properties -->
   <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>12</LangVersion>
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>enable</Nullable>

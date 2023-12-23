@@ -1,6 +1,9 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+// TODO: Document
+#pragma warning disable CS1591
+
 namespace PSql;
 
 public class ValidateNullOrPositiveUInt16Attribute : ValidateArgumentsAttribute

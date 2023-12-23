@@ -1,6 +1,9 @@
 // Copyright 2023 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
+// TODO: Document
+#pragma warning disable CS1591
+
 using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;

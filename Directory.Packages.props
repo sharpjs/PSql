@@ -24,11 +24,11 @@
 
   <ItemGroup>
     <PackageVersion Include="Microsoft.Data.SqlClient"                   Version="5.1.2" />
-    <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="7.0.13" />
+    <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="7.2.17" />
     <PackageVersion Include="Prequel"                                    Version="1.0.3" />
     <PackageVersion Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.1.1" />
     <PackageVersion Include="Subatomix.Testing"                          Version="2.5.0" />
-    <PackageVersion Include="System.Management.Automation"               Version="[7.0.0, 8.0.0)" />
+    <PackageVersion Include="System.Management.Automation"               Version="[7.2.0, 8.0.0)" />
     <PackageVersion Include="Unindent"                                   Version="1.1.1" />
   </ItemGroup>
 

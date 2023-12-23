@@ -7,7 +7,6 @@
   -->
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

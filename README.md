@@ -16,7 +16,7 @@ of production use too.
 
 ## Installation
 
-PSql requires PowerShell 7.0 or later and should work on any platform where
+PSql requires PowerShell 7.2 or later and should work on any platform where
 PowerShell runs.
 
 To install PSql from [PowerShell Gallery](https://www.powershellgallery.com/packages/PSql),

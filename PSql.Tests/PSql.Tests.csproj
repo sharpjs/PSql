@@ -7,7 +7,6 @@
 
   <PropertyGroup>
     <Description>Tests for PSql</Description>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>PSql</RootNamespace>
   </PropertyGroup>
 
