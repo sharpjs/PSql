@@ -19,7 +19,7 @@
     <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="7.2.18" />
     <PackageVersion Include="Prequel"                                    Version="1.0.3" />
     <PackageVersion Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.1.1" />
-    <PackageVersion Include="Subatomix.Testing"                          Version="3.0.0" />
+    <PackageVersion Include="Subatomix.Testing"                          Version="3.1.0-rc.1" />
     <PackageVersion Include="System.Management.Automation"               Version="[7.2.0, 8.0.0)" />
     <PackageVersion Include="Unindent"                                   Version="1.1.1" />
   </ItemGroup>
