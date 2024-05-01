@@ -13,6 +13,8 @@ Most lines should begin with one of these words:
 - Remove `IConsole`, replacing it with a simpler `ISqlMessageLogger`.
 - Update Microsoft.Data.SqlClient to [5.1.5](https://github.com/dotnet/SqlClient/blob/main/release-notes/5.1/5.1.5.md)
 - Add retries on transient failures.
+- Fix `EncryptionMode.Default` requiring certificate validation for local
+  connections.
 
 ## [2.1.0](https://github.com/sharpjs/PSql/compare/release/2.0.1..2.1.0)
 - Update Microsoft.Data.SqlClient to [4.1.0](https://github.com/dotnet/SqlClient/blob/v4.1.0/release-notes/4.1/4.1.0.md)
