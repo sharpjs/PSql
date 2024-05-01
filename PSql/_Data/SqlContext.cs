@@ -511,12 +511,12 @@ public class SqlContext : ICloneable
 
         return mode switch
         {
-            //                            ( ENCRYPT,       VERIFY )
-            EncryptionMode.None        => ( false,         false  ),
-            EncryptionMode.Unverified  => ( true,          false  ),
-            EncryptionMode.Full        => ( true,          true   ),
-        //  EncryptionMode.Default     ↓↓ ( !GetIsLocal(), true   ),
-            _                          => ( !GetIsLocal(), true   ),
+            //                                     ( ENCRYPT, VERIFY )
+            EncryptionMode.None                 => ( false,   false  ),
+            EncryptionMode.Unverified           => ( true,    false  ),
+            EncryptionMode.Full                 => ( true,    true   ),
+            EncryptionMode.Default when IsLocal => ( false,   false  ),
+            _                                   => ( true,    true   ),
         };
     }
 
