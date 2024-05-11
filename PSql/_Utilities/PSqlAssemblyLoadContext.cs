@@ -1,4 +1,4 @@
-// Copyright 2023 Subatomix Research Inc.
+// Copyright 2024 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
 using System.Collections.Concurrent;
@@ -15,7 +15,7 @@ using Void = ValueTuple;
 /// </summary>
 internal sealed class PSqlAssemblyLoadContext : AssemblyLoadContext
 {
-    // This isolation technique evolved from teh one described here:
+    // This isolation technique evolved from the one described here:
     // https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
 
     /// <summary>

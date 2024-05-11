@@ -1,4 +1,4 @@
-// Copyright 2023 Subatomix Research Inc.
+// Copyright 2024 Subatomix Research Inc.
 // SPDX-License-Identifier: ISC
 
 using System.Reflection;
@@ -16,7 +16,7 @@ namespace PSql.Internal;
 /// </remarks>
 public class PrivateDependencyRegistration
 {
-    // This isolation technique evolved from teh one described here:
+    // This isolation technique evolved from the one described here:
     // https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
 
     private const string
