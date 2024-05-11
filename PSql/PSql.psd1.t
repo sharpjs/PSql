@@ -1,4 +1,4 @@
-# Copyright 2023 Subatomix Research Inc.
+# Copyright 2024 Subatomix Research Inc.
 # SPDX-License-Identifier: ISC
 @{
     # Identity
@@ -16,7 +16,7 @@
     CompatiblePSEditions = 'Core'
     PowerShellVersion    = '7.2'
     #RequiredModules     = @(...)
-    RequiredAssemblies   = @("PSql.Core")
+    RequiredAssemblies   = @("PSql.Core.dll")
 
     # Initialization
     #ScriptsToProcess = @(...)
