@@ -53,12 +53,12 @@ internal class SqlServerContainer : IDisposable
                 "--env",                 "MSSQL_SA_PASSWORD="     + Credential.Password,
                 "--env",                 "MSSQL_COLLATION="       + Collation,
                 "--env",                 "MSSQL_MEMORY_LIMIT_MB=" + MemoryLimitMb,
-                "--health-cmd",          "/opt/mssql-tools/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -Q 'PRINT HOST_NAME();'",
+                "--health-cmd",          "/opt/mssql-tools18/bin/sqlcmd -S . -U sa -P $MSSQL_SA_PASSWORD -No -Q 'PRINT HOST_NAME();'",
                 "--health-start-period", "20s",
                 "--health-interval",     "15s",
                 "--health-timeout",      "10s",
                 "--health-retries",      "2",
-                "mcr.microsoft.com/mssql/server:2019-latest"
+                "mcr.microsoft.com/mssql/server:2022-latest"
             )
             .Run(expecting: 0);
 
