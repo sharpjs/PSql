@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageVersion Include="Microsoft.Data.SqlClient"                   Version="5.1.5" />
-    <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="[7.2.19, 7.3.0)" />
+    <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="[7.2.24, 7.3.0)" />
     <PackageVersion Include="Prequel"                                    Version="1.0.3" />
     <PackageVersion Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.1.1" />
     <PackageVersion Include="Subatomix.Testing"                          Version="3.1.0" />
