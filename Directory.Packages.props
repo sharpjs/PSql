@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <GlobalPackageReference Include="SauceControl.InheritDoc"             Version="2.0.1" />
+    <GlobalPackageReference Include="SauceControl.InheritDoc"             Version="2.0.2" />
     <GlobalPackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.0.1" />
   </ItemGroup>
 
