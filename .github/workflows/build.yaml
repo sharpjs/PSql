@@ -102,7 +102,6 @@ jobs:
         run: >
           dotnet build --no-restore -c Release
           -p:TreatWarningsAsErrors=true
-          -p:GeneratePackageOnBuild=true
           -p:PackageOutputPath=${{ runner.temp }}/dist
 
       - name: Test
