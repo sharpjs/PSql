@@ -1,5 +1,5 @@
-# Copyright 2023 Subatomix Research Inc.
-# SPDX-License-Identifier: ISC
+# Copyright Subatomix Research Inc.
+# SPDX-License-Identifier: MIT
 
 # Auto detect text files and perform LF normalization
 * text=auto

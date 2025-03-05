@@ -1,5 +1,5 @@
-// Copyright 2023 Subatomix Research Inc.
-// SPDX-License-Identifier: ISC
+// Copyright Subatomix Research Inc.
+// SPDX-License-Identifier: MIT
 
 // Don't require doc comments.  Commands are documented via a help file.
 #pragma warning disable CS1591

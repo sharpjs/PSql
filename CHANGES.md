@@ -5,6 +5,7 @@ Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
 ## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.1.0..HEAD)
+- Change license to MIT.
 - Change target to PowerShell 7.2 / .NET 6.
 - Change how the module loads dependencies.  Now, the module loads dependencies
   into a private context using [the recommended technique](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts)
@@ -45,6 +46,6 @@ The 2.0.0 release is a complete rewrite of PSql.
 - Add automated build and publish via GitHub Actions.
 
 <!--
-  Copyright 2023 Subatomix Research Inc.
-  SPDX-License-Identifier: ISC
+  Copyright Subatomix Research Inc.
+  SPDX-License-Identifier: MIT
 -->

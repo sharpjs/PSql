@@ -5,8 +5,8 @@
     xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10"
         xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
   <!-- 
-    Copyright 2023 Subatomix Research Inc.
-    SPDX-License-Identifier: ISC
+    Copyright Subatomix Research Inc.
+    SPDX-License-Identifier: MIT
 
     Documentation:
     https://docs.microsoft.com/en-us/powershell/developer/help/how-to-create-the-cmdlet-help-file

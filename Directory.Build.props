@@ -1,8 +1,8 @@
 <Project>
 
   <!--
-    Copyright 2023 Subatomix Research Inc.
-    SPDX-License-Identifier: ISC
+    Copyright Subatomix Research Inc.
+    SPDX-License-Identifier: MIT
   -->
 
   <!--
@@ -16,10 +16,10 @@
   <PropertyGroup>
     <Product>PSql</Product>
     <VersionPrefix>3.0.0</VersionPrefix>
-    <Authors>Subatomix Research Inc.</Authors>
+    <Authors>Jeffrey Sharp</Authors>
     <Company>Subatomix Research Inc.</Company>
     <Copyright>© $([System.DateTime]::UtcNow.Year) $(Company)</Copyright>
-    <PackageLicenseExpression>ISC</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sharpjs/PSql</PackageProjectUrl>
     <PackageTags>powershell sql sql-server azure invoke sqlcmd</PackageTags>
     <PackageReleaseNotes>$(PackageProjectUrl)/blob/main/CHANGES.md</PackageReleaseNotes>
