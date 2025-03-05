@@ -108,7 +108,7 @@ jobs:
         run: >
           dotnet test --no-build -c Release
           --settings Coverlet.runsettings
-          --results-directory:${{ runner.temp }}/coverage/raw
+          --results-directory ${{ runner.temp }}/coverage/raw
         env:
           MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
 
