@@ -95,7 +95,7 @@ jobs:
 
       - name: Build 1
         run: >
-          dotnet build PSql.private --no-restore -c Release
+          dotnet build PSql.Engine --no-restore -c Release
           -p:TreatWarningsAsErrors=true
 
       - name: Build 2

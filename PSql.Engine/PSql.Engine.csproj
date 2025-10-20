@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>PSql Engine</Description>
+    <RootNamespace>PSql</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- TODO: Ship NuGet package -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Prequel" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="System.Management.Automation" />
+    <Using Include="Microsoft.Data.SqlClient" />
+    <Using Include="Microsoft.Data.SqlClient" Alias="Mds" />
+  </ItemGroup>
+
+</Project>

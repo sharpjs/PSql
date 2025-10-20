@@ -16,7 +16,7 @@
     CompatiblePSEditions = 'Core'
     PowerShellVersion    = '7.2'
     #RequiredModules     = @(...)
-    RequiredAssemblies   = @("PSql.Core.dll")
+    #RequiredAssemblies  = @(...)
 
     # Initialization
     #ScriptsToProcess = @(...)

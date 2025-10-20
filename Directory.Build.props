@@ -40,6 +40,15 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <!-- Default visibility -->
+  <ItemGroup>
+    <Using Remove="System.Net.Http" />
+    <Using Include="System.Data" />
+    <Using Include="System.Data.Common" />
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Management.Automation" />
+  </ItemGroup>
+
   <!-- Packaging properties -->
   <PropertyGroup>
     <PackageOutputPath>..\dist\</PackageOutputPath>

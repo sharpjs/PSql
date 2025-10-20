@@ -6,36 +6,38 @@
   -->
 
   <PropertyGroup>
-    <Description>Cmdlets to connect and invoke commands against SQL Server, Azure SQL Database, or compatible products.</Description>
+    <Description>Cmdlets to connect and invoke commands against SQL Server and Azure SQL Database.</Description>
     <GenerateDependencyFile>false</GenerateDependencyFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PowerShellItemIncludes>$(PowerShellItemIncludes);**/*.txt</PowerShellItemIncludes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule"
-                      PrivateAssets="all" />
-
-    <PackageReference Include="System.Management.Automation"
-                      PrivateAssets="all" />
-
-    <ProjectReference Include="..\PSql.Core\PSql.Core.csproj" />
-
-    <ProjectReference Include="..\PSql.private\PSql.private.csproj"
-                      Private="false" PrivateAssets="all" />
-                      <!-- Copied to deps\ directory as None items below -->
+    <PackageReference Include="Subatomix.Build.Packaging.PowerShellModule" PrivateAssets="all" />
+    <PackageReference Include="System.Management.Automation"               PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(PowerShellItemIncludes)"
-             Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <!-- Copied to deps\ directory as None items below -->
+    <ProjectReference
+      Include="..\PSql.Engine\PSql.Engine.csproj"
+      Private="false" PrivateAssets="all" Aliases="Engine" />
+  </ItemGroup>
 
-    <!--
-      Isolate private dependencies into a subdirectory for consumption by a
-      private AssemblyLoadContext, preventing conflicts with other modules.
-      See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
-    -->
-    <None Include="..\PSql.private\bin\$(Configuration)\$(TargetFramework)\**"
-          LinkBase="deps\" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  <ItemGroup>
+    <Content
+      Include="$(PowerShellItemIncludes)"
+      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
+  <!--
+    Isolate private dependencies into a subdirectory for consumption by a
+    private AssemblyLoadContext, preventing conflicts with other modules.
+    See: https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts
+  -->
+  <ItemGroup>
+    <None
+      Include="..\PSql.Engine\bin\$(Configuration)\$(TargetFramework)\**"
+      LinkBase="deps\" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
 </Project>

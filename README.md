@@ -150,7 +150,7 @@ To disable `Invoke-Sql` preprocessing, use the `-NoPreprocessing` switch.
 
 ### Error Handling
 
-By default, `Invoke-Sql` wraps SQL batches in [an error-handling shim](https://github.com/sharpjs/PSql/blob/main/PSql/_Utilities/SqlErrorHandling.cs#L67-L120).
+By default, `Invoke-Sql` wraps SQL batches in [an error-handling shim](https://github.com/sharpjs/PSql/blob/main/PSql/Utilities/SqlErrorHandling.cs#L67-L120).
 The wrapper improves the diagnostic experience by printing the batch that
 caused an error.  Here is an example:
 

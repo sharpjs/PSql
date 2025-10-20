@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Tests for PSql.Engine</Description>
+    <RootNamespace>PSql</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotStuff" />
+    <PackageReference Include="Subatomix.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PSql.Engine\PSql.Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Remove="FluentAssertions" />
+    <Using Remove="System.Management.Automation" />
+    <Using Include="Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+</Project>

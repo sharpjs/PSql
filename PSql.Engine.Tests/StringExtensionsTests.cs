@@ -1,20 +1,11 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 [TestFixture]
 public class StringExtensionsTests
 {
-    [Test]
-    [TestCase(null, false)]
-    [TestCase("",   false)]
-    [TestCase("a",  true )]
-    public void HasContent(string? s, bool expected)
-    {
-        s.HasContent().Should().Be(expected);
-    }
-
     [Test]
     [TestCase(null, true )]
     [TestCase("",   true )]

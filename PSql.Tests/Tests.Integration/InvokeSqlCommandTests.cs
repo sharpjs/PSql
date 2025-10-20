@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Data.SqlTypes;
-using System.Management.Automation;
 using System.Runtime.InteropServices;
 using FluentAssertions.Extensions;
 using Unindent;
