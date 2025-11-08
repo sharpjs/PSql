@@ -12,7 +12,7 @@ public class StringExtensionsTests
     [TestCase("a",  true )]
     public void HasContent(string? s, bool expected)
     {
-        s.HasContent().Should().Be(expected);
+        s.HasContent().ShouldBe(expected);
     }
 
     [Test]

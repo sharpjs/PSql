@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 using System.Net;
-using FluentAssertions.Extensions;
 
 namespace PSql.Tests;
 
@@ -63,7 +62,7 @@ internal class SqlServerContainer : IDisposable
             .Run(expecting: 0);
 
         id = id.TrimEnd();
-        id.Should().NotBeEmpty("docker run should output a container id");
+        id.ShouldNotBeEmpty("docker run should output a container id");
 
         return id;
     }

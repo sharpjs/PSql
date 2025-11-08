@@ -1,8 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Management.Automation;
-
 namespace PSql.Tests;
 
 internal static class PSObjectExtensions
@@ -13,13 +11,13 @@ internal static class PSObjectExtensions
             Action<IEnumerator<PSPropertyInfo>> assertion
         )
     {
-        obj.Should().NotBeNull();
+        obj.ShouldNotBeNull();
 
         using var properties = obj!.Properties.GetEnumerator();
 
         assertion(properties);
 
-        properties.MoveNext().Should().BeFalse();
+        properties.MoveNext().ShouldBeFalse();
     }
 
     internal static IEnumerator<PSPropertyInfo>
@@ -30,21 +28,21 @@ internal static class PSObjectExtensions
             Func<T, T, bool>?                comparison = null
         )
     {
-        properties.MoveNext().Should().BeTrue();
+        properties.MoveNext().ShouldBeTrue();
 
         var property = properties.Current;
 
-        property                .Should().NotBeNull();
-        property.Name           .Should().Be(name);
-        property.TypeNameOfValue.Should().Be(typeof(T).FullName);
-        property.IsInstance     .Should().BeTrue();
-        property.IsGettable     .Should().Be(true);
-        property.IsSettable     .Should().Be(true);
+        property                .ShouldNotBeNull();
+        property.Name           .ShouldBe(name);
+        property.TypeNameOfValue.ShouldBe(typeof(T).FullName);
+        property.IsInstance     .ShouldBeTrue();
+        property.IsGettable     .ShouldBe(true);
+        property.IsSettable     .ShouldBe(true);
 
         if (comparison != null)
-            comparison((T) property.Value, value).Should().BeTrue();
+            comparison((T) property.Value, value).ShouldBeTrue();
         else
-            property.Value.Should().Be(value);
+            property.Value.ShouldBe(value);
 
         return properties;
     }

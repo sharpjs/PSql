@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="DotStuff" />
     <PackageReference Include="Subatomix.Testing" />
+    <PackageReference Include="Subatomix.Testing.SqlServerIntegration" />
   </ItemGroup>
 
   <ItemGroup>

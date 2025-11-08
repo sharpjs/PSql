@@ -13,20 +13,17 @@ internal static class StringExtensions
             params object[] expected
         )
     {
-        if (script is null)
-            throw new ArgumentNullException(nameof(script));
-        if (expected is null)
-            throw new ArgumentNullException(nameof(expected));
+        ArgumentNullException.ThrowIfNull(script);
+        ArgumentNullException.ThrowIfNull(expected);
 
         var (objects, exception) = Execute(script);
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().HaveCount(expected.Length);
+        objects.Count.ShouldBe(expected.Length);
 
-        objects
-            .Select(o => o?.BaseObject)
-            .Should().BeEquivalentTo(expected, x => x.IgnoringCyclicReferences());
+        objects.Select(o => o?.BaseObject).ToArray()
+            .ShouldBe(expected, StructuralEqualityComparer.Instance);
     }
 
     internal static void
@@ -35,20 +32,18 @@ internal static class StringExtensions
     {
         var exception = script.ShouldThrow<T>();
 
-        exception.Message.Should().Contain(messagePart);
+        exception.Message.ShouldContain(messagePart);
     }
 
     internal static T ShouldThrow<T>(this string script)
         where T : Exception
     {
-        if (script is null)
-            throw new ArgumentNullException(nameof(script));
+        ArgumentNullException.ThrowIfNull(script);
 
         var (_, exception) = Execute(script);
 
         return exception
-            .Should().NotBeNull()
-            .And     .BeAssignableTo<T>()
-            .Subject;
+            .ShouldNotBeNull()
+            .ShouldBeAssignableTo<T>();
     }
 }

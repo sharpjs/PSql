@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 using System.Linq.Expressions;
-using System.Management.Automation;
 using System.Reflection;
-using FluentAssertions.Extensions;
 
 namespace PSql.Tests.Unit;
 
@@ -18,24 +16,24 @@ public class SqlContextTests
     {
         var context = new SqlContext();
 
-        context.IsAzure                            .Should().BeFalse();
-        context.AsAzure                            .Should().BeNull();
-        context.IsLocal                            .Should().BeTrue();
-        context.IsFrozen                           .Should().BeFalse();
+        context.IsAzure                            .ShouldBeFalse();
+        context.AsAzure                            .ShouldBeNull();
+        context.IsLocal                            .ShouldBeTrue();
+        context.IsFrozen                           .ShouldBeFalse();
 
-        context.ServerName                         .Should().BeNull();
-        context.ServerPort                         .Should().BeNull();
-        context.InstanceName                       .Should().BeNull();
-        context.DatabaseName                       .Should().BeNull();
-        context.Credential                         .Should().BeNull();
-        context.EncryptionMode                     .Should().Be(EncryptionMode.Default);
-        context.ConnectTimeout                     .Should().BeNull();
-        context.ClientName                         .Should().BeNull();
-        context.ApplicationName                    .Should().BeNull();
-        context.ApplicationIntent                  .Should().Be(ApplicationIntent.ReadWrite);
-        context.ExposeCredentialInConnectionString .Should().BeFalse();
-        context.EnableConnectionPooling            .Should().BeFalse();
-        context.EnableMultipleActiveResultSets     .Should().BeFalse();
+        context.ServerName                         .ShouldBeNull();
+        context.ServerPort                         .ShouldBeNull();
+        context.InstanceName                       .ShouldBeNull();
+        context.DatabaseName                       .ShouldBeNull();
+        context.Credential                         .ShouldBeNull();
+        context.EncryptionMode                     .ShouldBe(EncryptionMode.Default);
+        context.ConnectTimeout                     .ShouldBeNull();
+        context.ClientName                         .ShouldBeNull();
+        context.ApplicationName                    .ShouldBeNull();
+        context.ApplicationIntent                  .ShouldBe(ApplicationIntent.ReadWrite);
+        context.ExposeCredentialInConnectionString .ShouldBeFalse();
+        context.EnableConnectionPooling            .ShouldBeFalse();
+        context.EnableMultipleActiveResultSets     .ShouldBeFalse();
     }
 
     public void Freeze()
@@ -44,8 +42,8 @@ public class SqlContextTests
 
         var frozen = context.Freeze();
 
-        frozen         .Should().BeSameAs(context);
-        frozen.IsFrozen.Should().BeTrue();
+        frozen         .ShouldBeSameAs(context);
+        frozen.IsFrozen.ShouldBeTrue();
     }
 
     public static SqlContext MakeExampleContext(bool frozen = false)
@@ -83,13 +81,29 @@ public class SqlContextTests
 
         var clone = original.Clone();
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.IsFrozen)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.IsFrozen.Should().BeFalse();
+        // Invariants
+        clone.IsAzure                            .ShouldBeFalse();
+        clone.AsAzure                            .ShouldBeNull();
+        clone.IsFrozen                           .ShouldBeFalse(); // diff behavior from indexer
+
+        // Cloned properties
+        clone.IsLocal                            .ShouldBe(original.IsLocal);
+        clone.ServerName                         .ShouldBe(original.ServerName);
+        clone.ServerPort                         .ShouldBe(original.ServerPort);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.DatabaseName                       .ShouldBe(original.DatabaseName);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
     [Test]
@@ -102,13 +116,31 @@ public class SqlContextTests
 
         var clone = original[ScriptBlock.Create("$_.ServerPort = 42")];
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.ServerPort)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.ServerPort.Should().Be(42);
+        // Invariants
+        clone.IsAzure                            .ShouldBeFalse();
+        clone.AsAzure                            .ShouldBeNull();
+
+        // Properties modified by script block
+        ((int?) clone.ServerPort).ShouldBe(42);
+
+        // Cloned properties
+        clone.IsLocal                            .ShouldBe(original.IsLocal);
+        clone.IsFrozen                           .ShouldBe(original.IsFrozen); // diff behavior from Clone()
+        clone.ServerName                         .ShouldBe(original.ServerName);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.DatabaseName                       .ShouldBe(original.DatabaseName);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
     [Test]
@@ -116,8 +148,9 @@ public class SqlContextTests
     {
         var original = MakeExampleContext();
 
-        original.Invoking(c => c[(null as ScriptBlock)!])
-            .Should().Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(
+            () => original[(null as ScriptBlock)!]
+        );
     }
 
     [Test]
@@ -129,13 +162,31 @@ public class SqlContextTests
 
         var clone = original["db2"];
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.DatabaseName)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.DatabaseName.Should().Be("db2");
+        // Invariants
+        clone.IsAzure                            .ShouldBeFalse();
+        clone.AsAzure                            .ShouldBeNull();
+
+        // Properties modified by script block
+        clone.DatabaseName                       .ShouldBe("db2");
+
+        // Cloned properties
+        clone.IsLocal                            .ShouldBe(original.IsLocal);
+        clone.IsFrozen                           .ShouldBe(original.IsFrozen); // diff behavior from Clone()
+        clone.ServerName                         .ShouldBe(original.ServerName);
+        clone.ServerPort                         .ShouldBe(original.ServerPort);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
     [Test]
@@ -147,19 +198,35 @@ public class SqlContextTests
 
         var clone = original["srv2", "db2"];
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.ServerName)
-            .Excluding(c => c.DatabaseName)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.ServerName  .Should().Be("srv2");
-        clone.DatabaseName.Should().Be("db2");
+        // Invariants
+        clone.IsAzure                            .ShouldBeFalse();
+        clone.AsAzure                            .ShouldBeNull();
+
+        // Properties modified by script block
+        clone.ServerName                         .ShouldBe("srv2");
+        clone.DatabaseName                       .ShouldBe("db2");
+
+        // Cloned properties
+        clone.IsLocal                            .ShouldBe(original.IsLocal);
+        clone.IsFrozen                           .ShouldBe(original.IsFrozen); // diff behavior from Clone()
+        clone.ServerPort                         .ShouldBe(original.ServerPort);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
-    public static readonly IEnumerable<Case> PropertyCases = new[]
-    {
+    public static readonly IEnumerable<Case> PropertyCases =
+    [
         PropertyCase(c => c.ServerName,                         "server"),
         PropertyCase(c => c.ServerPort,                         (ushort?) 1234),
         PropertyCase(c => c.InstanceName,                       "instance"),
@@ -173,7 +240,7 @@ public class SqlContextTests
         PropertyCase(c => c.ExposeCredentialInConnectionString, true),
         PropertyCase(c => c.EnableConnectionPooling,            true),
         PropertyCase(c => c.EnableMultipleActiveResultSets,     true),
-    };
+    ];
 
     public static Case PropertyCase<T>(Expression<Func<SqlContext, T>> property, T value)
     {
@@ -196,7 +263,7 @@ public class SqlContextTests
 
         property.SetValue(context, value);
 
-        property.GetValue(context).Should().Be(value);
+        property.GetValue(context).ShouldBe(value);
     }
 
     [Test]
@@ -207,10 +274,11 @@ public class SqlContextTests
 
         context.Freeze();
 
-        context.Invoking(c => property.SetValue(context, value))
-            .Should().Throw<TargetInvocationException>() // due to reflection
-            .WithInnerException<InvalidOperationException>()
-            .WithMessage("The context is frozen and cannot be modified.*");
+        Should.Throw<TargetInvocationException>( // due to reflection
+            () => property.SetValue(context, value)
+        )
+        .InnerException.ShouldBeOfType<InvalidOperationException>()
+        .Message.ShouldStartWith("The context is frozen and cannot be modified.");
     }
 
     [Test]
@@ -220,6 +288,6 @@ public class SqlContextTests
     {
         var context = new SqlContext { ServerName = serverName };
 
-        context.GetEffectiveServerName().Should().Be(expected);
+        context.GetEffectiveServerName().ShouldBe(expected);
     }
 }

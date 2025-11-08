@@ -13,9 +13,10 @@ public class SqlConnectionIntegrationTests
     [Test]
     public void ExecuteAndProjectTo_ClrTypes()
     {
-        using var connection = new SqlTestConnection(
-            IntegrationTestsSetup.ConnectionString,
-            IntegrationTestsSetup.Credential
+        using var connection = new SqlConnection(
+            IntegrationTestsSetup.Database.ConnectionString,
+            IntegrationTestsSetup.Credential,
+            TestSqlLogger.Instance
         );
 
         using var result = connection.ExecuteAndProjectTo(
@@ -51,9 +52,10 @@ public class SqlConnectionIntegrationTests
         static SqlString Greenlandic(string s)
             => new(s, GreenlandicLcid, IgnoreCase | IgnoreKanaType | IgnoreWidth);
 
-        using var connection = new SqlTestConnection(
-            IntegrationTestsSetup.ConnectionString,
-            IntegrationTestsSetup.Credential
+        using var connection = new SqlConnection(
+            IntegrationTestsSetup.Database.ConnectionString,
+            IntegrationTestsSetup.Credential,
+            TestSqlLogger.Instance
         );
 
         using var result = connection.ExecuteAndProjectTo(
@@ -82,9 +84,10 @@ public class SqlConnectionIntegrationTests
     [Test]
     public void ExecuteAndProjectTo_Exception()
     {
-        using var connection = new SqlTestConnection(
-            IntegrationTestsSetup.ConnectionString,
-            IntegrationTestsSetup.Credential
+        using var connection = new SqlConnection(
+            IntegrationTestsSetup.Database.ConnectionString,
+            IntegrationTestsSetup.Credential,
+            TestSqlLogger.Instance
         );
 
         using var result = connection.ExecuteAndProjectTo(

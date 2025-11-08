@@ -3,7 +3,6 @@
 
 using System.Data.SqlTypes;
 using System.Runtime.InteropServices;
-using FluentAssertions.Extensions;
 using Unindent;
 
 namespace PSql.Tests.Integration;
@@ -28,9 +27,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("False", false)
             .Property("True",  true)
@@ -49,9 +48,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlBoolean.Null)
             .Property("False", SqlBoolean.False)
             .Property("True",  SqlBoolean.True)
@@ -70,9 +69,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Zero", default(byte))
             .Property("Max",  byte.MaxValue)
@@ -91,9 +90,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlByte.Null)
             .Property("Zero", SqlByte.Zero)
             .Property("Max",  SqlByte.MaxValue)
@@ -113,9 +112,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Zero", default(short))
             .Property("Min",  short.MinValue)
@@ -136,9 +135,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlInt16.Null)
             .Property("Zero", SqlInt16.Zero)
             .Property("Min",  SqlInt16.MinValue)
@@ -159,9 +158,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Zero", default(int))
             .Property("Min",  int.MinValue)
@@ -182,9 +181,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlInt32.Null)
             .Property("Zero", SqlInt32.Zero)
             .Property("Min",  SqlInt32.MinValue)
@@ -205,9 +204,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Zero", default(long))
             .Property("Min",  long.MinValue)
@@ -228,9 +227,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlInt64.Null)
             .Property("Zero", SqlInt64.Zero)
             .Property("Min",  SqlInt64.MinValue)
@@ -254,9 +253,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Zero", default(decimal))
             .Property("Min",  decimal.MinValue)
@@ -273,10 +272,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<OverflowException>();
+        exception.ShouldBeOfType<CmdletInvocationException>()
+            .InnerException.ShouldBeOfType<OverflowException>();
 
-        objects.Should().BeEmpty();
+        objects.ShouldBeEmpty();
     }
 
     [Test]
@@ -288,10 +287,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeOfType<CmdletInvocationException>()
-            .Which.InnerException.Should().BeOfType<OverflowException>();
+        exception.ShouldBeOfType<CmdletInvocationException>()
+            .InnerException.ShouldBeOfType<OverflowException>();
 
-        objects.Should().BeEmpty();
+        objects.ShouldBeEmpty();
     }
 
     [Test]
@@ -310,9 +309,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlDecimal.Null)
             .Property("Zero", (SqlDecimal) 0)
             .Property("Min",  SqlDecimal.MinValue)
@@ -344,9 +343,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", "          ")
             .Property("One",   "Å         ")
@@ -378,9 +377,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlString.Null)
             .Property("Empty", Greenlandic("          "))
             .Property("One",   Greenlandic("Å         "))
@@ -407,9 +406,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", "          ")
             .Property("One",   "Å         ")
@@ -436,9 +435,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlString.Null)
             .Property("Empty", Greenlandic("          "))
             .Property("One",   Greenlandic("Å         "))
@@ -470,9 +469,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", "")
             .Property("One",   "Å")
@@ -504,9 +503,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlString.Null)
             .Property("Empty", Greenlandic(""))
             .Property("One",   Greenlandic("Å"))
@@ -533,9 +532,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", "")
             .Property("One",   "Å")
@@ -562,9 +561,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlString.Null)
             .Property("Empty", Greenlandic(""))
             .Property("One",   Greenlandic("Å"))
@@ -585,9 +584,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, EqualBytes)
             .Property("One",   new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, EqualBytes)
@@ -608,9 +607,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlBinary.Null)
             .Property("Empty", new SqlBinary(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }))
             .Property("One",   new SqlBinary(new byte[] { 0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }))
@@ -631,9 +630,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", new byte[] {                                                }, EqualBytes)
             .Property("One",   new byte[] { 0xAA                                           }, EqualBytes)
@@ -654,9 +653,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlBinary.Null)
             .Property("Empty", new SqlBinary(new byte[] {                                                }))
             .Property("One",   new SqlBinary(new byte[] { 0xAA                                           }))
@@ -676,9 +675,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(1900, 1, 1,  0,  0, 0, DateTimeKind.Unspecified), EqualStrictly)
             .Property("Max",  new DateTime(2079, 6, 6, 23, 59, 0, DateTimeKind.Unspecified), EqualStrictly)
@@ -697,9 +696,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlDateTime.Null)
             .Property("Min",  new SqlDateTime(1900, 1, 1,  0,  0, 0))
             .Property("Max",  new SqlDateTime(2079, 6, 6, 23, 59, 0))
@@ -718,9 +717,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(1753,  1,  1,  0,  0,  0,   0, DateTimeKind.Unspecified), EqualStrictly)
             .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, 997, DateTimeKind.Unspecified), EqualStrictly)
@@ -739,9 +738,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", SqlDateTime.Null)
             .Property("Min",  new SqlDateTime(1753,  1,  1,  0,  0,  0,   0.0))
             .Property("Max",  new SqlDateTime(9999, 12, 31, 23, 59, 59, 997.0))
@@ -760,9 +759,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(   1,  1,  1,  0,  0,  0, DateTimeKind.Unspecified).AddTicks(000_000_0), EqualStrictly)
             .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, DateTimeKind.Unspecified).AddTicks(999_999_9), EqualStrictly)
@@ -781,10 +780,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
         // ATTN: Does not use SQL types
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(   1,  1,  1,  0,  0,  0, DateTimeKind.Unspecified).AddTicks(000_000_0), EqualStrictly)
             .Property("Max",  new DateTime(9999, 12, 31, 23, 59, 59, DateTimeKind.Unspecified).AddTicks(999_999_9), EqualStrictly)
@@ -803,9 +802,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTimeOffset(   1,  1,  1,  0,  0,  0, -14.Hours()).AddTicks(000_000_0), EqualStrictly)
             .Property("Max",  new DateTimeOffset(9999, 12, 31, 23, 59, 59, +14.Hours()).AddTicks(999_999_9), EqualStrictly)
@@ -824,10 +823,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
         // ATTN: Does not use SQL types
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTimeOffset(   1,  1,  1,  0,  0,  0, -14.Hours()).AddTicks(000_000_0), EqualStrictly)
             .Property("Max",  new DateTimeOffset(9999, 12, 31, 23, 59, 59, +14.Hours()).AddTicks(999_999_9), EqualStrictly)
@@ -846,9 +845,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(   1,  1,  1, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
             .Property("Max",  new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
@@ -867,10 +866,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
         // ATTN: Does not use SQL types
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new DateTime(   1,  1,  1, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
             .Property("Max",  new DateTime(9999, 12, 31, 0, 0, 0, DateTimeKind.Unspecified), EqualStrictly)
@@ -889,9 +888,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new TimeSpan( 0,  0,  0) + new TimeSpan(000_000_0L))
             .Property("Max",  new TimeSpan(23, 59, 59) + new TimeSpan(999_999_9L))
@@ -910,10 +909,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
         // ATTN: Does not use SQL types
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null", default(object?))
             .Property("Min",  new TimeSpan( 0,  0,  0) + new TimeSpan(000_000_0L))
             .Property("Max",  new TimeSpan(23, 59, 59) + new TimeSpan(999_999_9L))
@@ -932,9 +931,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  default(object?))
             .Property("Empty", Guid.Empty)
             .Property("Rand",  new Guid("3061c9f2-7464-4b2b-ab0d-9de762f9ef65"))
@@ -953,9 +952,9 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.Should().BeNull();
+        exception.ShouldBeNull();
 
-        objects.Should().ContainSingle().Which.ShouldHaveProperties(p => p
+        objects.ShouldHaveSingleItem().ShouldHaveProperties(p => p
             .Property("Null",  SqlGuid.Null)
             .Property("Empty", new SqlGuid("00000000-0000-0000-0000-000000000000"))
             .Property("Rand",  new SqlGuid("3061c9f2-7464-4b2b-ab0d-9de762f9ef65"))
@@ -980,11 +979,11 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception                                .Should().BeOfType<CmdletInvocationException>();
-        exception!.InnerException                .Should().NotBeNull();
-        exception!.InnerException!.GetType().Name.Should().Be("InvalidUdtException");
+        exception                              .ShouldBeOfType<CmdletInvocationException>();
+        exception.InnerException               .ShouldNotBeNull();
+        exception.InnerException.GetType().Name.ShouldBe("InvalidUdtException");
 
-        objects.Should().BeEmpty();
+        objects.ShouldBeEmpty();
     }
 
     [Test]
@@ -1005,11 +1004,11 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception                                .Should().BeOfType<CmdletInvocationException>();
-        exception!.InnerException                .Should().NotBeNull();
-        exception!.InnerException!.GetType().Name.Should().Be("InvalidUdtException");
+        exception                              .ShouldBeOfType<CmdletInvocationException>();
+        exception.InnerException               .ShouldNotBeNull();
+        exception.InnerException.GetType().Name.ShouldBe("InvalidUdtException");
 
-        objects.Should().BeEmpty();
+        objects.ShouldBeEmpty();
     }
 
     private static SqlString Greenlandic(string s)

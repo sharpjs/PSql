@@ -1,7 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
 namespace PSql.Tests;

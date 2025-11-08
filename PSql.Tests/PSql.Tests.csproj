@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" />
     <PackageReference Include="Subatomix.Testing" />
+    <PackageReference Include="Subatomix.Testing.SqlServerIntegration" />
     <PackageReference Include="Unindent" />
   </ItemGroup>
 

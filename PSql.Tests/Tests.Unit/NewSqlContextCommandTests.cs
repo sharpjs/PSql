@@ -1,8 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Management.Automation;
-
 namespace PSql.Tests.Unit;
 
 using Case = TestCaseData;

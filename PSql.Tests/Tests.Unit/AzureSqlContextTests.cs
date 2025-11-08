@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 using System.Linq.Expressions;
-using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
-using FluentAssertions.Extensions;
 
 namespace PSql.Tests.Unit;
 
@@ -19,27 +17,27 @@ public class AzureSqlContextTests
     {
         var context = new AzureSqlContext();
 
-        context.IsAzure                            .Should().BeTrue();
-        context.AsAzure                            .Should().BeSameAs(context);
-        context.IsLocal                            .Should().BeFalse();
-        context.IsFrozen                           .Should().BeFalse();
+        context.IsAzure                            .ShouldBeTrue();
+        context.AsAzure                            .ShouldBeSameAs(context);
+        context.IsLocal                            .ShouldBeFalse();
+        context.IsFrozen                           .ShouldBeFalse();
 
-        context.ServerResourceGroupName            .Should().BeNull();
-        context.ServerResourceName                 .Should().BeNull();
-        context.ServerName                         .Should().BeNull();
-        context.ServerPort                         .Should().BeNull();
-        context.InstanceName                       .Should().BeNull();
-        context.DatabaseName                       .Should().BeNull();
-        context.AuthenticationMode                 .Should().Be(AzureAuthenticationMode.Default);
-        context.Credential                         .Should().BeNull();
-        context.EncryptionMode                     .Should().Be(EncryptionMode.Full); // different from SqlContext
-        context.ConnectTimeout                     .Should().BeNull();
-        context.ClientName                         .Should().BeNull();
-        context.ApplicationName                    .Should().BeNull();
-        context.ApplicationIntent                  .Should().Be(ApplicationIntent.ReadWrite);
-        context.ExposeCredentialInConnectionString .Should().BeFalse();
-        context.EnableConnectionPooling            .Should().BeFalse();
-        context.EnableMultipleActiveResultSets     .Should().BeFalse();
+        context.ServerResourceGroupName            .ShouldBeNull();
+        context.ServerResourceName                 .ShouldBeNull();
+        context.ServerName                         .ShouldBeNull();
+        context.ServerPort                         .ShouldBeNull();
+        context.InstanceName                       .ShouldBeNull();
+        context.DatabaseName                       .ShouldBeNull();
+        context.AuthenticationMode                 .ShouldBe(AzureAuthenticationMode.Default);
+        context.Credential                         .ShouldBeNull();
+        context.EncryptionMode                     .ShouldBe(EncryptionMode.Full); // different from SqlContext
+        context.ConnectTimeout                     .ShouldBeNull();
+        context.ClientName                         .ShouldBeNull();
+        context.ApplicationName                    .ShouldBeNull();
+        context.ApplicationIntent                  .ShouldBe(ApplicationIntent.ReadWrite);
+        context.ExposeCredentialInConnectionString .ShouldBeFalse();
+        context.EnableConnectionPooling            .ShouldBeFalse();
+        context.EnableMultipleActiveResultSets     .ShouldBeFalse();
     }
 
     private AzureSqlContext MakeExampleContext(bool frozen = false)
@@ -79,15 +77,32 @@ public class AzureSqlContextTests
 
         var clone = original.Clone();
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.AsAzure)
-            .Excluding(c => c.IsFrozen)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.AsAzure .Should().BeSameAs(clone);
-        clone.IsFrozen.Should().BeFalse();
+        // Invariants
+        clone.IsAzure                            .ShouldBeTrue();
+        clone.AsAzure                            .ShouldBeSameAs(clone);
+        clone.IsLocal                            .ShouldBeFalse();
+        clone.IsFrozen                           .ShouldBeFalse(); // diff behavior from indexer
+
+        // Cloned properties
+        clone.ServerResourceGroupName            .ShouldBe(original.ServerResourceGroupName);
+        clone.ServerResourceName                 .ShouldBe(original.ServerResourceName);
+        clone.ServerName                         .ShouldBe(original.ServerName);
+        clone.ServerPort                         .ShouldBe(original.ServerPort);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.DatabaseName                       .ShouldBe(original.DatabaseName);
+        clone.AuthenticationMode                 .ShouldBe(original.AuthenticationMode);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
     [Test]
@@ -99,27 +114,42 @@ public class AzureSqlContextTests
 
         var clone = original["rg2", "srv2", "db2"];
 
-        clone.Should().NotBeNull();
-        clone.Should().NotBeSameAs(original);
-        clone.Should().BeEquivalentTo(original, o => o
-            .Excluding(c => c.AsAzure)
-            .Excluding(c => c.ServerResourceGroupName)
-            .Excluding(c => c.ServerResourceName)
-            .Excluding(c => c.DatabaseName)
-        );
+        clone.ShouldNotBeNull();
+        clone.ShouldNotBeSameAs(original);
 
-        clone.AsAzure                .Should().BeSameAs(clone);
-        clone.ServerResourceGroupName.Should().Be("rg2");
-        clone.ServerResourceName     .Should().Be("srv2");
-        clone.DatabaseName           .Should().Be("db2");
+        // Invariants
+        clone.IsAzure                            .ShouldBeTrue();
+        clone.AsAzure                            .ShouldBeSameAs(clone);
+        clone.IsLocal                            .ShouldBeFalse();
+
+        // Parameterized properties
+        clone.ServerResourceGroupName            .ShouldBe("rg2");
+        clone.ServerResourceName                 .ShouldBe("srv2");
+        clone.DatabaseName                       .ShouldBe("db2");
+
+        // Cloned properties
+        clone.IsFrozen                           .ShouldBe(original.IsFrozen); // diff behavior from Clone()
+        clone.ServerName                         .ShouldBe(original.ServerName); // unused by Azure context
+        clone.ServerPort                         .ShouldBe(original.ServerPort);
+        clone.InstanceName                       .ShouldBe(original.InstanceName);
+        clone.AuthenticationMode                 .ShouldBe(original.AuthenticationMode);
+        clone.Credential                         .ShouldBe(original.Credential);
+        clone.EncryptionMode                     .ShouldBe(original.EncryptionMode);
+        clone.ConnectTimeout                     .ShouldBe(original.ConnectTimeout);
+        clone.ClientName                         .ShouldBe(original.ClientName);
+        clone.ApplicationName                    .ShouldBe(original.ApplicationName);
+        clone.ApplicationIntent                  .ShouldBe(original.ApplicationIntent);
+        clone.ExposeCredentialInConnectionString .ShouldBe(original.ExposeCredentialInConnectionString);
+        clone.EnableConnectionPooling            .ShouldBe(original.EnableConnectionPooling);
+        clone.EnableMultipleActiveResultSets     .ShouldBe(original.EnableMultipleActiveResultSets);
     }
 
-    public static readonly IEnumerable<Case> PropertyCases = new[]
-    {
+    public static readonly IEnumerable<Case> PropertyCases =
+    [
         PropertyCase(c => c.ServerResourceGroupName, "resource-group"),
         PropertyCase(c => c.ServerResourceName,      "server"),
         PropertyCase(c => c.AuthenticationMode,      AzureAuthenticationMode.AadDeviceCodeFlow),
-    };
+    ];
 
     public static Case PropertyCase<T>(Expression<Func<AzureSqlContext, T>> property, T value)
     {
@@ -137,7 +167,7 @@ public class AzureSqlContextTests
 
         property.SetValue(context, value);
 
-        property.GetValue(context).Should().Be(value);
+        property.GetValue(context).ShouldBe(value);
     }
 
     [Test]
@@ -148,10 +178,11 @@ public class AzureSqlContextTests
 
         context.Freeze();
 
-        context.Invoking(c => property.SetValue(context, value))
-            .Should().Throw<TargetInvocationException>() // due to reflection
-            .WithInnerException<InvalidOperationException>()
-            .WithMessage("The context is frozen and cannot be modified.*");
+        Should.Throw<TargetInvocationException>( // due to reflection
+            () => property.SetValue(context, value)
+        )
+        .InnerException.ShouldBeOfType<InvalidOperationException>()
+        .Message.ShouldStartWith("The context is frozen and cannot be modified.");
     }
 
     [Test]
@@ -182,7 +213,7 @@ public class AzureSqlContextTests
 
         using var _ = new RunspaceScope(state);
 
-        context.GetEffectiveServerName().Should().Be(expected);
+        context.GetEffectiveServerName().ShouldBe(expected);
     }
 
     [Test]
@@ -194,8 +225,9 @@ public class AzureSqlContextTests
             ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName
         };
 
-        context.Invoking(c => c.GetEffectiveServerName())
-            .Should().Throw<InvalidOperationException>();
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
     }
 
     [Test]
@@ -207,8 +239,9 @@ public class AzureSqlContextTests
             ServerResourceName      = null
         };
 
-        context.Invoking(c => c.GetEffectiveServerName())
-            .Should().Throw<InvalidOperationException>();
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
     }
 
     [Test]
@@ -236,8 +269,9 @@ public class AzureSqlContextTests
 
         using var _ = new RunspaceScope(state);
 
-        context.Invoking(c => c.GetEffectiveServerName())
-            .Should().Throw<InvalidOperationException>();
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
     }
 
     [Cmdlet(VerbsCommon.Get, "AzSqlServer")]
@@ -257,8 +291,8 @@ public class AzureSqlContextTests
 
         protected override void ProcessRecord()
         {
-            ResourceGroupName.Should().Be(ExpectedResourceGroupName);
-            ServerName       .Should().Be(ExpectedServerName);
+            ResourceGroupName.ShouldBe(ExpectedResourceGroupName);
+            ServerName       .ShouldBe(ExpectedServerName);
 
             WriteObject(SessionState.PSVariable.GetValue(ResultVariableName));
         }
