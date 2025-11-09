@@ -2,19 +2,26 @@
 // SPDX-License-Identifier: MIT
 
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using Subatomix.Testing.SqlServerIntegration;
 using Unindent;
 
 namespace PSql.Tests.Integration;
 
-using static FormattableString;
 using static SqlCompareOptions;
-using S = IntegrationTestsSetup;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
 public class InvokeSqlCommandTests
 {
+    [OneTimeSetUp]
+    public static void SetUpOnce()
+    {
+        // Prepopulate
+        _ = Prelude;
+    }
+
     [Test]
     public void ProjectBit_ToClrBoolean()
     {
@@ -1031,12 +1038,37 @@ public class InvokeSqlCommandTests
     private const string
         GreenlandicCulture = "kl-GL";
 
-    private static readonly string Prelude = Invariant($@"
-        $Password   = ConvertTo-SecureString '{S.AlternateServerPassword}' -AsPlainText
-        $Credential = New-Object PSCredential sa, $Password
-        $Context    = New-SqlContext -ServerPort {S.AlternateServerPort} -Credential $Credential
-        function Invoke-Sql {{ PSql\Invoke-Sql -Context $Context @args }}
-    ").Unindent();
+    private static string
+        Prelude => _prelude ??= GeneratePrelude();
+
+    private static string? _prelude;
+
+    private static string GeneratePrelude()
+    {
+        if (TestSqlServer.Credential is { } credential)
+        {
+            var username = credential.UserName.Replace("'", "''");
+            var password = credential.Password.Replace("'", "''");
+
+            return string.Create(
+                CultureInfo.InvariantCulture,
+                $$"""
+                $Password   = ConvertTo-SecureString '{{password}}' -AsPlainText
+                $Credential = [PSCredential]::new('{{username}}', $Password) 
+                $Context    = New-SqlContext -Credential $Credential
+                function Invoke-Sql { PSql\Invoke-Sql -Context $Context @args }
+                """
+            );
+        }
+        else
+        {
+            return
+                """
+                $Context = New-SqlContext -Credential $Credential
+                function Invoke-Sql { PSql\Invoke-Sql -Context $Context @args }
+                """;
+        }
+    }
 
     private static (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
     {
