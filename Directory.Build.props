@@ -9,7 +9,7 @@
     * Imported early: this -> NuGet package .props -> SDK .props -> project
     * Many properties are not yet defined and behave as if empty.
     * Provide defaults for properties here.
-    https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
   -->
 
   <!-- Descriptive properties -->
@@ -21,9 +21,12 @@
     <Copyright>© $([System.DateTime]::UtcNow.Year) $(Company)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sharpjs/PSql</PackageProjectUrl>
-    <PackageTags>powershell sql sql-server azure invoke sqlcmd</PackageTags>
+    <PackageProjectUrlRaw>$(PackageProjectUrl.Replace("github", "raw.githubusercontent"))</PackageProjectUrlRaw>
     <PackageReleaseNotes>$(PackageProjectUrl)/blob/main/CHANGES.md</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl>$(PackageProjectUrlRaw)/main/icon.png</PackageIconUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>powershell sql sql-server azure invoke sqlcmd</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>$(PackageProjectUrl).git</RepositoryUrl>
   </PropertyGroup>
@@ -31,8 +34,8 @@
   <!-- Build properties -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>12</LangVersion>
-    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>13</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InheritDocEnabled>true</InheritDocEnabled>
   </PropertyGroup>

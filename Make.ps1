@@ -26,6 +26,10 @@ param (
     [Parameter(Mandatory, ParameterSetName="Coverage")]
     [switch] $Coverage
 ,
+    # Show the coverage report in the defualt browser.
+    [Parameter(ParameterSetName="Coverage")]
+    [switch] $Show
+,
     # Do not build before running tests.
     [Parameter(ParameterSetName="Test")]
     [Parameter(ParameterSetName="Coverage")]
@@ -108,7 +112,7 @@ function Invoke-Build {
 
 function Invoke-Test {
     Write-Phase "Test$(if ($Coverage) {" + Coverage"})"
-    Remove-Item coverage\raw -Recurse -ErrorAction SilentlyContinue
+    Remove-Item coverage\raw -Recurse -ErrorAction Ignore
     Invoke-DotNet -Arguments @(
         "test"
         "--nologo"
@@ -128,7 +132,7 @@ function Export-CoverageReport {
         "reportgenerator"
         "-reports:coverage\raw\**\coverage.opencover.xml"
         "-targetdir:coverage"
-        "-reporttypes:Cobertura;JsonSummary;Html_Dark;Badges"
+        "-reporttypes:Html;JsonSummary"
         "-verbosity:Warning"
     )
     $Summary = (Get-Content coverage\Summary.json -Raw | ConvertFrom-Json).summary
@@ -142,6 +146,9 @@ function Export-CoverageReport {
     ) | Write-Host
     if ($Summary.methodcoverage + $Summary.linecoverage + $Summary.branchcoverage -lt 300) {
         Write-Warning "Coverage is below 100%."
+    }
+    if ($Show) {
+        Start-Process (Join-Path $PSScriptRoot coverage index.html)
     }
 }
 

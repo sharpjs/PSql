@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.Build.NoTargets/3.7.56">
+﻿<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
   <!-- https://github.com/microsoft/MSBuildSdks/tree/main/src/NoTargets -->
 
   <!--
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <None Include="**"    Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(MSBuildThisFile)" />
-    <None Include=".*\**" Exclude=".git\**;.vs\**" />
+    <None Include=".*\**" Exclude=".git\**;.vs\**;.vscode\**" />
   </ItemGroup>
 
 </Project>
