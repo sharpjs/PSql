@@ -11,9 +11,7 @@ public static class IntegrationTestsSetup
     [OneTimeSetUp]
     public static void SetUp()
     {
-        TestSqlServer.SetUp(requireTcp: true);
-        //                  ^^^^^^^^^^^^^^^^
-        // To enable testing the SqlContext.ServerPort property
+        TestSqlServer.SetUp();
     }
 
     [OneTimeTearDown]
