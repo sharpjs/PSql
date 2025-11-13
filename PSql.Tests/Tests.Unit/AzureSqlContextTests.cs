@@ -7,11 +7,25 @@ using System.Reflection;
 
 namespace PSql.Tests.Unit;
 
+using static AzureAuthenticationMode;
+using static SqlClientVersion;
+
 using Case = TestCaseData;
 
 [TestFixture]
 public class AzureSqlContextTests
 {
+    private const string
+        Auth_AadPassword         = @"Authentication=""Active Directory Password"";",
+        Auth_AadIntegrated       = @"Authentication=""Active Directory Integrated"";",
+        Auth_AadInteractive      = @"Authentication=""Active Directory Interactive"";",
+        Auth_AadServicePrincipal = @"Authentication=""Active Directory Service Principal"";",
+        Auth_AadDeviceCodeFlow   = @"Authentication=""Active Directory Device Code Flow"";",
+        Auth_AadManagedIdentity  = @"Authentication=""Active Directory Managed Identity"";",
+        Auth_AadDefault          = @"Authentication=""Active Directory Default"";",
+        UserName                 = "User ID=user;",
+        Password                 = "Password=pass;";
+
     [Test]
     public void Defaults()
     {
@@ -28,7 +42,7 @@ public class AzureSqlContextTests
         context.ServerPort                         .ShouldBeNull();
         context.InstanceName                       .ShouldBeNull();
         context.DatabaseName                       .ShouldBeNull();
-        context.AuthenticationMode                 .ShouldBe(AzureAuthenticationMode.Default);
+        context.AuthenticationMode                 .ShouldBe(Default);
         context.Credential                         .ShouldBeNull();
         context.EncryptionMode                     .ShouldBe(EncryptionMode.Full); // different from SqlContext
         context.ConnectTimeout                     .ShouldBeNull();
@@ -52,7 +66,7 @@ public class AzureSqlContextTests
             ServerPort                         = 1234,
             InstanceName                       = "instance",
             DatabaseName                       = "database",
-            AuthenticationMode                 = AzureAuthenticationMode.SqlPassword,
+            AuthenticationMode                 = SqlPassword,
             Credential                         = credential,
             ConnectTimeout                     = 42.Seconds(),
             ClientName                         = "client",
@@ -70,7 +84,7 @@ public class AzureSqlContextTests
 
     [Test]
     [TestCase(false)]
-    [TestCase(true)]
+    [TestCase(true )]
     public void Clone_Typed(bool frozen)
     {
         var original = MakeExampleContext(frozen);
@@ -107,7 +121,7 @@ public class AzureSqlContextTests
 
     [Test]
     [TestCase(false)]
-    [TestCase(true)]
+    [TestCase(true )]
     public void Indexer_ResourceGroupName_ServerName_DatabaseName(bool frozen)
     {
         var original = MakeExampleContext(frozen);
@@ -148,7 +162,7 @@ public class AzureSqlContextTests
     [
         PropertyCase(c => c.ServerResourceGroupName, "resource-group"),
         PropertyCase(c => c.ServerResourceName,      "server"),
-        PropertyCase(c => c.AuthenticationMode,      AzureAuthenticationMode.AadDeviceCodeFlow),
+        PropertyCase(c => c.AuthenticationMode,      AadDeviceCodeFlow),
     ];
 
     public static Case PropertyCase<T>(Expression<Func<AzureSqlContext, T>> property, T value)
@@ -186,34 +200,36 @@ public class AzureSqlContextTests
     }
 
     [Test]
+    public void EncryptionMode_Set()
+    {
+        var context = new AzureSqlContext();
+
+        context.EncryptionMode = EncryptionMode.None; // Ignored in Azure context
+
+        context.EncryptionMode.ShouldBe(EncryptionMode.Full);
+    }
+
+    [Test]
     [TestCase(null,                           "resolved-server.example.com")]
     [TestCase("explicit-server.example.com",  "explicit-server.example.com")]
     public void GetEffectiveServerName(string? serverName, string expected)
     {
         var context = new AzureSqlContext
         {
-            ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
-            ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName,
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
             ServerName              = serverName
         };
 
-        var state = InitialSessionState.CreateDefault();
-
-        state.Variables.Add(new SessionStateVariableEntry(
-            GetAzSqlServerCommand.ResultVariableName,
-            new { FullyQualifiedDomainName = "resolved-server.example.com" },
-            description: null
-        ));
-
-        state.Commands.Add(new SessionStateCmdletEntry(
-            "Get-AzSqlServer",
-            typeof(GetAzSqlServerCommand),
-            helpFileName: null
-        ));
-
-        using var _ = new RunspaceScope(state);
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "resolved-server.example.com" }
+        );
 
         context.GetEffectiveServerName().ShouldBe(expected);
+        context.GetEffectiveServerName().ShouldBeSameAs(
+            context.GetEffectiveServerName(),
+            "the method should cache its return value"
+        );
     }
 
     [Test]
@@ -222,7 +238,7 @@ public class AzureSqlContextTests
         var context = new AzureSqlContext
         {
             ServerResourceGroupName = null,
-            ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName
         };
 
         Should.Throw<InvalidOperationException>(
@@ -235,7 +251,7 @@ public class AzureSqlContextTests
     {
         var context = new AzureSqlContext
         {
-            ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
             ServerResourceName      = null
         };
 
@@ -245,38 +261,285 @@ public class AzureSqlContextTests
     }
 
     [Test]
-    public void GetEffectiveServerName_UnexpectAzSqlServerObject()
+    public void GetEffectiveServerName_GetAzSqlServerNoOutput()
     {
         var context = new AzureSqlContext
         {
-            ServerResourceGroupName = GetAzSqlServerCommand.ExpectedResourceGroupName,
-            ServerResourceName      = GetAzSqlServerCommand.ExpectedServerName
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName
         };
 
-        var state = InitialSessionState.CreateDefault();
-
-        state.Variables.Add(new SessionStateVariableEntry(
-            GetAzSqlServerCommand.ResultVariableName,
-            new { Description = "something unexpected" },
-            description: null
-        ));
-
-        state.Commands.Add(new SessionStateCmdletEntry(
-            "Get-AzSqlServer",
-            typeof(GetAzSqlServerCommand),
-            helpFileName: null
-        ));
-
-        using var _ = new RunspaceScope(state);
+        using var _ = WithGetAzSqlServerOutput();
 
         Should.Throw<InvalidOperationException>(
             () => context.GetEffectiveServerName()
         );
     }
 
+    [Test]
+    public void GetEffectiveServerName_GetAzSqlServerNoFqdnProperty()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { Description = "foo.example.com" }
+        );
+
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
+    }
+
+    [Test]
+    public void GetEffectiveServerName_GetAzSqlServerFqdnNotString()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = new object() } // not a string
+        );
+
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
+    }
+
+    [Test]
+    public void GetEffectiveServerName_GetAzSqlServerFqdnEmpty()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "" }
+        );
+
+        Should.Throw<InvalidOperationException>(
+            () => context.GetEffectiveServerName()
+        );
+    }
+
+    [Test]
+    public void GetConnectionString_ExplicitDatabase_Property()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            DatabaseName            = "bar",
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+            @"Data Source=foo.example.com;Initial Catalog=bar;" +
+            @"Authentication=""Active Directory Integrated"";Encrypt=true;Pooling=false"
+        );
+    }
+
+    [Test]
+    public void GetConnectionString_ExplicitDatabase_Parameter()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            DatabaseName            = "bar",
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        context.GetConnectionString(databaseName: "quux", Mds5).ShouldBe(
+            @"Data Source=foo.example.com;Initial Catalog=quux;" +
+            @"Authentication=""Active Directory Integrated"";Encrypt=true;Pooling=false"
+        );
+    }
+
+    [Test]
+    [TestCase(Default,            Auth_AadIntegrated)]
+    [TestCase(AadIntegrated,      Auth_AadIntegrated)]
+    [TestCase(AadInteractive,     Auth_AadInteractive)]
+    [TestCase(AadDeviceCodeFlow,  Auth_AadDeviceCodeFlow)]
+    [TestCase(AadManagedIdentity, Auth_AadManagedIdentity)] // credential is optional
+    [TestCase(AadDefault,         Auth_AadDefault)]         // credential is optional
+    public void GetConnectionString_NoCredential(AzureAuthenticationMode mode, string fragment)
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            AuthenticationMode      = mode,
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+            $@"Data Source=foo.example.com;Initial Catalog=master;{
+               fragment}Encrypt=true;Pooling=false"
+        );
+    }
+
+    [Test]
+    [TestCase(Default            )] // when no credential
+    [TestCase(AadPassword        )] // support check happens before credential check
+    [TestCase(AadIntegrated      )]
+    [TestCase(AadInteractive     )]
+    [TestCase(AadServicePrincipal)] // support check happens before credential check
+    [TestCase(AadDeviceCodeFlow  )]
+    [TestCase(AadManagedIdentity )] // credential is optional
+    [TestCase(AadDefault         )] // credential is optional
+    public void GetConnectionString_NoCredential_Unsupported(AzureAuthenticationMode mode)
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            AuthenticationMode      = mode,
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        Should.Throw<NotSupportedException>(
+            () => context.GetConnectionString(databaseName: null, Legacy)
+        );
+    }
+
+    [Test]
+    [TestCase(SqlPassword        )]
+    [TestCase(AadPassword        )]
+    [TestCase(AadServicePrincipal)]
+    public void GetConnectionString_NoCredential_Required(AzureAuthenticationMode mode)
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            AuthenticationMode      = mode,
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        Should.Throw<NotSupportedException>(
+            () => context.GetConnectionString(databaseName: null, Mds5)
+        );
+    }
+
+    [Test]
+    [TestCase(Default,                                         UserName + Password)]
+    [TestCase(SqlPassword,                                     UserName + Password)]
+    [TestCase(AadPassword,          Auth_AadPassword         + UserName + Password)]
+    [TestCase(AadIntegrated,        Auth_AadIntegrated                            )]
+    [TestCase(AadInteractive,       Auth_AadInteractive                           )]
+    [TestCase(AadServicePrincipal,  Auth_AadServicePrincipal + UserName + Password)]
+    [TestCase(AadDeviceCodeFlow,    Auth_AadDeviceCodeFlow                        )]
+    [TestCase(AadManagedIdentity,   Auth_AadManagedIdentity  + UserName           )]
+    [TestCase(AadDefault,           Auth_AadDefault          + UserName           )]
+    public void GetConnectionString_ExplicitCredential(AzureAuthenticationMode mode, string fragment)
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            AuthenticationMode      = mode,
+            Credential              = new("user", "pass".Secure()),
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+            $@"Data Source=foo.example.com;Initial Catalog=master;{
+               fragment}Encrypt=true;Pooling=false"
+        );
+    }
+
+    [Test]
+    public void GetConnectionString_ExplicitCredential_Omit()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName      = FakeGetAzSqlServerCommand.ExpectedServerName,
+            Credential              = new("user", "pass".Secure()),
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        context.GetConnectionString(databaseName: null, Mds5, omitCredential: true).ShouldBe(
+            @"Data Source=foo.example.com;Initial Catalog=master;" +
+            @"Encrypt=true;Pooling=false"
+        );
+    }
+
+    [Test]
+    public void GetConnectionString_ExplicitCredential_Expose()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName            = FakeGetAzSqlServerCommand.ExpectedResourceGroupName,
+            ServerResourceName                 = FakeGetAzSqlServerCommand.ExpectedServerName,
+            Credential                         = new("user", "pass".Secure()),
+            ExposeCredentialInConnectionString = true,
+        };
+
+        using var _ = WithGetAzSqlServerOutput(
+            new { FullyQualifiedDomainName = "foo.example.com" }
+        );
+
+        // NOTE: Ignored because ExposeCredentialInConnectionString takes precedence
+        //                                                    vvvvvvvvvvvvvvvvvvvv
+        context.GetConnectionString(databaseName: null, Mds5, omitCredential: true).ShouldBe(
+            @"Data Source=foo.example.com;Initial Catalog=master;" +
+            @"User ID=user;Password=pass;Persist Security Info=true;Encrypt=true;Pooling=false"
+        );
+    }
+
+    private static RunspaceScope WithGetAzSqlServerOutput(params object?[] output)
+    {
+        var state = InitialSessionState.CreateDefault();
+
+        state.Variables.Add(new SessionStateVariableEntry(
+            FakeGetAzSqlServerCommand.ResultVariableName,
+            value:       output,
+            description: null
+        ));
+
+        state.Commands.Add(new SessionStateCmdletEntry(
+            "Get-AzSqlServer",
+            typeof(FakeGetAzSqlServerCommand),
+            helpFileName: null
+        ));
+
+        return new(state);
+    }
+
     [Cmdlet(VerbsCommon.Get, "AzSqlServer")]
     [OutputType(typeof(PSObject))]
-    private class GetAzSqlServerCommand : PSCmdlet
+    private class FakeGetAzSqlServerCommand : PSCmdlet
     {
         public const string
             ExpectedResourceGroupName = "resource-group",
@@ -294,7 +557,10 @@ public class AzureSqlContextTests
             ResourceGroupName.ShouldBe(ExpectedResourceGroupName);
             ServerName       .ShouldBe(ExpectedServerName);
 
-            WriteObject(SessionState.PSVariable.GetValue(ResultVariableName));
+            WriteObject(
+                SessionState.PSVariable.GetValue(ResultVariableName),
+                enumerateCollection: true
+            );
         }
     }
 }
