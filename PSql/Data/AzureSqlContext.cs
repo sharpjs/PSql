@@ -26,8 +26,8 @@ public class AzureSqlContext : SqlContext
     }
 
     /// <summary>
-    ///   Initializes a new <see cref="AzureSqlContext"/> instance by property
-    ///   values from the specified instance.
+    ///   Initializes a new <see cref="AzureSqlContext"/> instance by copying
+    ///   property values from the specified instance.
     /// </summary>
     /// <param name="other">
     ///   The instance from which to copy property values.
