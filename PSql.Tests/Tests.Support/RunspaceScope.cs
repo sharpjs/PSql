@@ -5,7 +5,7 @@ using System.Management.Automation.Runspaces;
 
 namespace PSql.Tests;
 
-internal class RunspaceScope : IDisposable
+internal sealed class RunspaceScope : IDisposable
 {
     private readonly Runspace   _oldRunspace;
     private readonly PowerShell _shell;
@@ -16,16 +16,18 @@ internal class RunspaceScope : IDisposable
     public RunspaceScope()
         : this(PowerShell.Create()) { }
 
-    protected RunspaceScope(PowerShell shell)
+    private RunspaceScope(PowerShell shell)
     {
         _oldRunspace = Runspace.DefaultRunspace;
         _shell       = shell;
 
+        // Set thread-static default runspace
         Runspace.DefaultRunspace = shell.Runspace;
     }
 
     void IDisposable.Dispose()
     {
+        // Restore thread-static default runspace
         Runspace.DefaultRunspace = _oldRunspace;
 
         _shell.Dispose();
