@@ -584,11 +584,6 @@ public class SqlContext : ICloneable
     private protected static T CloneAndModify<T>(T context, Action<T> action)
         where T : SqlContext
     {
-        if (context is null)
-            throw new ArgumentNullException(nameof(context));
-        if (action is null)
-            throw new ArgumentNullException(nameof(action));
-
         var clone = (T) context.Clone();
 
         action(clone);

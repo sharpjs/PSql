@@ -85,13 +85,43 @@ public class AzureSqlContextTests
     [Test]
     [TestCase(false)]
     [TestCase(true )]
-    public void Clone_Typed(bool frozen)
+    public void Clone_Constructor(bool frozen)
+    {
+        var original = MakeExampleContext(frozen);
+
+        var clone = new AzureSqlContext(original);
+
+        ShouldBeClone(clone, original);
+    }
+
+    [Test]
+    [TestCase(false)]
+    [TestCase(true )]
+    public void Clone_Concrete(bool frozen)
     {
         var original = MakeExampleContext(frozen);
 
         var clone = original.Clone();
 
-        clone.ShouldNotBeNull();
+        ShouldBeClone(clone, original);
+    }
+
+    [Test]
+    [TestCase(false)]
+    [TestCase(true )]
+    public void Clone_Abstract(bool frozen)
+    {
+        var original = MakeExampleContext(frozen);
+
+        var clone = ((ICloneable) original).Clone();
+
+        ShouldBeClone(clone, original);
+    }
+
+    private static void ShouldBeClone(object? obj, AzureSqlContext original)
+    {
+        var clone = obj.ShouldBeOfType<AzureSqlContext>();
+
         clone.ShouldNotBeSameAs(original);
 
         // Invariants
@@ -197,6 +227,18 @@ public class AzureSqlContextTests
         )
         .InnerException.ShouldBeOfType<InvalidOperationException>()
         .Message.ShouldStartWith("The context is frozen and cannot be modified.");
+    }
+
+    [Test]
+    public void IsLocal_Get()
+    {
+        var context = new AzureSqlContext
+        {
+            ServerResourceGroupName = "rg",
+            ServerResourceName      = "srv",
+        };
+
+        context.IsLocal.ShouldBeFalse();
     }
 
     [Test]
