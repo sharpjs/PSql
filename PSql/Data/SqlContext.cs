@@ -558,7 +558,7 @@ public class SqlContext : ICloneable
     {
         const SqlClientVersion Version = SqlClientVersion.Latest;
 
-        var connectionString = GetConnectionString(databaseName, Version, true);
+        var connectionString = GetConnectionString(databaseName, Version, omitCredential: true);
         var credential       = Credential;
 
         var passCredentialSeparately
