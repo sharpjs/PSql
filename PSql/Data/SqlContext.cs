@@ -358,13 +358,6 @@ public class SqlContext : ICloneable
     private protected virtual string GetDefaultServerName()
         => LocalServerName;
 
-    public NetworkCredential? GetNetworkCredential()
-    {
-        return Credential.IsNullOrEmpty()
-            ? null
-            : Credential.GetNetworkCredential();
-    }
-
     /// <summary>
     ///   Gets a connection string built from the property values of the
     ///   current context, optionally with the specified database name,
@@ -539,56 +532,6 @@ public class SqlContext : ICloneable
             || comparer.Equals(ServerName, "::1")
             || comparer.Equals(ServerName, Dns.GetHostName());
     }
-
-#if FALSE
-    /// <summary>
-    ///   Opens a connection as determined by the property values of the
-    ///   current context, optionally with the specified database name, logging
-    ///   server messages with the specified logger.
-    /// </summary>
-    /// <param name="databaseName">
-    ///   A database name.  If not <see langword="null"/>, this parameter
-    ///   overrides the value of the <see cref="DatabaseName"/> property.
-    /// </param>
-    /// <param name="logger">
-    ///   The object to use to log server messages received over the
-    ///   connection.
-    /// </param>
-    /// <returns>
-    ///   An object representing the open connection.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   <paramref name="logger"/> is <see langword="null"/>.
-    /// </exception>
-    public ISqlConnection Connect(string? databaseName, ISqlMessageLogger logger)
-    {
-        const SqlClientVersion Version = SqlClientVersion.Latest;
-
-        var connectionString = GetConnectionString(databaseName, Version, true);
-        var credential       = Credential;
-
-        var passCredentialSeparately
-            =  !credential.IsNullOrEmpty()
-            && !ExposeCredentialInConnectionString;
-
-        return passCredentialSeparately
-            ? new SqlConnection(
-                connectionString,
-                credential!.UserName,
-                credential!.Password,
-                logger
-            )
-            : new SqlConnection(
-                connectionString,
-                logger
-            );
-    }
-
-    public ISqlConnection Connect(string? databaseName, Cmdlet cmdlet)
-    {
-        return Connect(databaseName, new CmdletSqlMessageLogger(cmdlet));
-    }
-#endif
 
     /// <summary>
     ///   Opens a connection as determined by the property values of the
