@@ -1,26 +1,33 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-// TODO: Document
-#pragma warning disable CS1591
-
 namespace PSql;
 
+/// <summary>
+///   Validates that a parameter is either <see langword="null"/> or a positive
+///   <see langword="ushort"/> value.
+/// </summary>
+/// <remarks>
+///   Valid values range from <c>1</c> to <c>65535</c>.
+/// </remarks>
 public class ValidateNullOrPositiveUInt16Attribute : ValidateArgumentsAttribute
 {
-    protected override void Validate(object arg, EngineIntrinsics engine)
+    /// <inheritdoc/>
+    protected override void Validate(object arguments, EngineIntrinsics engineIntrinsics)
     {
-        if (arg is null)
+        // NOTE: 'arguments' is a single argument, despite the plural name.
+
+        if (arguments is null)
             return;
 
-        if (arg is PSObject psObject)
-            arg = psObject.BaseObject;
+        if (arguments is PSObject psObject)
+            arguments = psObject.BaseObject;
 
-        var value = LanguagePrimitives.ConvertTo<ushort>(arg);
+        var value = LanguagePrimitives.ConvertTo<ushort>(arguments);
 
         if (value < 1)
             throw new ValidationMetadataException(string.Format(
-                @"The value ""{0}"" is not a positive number.", arg
+                @"The value ""{0}"" is not a number between 1 and 65535, inclusive.", arguments
             ));
     }
 }

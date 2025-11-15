@@ -172,8 +172,8 @@ public class NewSqlContextCommandTests
 
     public static IEnumerable<Case> InvalidPortCases = new[]
     {
-        new Case("''",    @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
-        new Case("0",     @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a positive number."),
+        new Case("''",    @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a number between 1 and 65535, inclusive."),
+        new Case("0",     @"Cannot validate argument on parameter 'ServerPort'. The value ""0"" is not a number between 1 and 65535, inclusive."),
         new Case("-1",    @"Cannot bind parameter 'ServerPort'. Cannot convert value """ +    @"-1"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16."""),
         new Case("65536", @"Cannot bind parameter 'ServerPort'. Cannot convert value """ + @"65536"" to type ""System.UInt16"". Error: ""Value was either too large or too small for a UInt16.""")
     };
