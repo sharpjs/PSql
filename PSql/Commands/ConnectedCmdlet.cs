@@ -1,9 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-// Don't require doc comments.  Commands are documented via a help file.
-#pragma warning disable CS1591
-
 namespace PSql.Commands;
 
 /// <summary>
@@ -16,20 +13,26 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
         ContextName    = nameof(Context);
 
     /// <summary>
-    ///   <b>-Connection:</b> TODO
+    ///   <b>-Connection:</b>
+    ///   An open database connection.  Obtain via <c>Connect-Sql</c>.
     /// </summary>
     [Parameter(ParameterSetName = ConnectionName, Mandatory = true)]
     public SqlConnection? Connection { get; set; }
 
     /// <summary>
     ///   <b>-Context:</b> TODO
+    ///   An object containing information necessary to connect to SQL Server,
+    ///   Azure SQL Database, or compatible database.  Obtain via
+    ///   <c>New-SqlContext</c>.
     /// </summary>
     [Parameter(ParameterSetName = ContextName)]
     [ValidateNotNull]
     public SqlContext? Context { get; set; }
 
     /// <summary>
-    ///   <b>-DatabaseName:</b> TODO
+    ///   <b>-DatabaseName:</b>
+    ///   An optional database name.  If specified, this parameter overrides
+    ///   the database name, if any, specified in the <c>-Context</c>.
     /// </summary>
     [Alias("Database")]
     [Parameter(ParameterSetName = ContextName)]
@@ -57,21 +60,10 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
         }
     }
 
-    ~ConnectedCmdlet()
+    /// <inheritdoc/>
+    public virtual void Dispose()
     {
-        Dispose(managed: false);
-    }
-
-    void IDisposable.Dispose()
-    {
-        Dispose(managed: true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool managed)
-    {
-        if (!managed)
-            return;
+        // No unmanaged resources to dispose; use abbreviated Dispose pattern
 
         if (_ownsConnection)
             Connection?.Dispose();
