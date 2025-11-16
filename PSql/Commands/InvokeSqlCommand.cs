@@ -1,53 +1,58 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-// Don't require doc comments.  Commands are documented via a help file.
-#pragma warning disable CS1591
-
 using System.Collections;
 
 namespace PSql.Commands;
 
 /// <summary>
 ///   The <c>Invoke-Sql</c> command.
+///   Runs SQL scripts on SQL Server, Azure SQL Database, or compatible
+///   systems.
 /// </summary>
 [Cmdlet(VerbsLifecycle.Invoke, "Sql", DefaultParameterSetName = ContextName)]
 [OutputType(typeof(PSObject[]))]
 public class InvokeSqlCommand : ConnectedCmdlet
 {
     /// <summary>
-    ///   <b>-Sql:</b> TODO
+    ///   <b>-Sql:</b>
+    ///   SQL scripts(s) to run.
     /// </summary>
     [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
     public string?[]? Sql { get; set; }
 
     /// <summary>
-    ///   <b>-Define:</b> TODO
+    ///   <b>-Define:</b>
+    ///   SQLCMD preprocessor variables to define.
     /// </summary>
     [Parameter(Position = 1)]
     public Hashtable? Define { get; set; }
 
     /// <summary>
-    ///   <b>-NoPreprocessing:</b> TODO
+    ///   <b>-NoPreprocessing:</b>
+    ///   Disables SQLCMD preprocessing support.
     /// </summary>
     [Parameter]
     [Alias("NoSqlCmdMode")]
     public SwitchParameter NoPreprocessing { get; set; }
 
     /// <summary>
-    ///   <b>-NoErrorHandling:</b> TODO
+    ///   <b>-NoErrorHandling:</b>
+    ///   Disables the error-handling wrapper.
     /// </summary>
     [Parameter]
     public SwitchParameter NoErrorHandling { get; set; }
 
     /// <summary>
-    ///   <b>-UseSqlTypes:</b> TODO
+    ///   <b>-UseSqlTypes:</b>
+    ///   Reads column values using native SQL Server types instead of .NET types.
     /// </summary>
     [Parameter]
     public SwitchParameter UseSqlTypes { get; set; }
 
     /// <summary>
-    ///   <b>-Timeout:</b> TODO
+    ///   <b>-Timeout:</b>
+    ///   Maximum duration to wait for each SQL batch to complete.
     /// </summary>
     [Parameter]
     public TimeSpan? Timeout { get; set; }

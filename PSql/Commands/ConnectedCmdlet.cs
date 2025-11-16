@@ -20,7 +20,7 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
     public SqlConnection? Connection { get; set; }
 
     /// <summary>
-    ///   <b>-Context:</b> TODO
+    ///   <b>-Context:</b>
     ///   An object containing information necessary to connect to SQL Server,
     ///   Azure SQL Database, or compatible database.  Obtain via
     ///   <c>New-SqlContext</c>.

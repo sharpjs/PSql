@@ -230,7 +230,7 @@
       <command:parameter required="true" position="0" pipelineInput="True (ByValue)" globbing="false" aliases="none">
         <maml:name>Sql</maml:name>
         <maml:description>
-          <maml:para>The SQL scripts(s) to run.</maml:para>
+          <maml:para>The SQL scripts(s) to process.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string[]</command:parameterValue>
         <dev:type>
@@ -299,7 +299,7 @@
       <command:verb>Invoke</command:verb>
       <command:noun>Sql</command:noun>
       <maml:description>
-        <maml:para>Runs SQL scripts on SQL Server or Azure SQL Database.</maml:para>
+        <maml:para>Runs SQL scripts on SQL Server, Azure SQL Database, or compatible systems.</maml:para>
       </maml:description>
     </command:details>
 
@@ -421,7 +421,7 @@
       <command:parameter required="true" position="0" pipelineInput="True (ByValue)" globbing="false" aliases="none">
         <maml:name>Sql</maml:name>
         <maml:description>
-          <maml:para>The SQL scripts(s) to run.</maml:para>
+          <maml:para>SQL scripts(s) to run.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string[]</command:parameterValue>
         <dev:type>
@@ -491,9 +491,22 @@
       </command:parameter>
 
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
+        <maml:name>UseSqlTypes</maml:name>
+        <maml:description>
+          <maml:para>Reads column values using native SQL Server types instead of .NET types.</maml:para>
+          <maml:para>Example: By default, this cmdlet reads a <c>nvarchar(10)</c> column value as a <c>[string]</c>.  With the -UseSqlTypes switch, this cmdlet instead reads the value as a [System.Data.SqlTypes.SqlString].</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Timeout</maml:name>
         <maml:description>
-          <maml:para>The maximum duration to wait for each SQL batch to complete.  If a batch exceeds this duration, the cmdlet ceases waiting on the batch and writes an error to the error stream.  The batch might continue to execute on the database server. </maml:para>
+          <maml:para>Maximum duration to wait for each SQL batch to complete.  If a batch exceeds this duration, the cmdlet ceases waiting on the batch and writes an error to the error stream.  The batch might continue to execute on the database server. </maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>
         <dev:type>
@@ -552,7 +565,7 @@
       <command:verb>New</command:verb>
       <command:noun>SqlContext</command:noun>
       <maml:description>
-        <maml:para>Creates an object specifying how to connect to SQL Server or Azure SQL Database.</maml:para>
+        <maml:para>Creates an object specifying how to connect to SQL Server, Azure SQL Database, or compatible system.</maml:para>
       </maml:description>
     </command:details>
 
@@ -778,7 +791,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="ResourceGroup,ServerResourceGroupName">
         <maml:name>ResourceGroupName</maml:name>
         <maml:description>
-          <maml:para>The name of the Azure resource group containing the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>Name of the Azure resource group containing the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
           <maml:para>The context uses this value and -ServerResourceName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -791,7 +804,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Resource">
         <maml:name>ServerResourceName</maml:name>
         <maml:description>
-          <maml:para>The Azure resource name of the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>Azure resource name of the database server.  Requires the -Azure switch or an Azure -Source context.</maml:para>
           <maml:para>The context uses this value and -ResourceGroupName to discover the DNS name of the database server if -ServerName is not specified.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -804,7 +817,7 @@
       <command:parameter required="false" position="0" pipelineInput="False" globbing="false" aliases="Server">
         <maml:name>ServerName</maml:name>
         <maml:description>
-          <maml:para>The DNS name of the database server.  The values . and (local) are recognized as aliases for the local machine.</maml:para>
+          <maml:para>DNS name of the database server.  The values . and (local) are recognized as aliases for the local machine.</maml:para>
           <maml:para>If not specified, the default is context-dependent:</maml:para>
           <maml:list class="bullet">
             <maml:listItem>
@@ -827,7 +840,7 @@
       <command:parameter required="false" position="1" pipelineInput="False" globbing="false" aliases="Database">
         <maml:name>DatabaseName</maml:name>
         <maml:description>
-          <maml:para>The name of the database.</maml:para>
+          <maml:para>Name of the database.</maml:para>
           <maml:para>If not specified, connections will attempt to open in the default database of the authenticated user.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -840,7 +853,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Auth">
         <maml:name>AuthenticationMode</maml:name>
         <maml:description>
-          <maml:para>The method to use to authenticate with Azure SQL Database.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>Method to use to authenticate with Azure SQL Database.  Requires the -Azure switch or an Azure -Source context.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.AuthenticationMode</command:parameterValue>
         <dev:type>
@@ -918,7 +931,7 @@
       <command:parameter required="false" position="3" pipelineInput="False" globbing="false" aliases="none">
         <maml:name>Credential</maml:name>
         <maml:description>
-          <maml:para>The credential to use to authenticate with the database server.</maml:para>
+          <maml:para>Credential to use to authenticate with the database server.</maml:para>
           <maml:para>When the -Azure switch is used, or when the -Source context is an Azure context, the use of the credential depends on the -AuthenticationMode parameter.</maml:para>
           <maml:para>Otherwise, connections will present the credential for SQL password authentication.  If -Credential is not specified, connections will attempt to use integrated authentication.</maml:para>
         </maml:description>
@@ -932,7 +945,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Encryption">
         <maml:name>EncryptionMode</maml:name>
         <maml:description>
-          <maml:para>The transport encryption to use for connections.</maml:para>
+          <maml:para>Transport encryption to use for connections.</maml:para>
           <maml:para>Ignored when the -Azure switch is used or when the -Source context is an Azure context.  Azure contexts always use the Full encryption mode.</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.EncryptionMode</command:parameterValue>
@@ -979,7 +992,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Port">
         <maml:name>ServerPort</maml:name>
         <maml:description>
-          <maml:para>The remote TCP port of the database server.</maml:para>
+          <maml:para>Remote TCP port of the database server.</maml:para>
           <maml:para>If not specified, the underlying ADO.NET implementation will use a default port, typically 1433.</maml:para>
         </maml:description>
         <command:parameterValue required="true">ushort</command:parameterValue>
@@ -992,7 +1005,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Instance">
         <maml:name>InstanceName</maml:name>
         <maml:description>
-          <maml:para>The name of the database engine instance.</maml:para>
+          <maml:para>Name of the database engine instance.</maml:para>
           <maml:para>If not specified, connection attempts will target the default instance.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -1017,7 +1030,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Client">
         <maml:name>ClientName</maml:name>
         <maml:description>
-          <maml:para>The name of the client device.</maml:para>
+          <maml:para>Name of the client device.</maml:para>
           <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -1030,7 +1043,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Application">
         <maml:name>ApplicationName</maml:name>
         <maml:description>
-          <maml:para>The name of the client application.</maml:para>
+          <maml:para>Name of the client application.</maml:para>
           <maml:para>If not specified, the underlying ADO.NET implementation will provide a default value.</maml:para>
         </maml:description>
         <command:parameterValue required="true">string</command:parameterValue>
@@ -1043,7 +1056,7 @@
       <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="Timeout">
         <maml:name>ConnectTimeout</maml:name>
         <maml:description>
-          <maml:para>The duration after which a connection attempt times out.</maml:para>
+          <maml:para>Duration after which a connection attempt times out.</maml:para>
           <maml:para>If not specified, the underlying ADO.NET implementation default of 15 seconds is used.</maml:para>
         </maml:description>
         <command:parameterValue required="true">TimeSpan</command:parameterValue>

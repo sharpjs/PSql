@@ -1,9 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-// Don't require doc comments.  Commands are documented via a help file.
-#pragma warning disable CS1591
-
 namespace PSql.Commands;
 
 using static ApplicationIntent;
@@ -12,6 +9,8 @@ using AllowNullAttribute = System.Management.Automation.AllowNullAttribute;
 
 /// <summary>
 ///   The <c>New-SqlContext</c> command.
+///   Creates an object specifying how to connect to SQL Server, Azure SQL
+///   Database, or compatible system.
 /// </summary>
 [Cmdlet(VerbsCommon.New, nameof(SqlContext), DefaultParameterSetName = GenericName)]
 [OutputType(typeof(SqlContext))]
@@ -23,20 +22,24 @@ public class NewSqlContextCommand : PSCmdlet
         CloneName   = "Clone";
 
     /// <summary>
-    ///   <b>-Azure:</b> TODO
+    ///   <b>-Azure:</b>
+    ///   Specifies that the context connects to Azure SQL Database.
     /// </summary>
     [Parameter(ParameterSetName = AzureName, Mandatory = true)]
     public SwitchParameter Azure { get; set; }
 
     /// <summary>
-    ///   <b>-Source:</b> TODO
+    ///   <b>-Source:</b>
+    ///   A context previously created by this cmdlet from which to copy
+    ///   property values into the created context.
     /// </summary>
     [Parameter(ParameterSetName = CloneName, Mandatory = true, ValueFromPipeline = true)]
     [ValidateNotNull]
     public SqlContext? Source { get; set; }
 
     /// <summary>
-    ///   <b>-ResourceGroupName:</b> TODO
+    ///   <b>-ResourceGroupName:</b>
+    ///   Name of the Azure resource group containing the database server.
     /// </summary>
     [Alias("ResourceGroup", "ServerResourceGroupName")]
     [Parameter(ParameterSetName = AzureName, Position = 0)]
@@ -45,7 +48,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? ResourceGroupName { get; set; }
 
     /// <summary>
-    ///   <b>-ServerResourceName:</b> TODO
+    ///   <b>-ServerResourceName:</b>
+    ///   Azure resource name of the database server.
     /// </summary>
     [Alias("Resource")]
     [Parameter(ParameterSetName = AzureName,  Position = 1)]
@@ -54,7 +58,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? ServerResourceName { get; set; }
 
     /// <summary>
-    ///   <b>-ServerName:</b> TODO
+    ///   <b>-ServerName:</b>
+    ///   DNS name of the database server.
     /// </summary>
     [Alias("Server")]
     [Parameter(ParameterSetName = GenericName, Position = 0)]
@@ -64,7 +69,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? ServerName { get; set; }
 
     /// <summary>
-    ///   <b>-DatabaseName:</b> TODO
+    ///   <b>-DatabaseName:</b>
+    ///   Name of the database.
     /// </summary>
     [Alias("Database")]
     [Parameter(ParameterSetName = GenericName, Position = 1)]
@@ -74,7 +80,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? DatabaseName { get; set; }
 
     /// <summary>
-    ///   <b>-AuthenticationMode:</b> TODO
+    ///   <b>-AuthenticationMode:</b>
+    ///   Method to use to authenticate with Azure SQL Database.
     /// </summary>
     [Alias("Auth")]
     [Parameter(ParameterSetName = AzureName)]
@@ -82,7 +89,8 @@ public class NewSqlContextCommand : PSCmdlet
     public AzureAuthenticationMode AuthenticationMode { get; set; }
 
     /// <summary>
-    ///   <b>-Credential:</b> TODO
+    ///   <b>-Credential:</b>
+    ///   Credential to use to authenticate with the database server.
     /// </summary>
     [Parameter]
     [Credential]
@@ -90,7 +98,8 @@ public class NewSqlContextCommand : PSCmdlet
     public PSCredential? Credential { get; set; } = PSCredential.Empty;
 
     /// <summary>
-    ///   <b>-EncryptionMode:</b> TODO
+    ///   <b>-EncryptionMode:</b>
+    ///   Transport encryption to use for connections.
     /// </summary>
     [Alias("Encryption")]
     [Parameter(ParameterSetName = GenericName)]
@@ -98,7 +107,8 @@ public class NewSqlContextCommand : PSCmdlet
     public EncryptionMode EncryptionMode { get; set; }
 
     /// <summary>
-    ///   <b>-ServerPort:</b> TODO
+    ///   <b>-ServerPort:</b>
+    ///   Remote TCP port of the database server.
     /// </summary>
     [Alias("Port")]
     [Parameter(ParameterSetName = GenericName)]
@@ -107,7 +117,8 @@ public class NewSqlContextCommand : PSCmdlet
     public ushort? ServerPort { get; set; }
 
     /// <summary>
-    ///   <b>-InstanceName:</b> TODO
+    ///   <b>-InstanceName:</b>
+    ///   Name of the database engine instance.
     /// </summary>
     [Alias("Instance")]
     [Parameter(ParameterSetName = GenericName)]
@@ -116,14 +127,16 @@ public class NewSqlContextCommand : PSCmdlet
     public string? InstanceName { get; set; }
 
     /// <summary>
-    ///   <b>-ReadOnlyIntent:</b> TODO
+    ///   <b>-ReadOnlyIntent:</b>
+    ///   Specifies that the client intends to perform only reads.
     /// </summary>
     [Alias("ReadOnly")]
     [Parameter]
     public SwitchParameter ReadOnlyIntent { get; set; }
 
     /// <summary>
-    ///   <b>-ClientName:</b> TODO
+    ///   <b>-ClientName:</b>
+    ///   Name of the client device.
     /// </summary>
     [Alias("Client")]
     [Parameter]
@@ -131,7 +144,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? ClientName { get; set; }
 
     /// <summary>
-    ///   <b>-ApplicationName:</b> TODO
+    ///   <b>-ApplicationName:</b>
+    ///   Name of the client application.
     /// </summary>
     [Alias("Application")]
     [Parameter]
@@ -139,7 +153,8 @@ public class NewSqlContextCommand : PSCmdlet
     public string? ApplicationName { get; set; }
 
     /// <summary>
-    ///   <b>-ConnectTimeout:</b> TODO
+    ///   <b>-ConnectTimeout:</b>
+    ///   Duration after which a connection attempt times out.
     /// </summary>
     [Alias("Timeout")]
     [Parameter]
@@ -147,30 +162,38 @@ public class NewSqlContextCommand : PSCmdlet
     public TimeSpan? ConnectTimeout { get; set; }
 
     /// <summary>
-    ///   <b>-ExposeCredentialInConnectionString:</b> TODO
+    ///   <b>-ExposeCredentialInConnectionString:</b>
+    ///   Specifies that the credential used for authentication should be
+    ///   exposed in connections' ConnectionString property.
     /// </summary>
     [Parameter]
     public SwitchParameter ExposeCredentialInConnectionString { get; set; }
 
     /// <summary>
-    ///   <b>-Pooling:</b> TODO
+    ///   <b>-Pooling:</b>
+    ///   Specifies that connections may be pooled to reduce setup and teardown
+    ///   time.
     /// </summary>
     [Parameter]
     public SwitchParameter Pooling { get; set; }
 
     /// <summary>
-    ///   <b>-MultipleActiveResultSets:</b> TODO
+    ///   <b>-MultipleActiveResultSets:</b>
+    ///   Specifies that connections support execution of multiple batches
+    ///   concurrently, with limitations.
     /// </summary>
     [Alias("Mars")]
     [Parameter]
     public SwitchParameter MultipleActiveResultSets { get; set; }
 
     /// <summary>
-    ///   <b>-Frozen:</b> TODO
+    ///   <b>-Frozen:</b>
+    ///   Specifies that the created context should be frozen.
     /// </summary>
     [Parameter]
     public SwitchParameter Frozen { get; set; }
 
+    /// <inheritdoc/>
     protected override void ProcessRecord()
     {
         var context = Source?.Clone() ?? CreateContext();

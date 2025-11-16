@@ -7,19 +7,22 @@ namespace PSql.Commands;
 
 /// <summary>
 ///   The <c>Expand-SqlCmdDirectives</c> command.
+///   Performs limited SQLCMD-style preprocessing.
 /// </summary>
 [Cmdlet(VerbsData.Expand, "SqlCmdDirectives")]
 [OutputType(typeof(string[]))]
 public class ExpandSqlCmdDirectivesCommand : PSqlCmdlet
 {
     /// <summary>
-    ///   <b>-Sql:</b> TODO
+    ///   <b>-Sql:</b>
+    ///   SQL scripts(s) to process.
     /// </summary>
     [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
     public string?[]? Sql { get; set; }
 
     /// <summary>
-    ///   <b>-Define:</b> TODO
+    ///   <b>-Define:</b>
+    ///   SQLCMD preprocessor variables to define.
     /// </summary>
     [Parameter(Position = 1)]
     public Hashtable? Define { get; set; }
@@ -27,7 +30,8 @@ public class ExpandSqlCmdDirectivesCommand : PSqlCmdlet
     private readonly E.SqlCmdPreprocessor _preprocessor;
 
     /// <summary>
-    ///   Creates a new <see cref="ExpandSqlCmdDirectivesCommand"/> instance.
+    ///   Initializes a new <see cref="ExpandSqlCmdDirectivesCommand"/>
+    ///   instance.
     /// </summary>
     public ExpandSqlCmdDirectivesCommand()
     {
