@@ -13,6 +13,7 @@ Most lines should begin with one of these words:
 - Change `Cmdlet`, renaming to `PSqlCmdlet`.
 - Remove `IConsole`, replacing it with a simpler `ISqlMessageLogger`.
 - Update Microsoft.Data.SqlClient to [5.2.2](https://github.com/dotnet/SqlClient/blob/main/release-notes/5.2/5.2.2.md)
+- Add `-ReplaceVariablesInComments` switch to `Expand-SqlCmdDirectives`.
 - Add retries on transient failures.
 - Fix `EncryptionMode.Default` requiring certificate validation for local
   connections.

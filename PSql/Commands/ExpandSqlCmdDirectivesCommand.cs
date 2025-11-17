@@ -27,6 +27,17 @@ public class ExpandSqlCmdDirectivesCommand : PSqlCmdlet
     [Parameter(Position = 1)]
     public Hashtable? Define { get; set; }
 
+    /// <summary>
+    ///   <b>-ReplaceVariablesInComments</b>
+    ///   Perform SQLCMD variable replacement inside SQL comments.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter ReplaceVariablesInComments
+    {
+        get => _preprocessor.EnableVariableReplacementInComments;
+        set => _preprocessor.EnableVariableReplacementInComments = value;
+    }
+
     private readonly E.SqlCmdPreprocessor _preprocessor;
 
     /// <summary>

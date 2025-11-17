@@ -222,6 +222,9 @@
           <maml:name>Define</maml:name>
           <command:parameterValue required="true">hashtable</command:parameterValue>
         </command:parameter>
+        <command:parameter required="false" position="named" pipelineInput="False" globbing="false">
+          <maml:name>ReplaceVariablesInComments</maml:name>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
 
@@ -249,6 +252,18 @@
           <maml:name>System.Collections.Hashtable[]</maml:name>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+
+      <command:parameter required="false" position="named" pipelineInput="False" globbing="false" aliases="none">
+        <maml:name>ReplaceVariablesInComments</maml:name>
+        <maml:description>
+          <maml:para>Perform SQLCMD variable replacement inside SQL comments.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.SwitchParameter</maml:name>
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
 
     </command:parameters>

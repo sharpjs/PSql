@@ -19,6 +19,13 @@ public class SqlCmdPreprocessor
         _preprocessor = new();
     }
 
+    /// <inheritdoc cref="Prequel.SqlCmdPreprocessor.EnableVariableReplacementInComments"/>
+    public bool EnableVariableReplacementInComments
+    {
+        get => _preprocessor.EnableVariableReplacementInComments;
+        set => _preprocessor.EnableVariableReplacementInComments = value;
+    }
+
     /// <summary>
     ///   Defines the specified <c>sqlcmd</c> variables.
     /// </summary>
