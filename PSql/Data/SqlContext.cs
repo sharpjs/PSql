@@ -1,9 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-// TODO: Document
-#pragma warning disable CS1591
-
 using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
