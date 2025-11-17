@@ -279,10 +279,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.ShouldBeOfType<CmdletInvocationException>()
-            .InnerException.ShouldBeOfType<OverflowException>();
+        exception.ShouldBeOfType<OverflowException>();
 
-        objects.ShouldBeEmpty();
+        objects.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBeOfType<PSError>();
     }
 
     [Test]
@@ -294,10 +294,10 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception.ShouldBeOfType<CmdletInvocationException>()
-            .InnerException.ShouldBeOfType<OverflowException>();
+        exception.ShouldBeOfType<OverflowException>();
 
-        objects.ShouldBeEmpty();
+        objects.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBeOfType<PSError>();
     }
 
     [Test]
@@ -986,11 +986,11 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception                              .ShouldBeOfType<CmdletInvocationException>();
-        exception.InnerException               .ShouldNotBeNull();
-        exception.InnerException.GetType().Name.ShouldBe("InvalidUdtException");
+        exception.ShouldNotBeNull();
+        exception.GetType().Name.ShouldBe("InvalidUdtException");
 
-        objects.ShouldBeEmpty();
+        objects.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBeOfType<PSError>();
     }
 
     [Test]
@@ -1011,11 +1011,11 @@ public class InvokeSqlCommandTests
             ""
         ");
 
-        exception                              .ShouldBeOfType<CmdletInvocationException>();
-        exception.InnerException               .ShouldNotBeNull();
-        exception.InnerException.GetType().Name.ShouldBe("InvalidUdtException");
+        exception.ShouldNotBeNull();
+        exception.GetType().Name.ShouldBe("InvalidUdtException");
 
-        objects.ShouldBeEmpty();
+        objects.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBeOfType<PSError>();
     }
 
     private static SqlString Greenlandic(string s)

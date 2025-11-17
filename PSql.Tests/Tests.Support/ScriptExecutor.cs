@@ -2,51 +2,44 @@
 // SPDX-License-Identifier: MIT
 
 using System.Management.Automation.Runspaces;
-using System.Runtime.InteropServices;
 using Microsoft.PowerShell;
-using Unindent;
 
-namespace PSql.Tests;
-
-using static FormattableString;
+namespace PSql;
 
 internal static class ScriptExecutor
 {
-    private static readonly InitialSessionState
-        InitialState = CreateInitialSessionState();
-
-    private static readonly string
-        ScriptPreamble = Invariant($@"
-            Set-Location ""{TestPath.EscapeForDoubleQuoteString()}""
-        ").Unindent();
+    private const string
+        ModuleFileName      = "PSql.psd1",
+        TestingVariableName = "PSQL_TESTING";
 
     private static string
         TestPath => TestContext.CurrentContext.TestDirectory;
+
+    private static readonly InitialSessionState
+        InitialState = CreateInitialSessionState();
+
+    private static readonly PSInvocationSettings
+        Settings = new() { ErrorActionPreference = ActionPreference.Stop };
 
     private static InitialSessionState CreateInitialSessionState()
     {
         var state = InitialSessionState.CreateDefault();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
             state.ExecutionPolicy = ExecutionPolicy.RemoteSigned;
 
-        state.Variables.Add(new SessionStateVariableEntry(
-            "ErrorActionPreference", "Stop", description: null
-        ));
-
-        state.ImportPSModule(
-            Path.Combine(TestPath, "PSql.psd1")
+        state.EnvironmentVariables.Add(
+            new SessionStateVariableEntry(TestingVariableName, "1", null)
         );
+
+        state.ImportPSModule(Path.Combine(TestPath, ModuleFileName));
 
         return state;
     }
 
     internal static (IReadOnlyList<PSObject?>, Exception?) Execute(string script)
     {
-        if (script is null)
-            throw new ArgumentNullException(nameof(script));
-
-        script = ScriptPreamble + script.Unindent();
+        ArgumentNullException.ThrowIfNull(script);
 
         var output    = new List<PSObject?>();
         var exception = null as Exception;
@@ -55,26 +48,53 @@ internal static class ScriptExecutor
 
         Redirect(shell.Streams, output);
 
+        shell
+            .AddCommand("Set-Location").AddParameter("LiteralPath", TestPath)
+            .AddScript(script);
+
         try
         {
-            shell.AddScript(script).Invoke(input: null, output);
+            shell.Invoke(input: null, output, Settings);
         }
         catch (Exception e)
         {
             exception = e;
         }
 
+        exception ??= shell.Streams.Error.FirstOrDefault()?.Exception;
+
         return (output, exception);
     }
 
-    internal static string EscapeForDoubleQuoteString(this string s)
-        => s.Replace("\"", "`\"")
-            .Replace("`",  "``");
-
     private static void Redirect(PSDataStreams streams, List<PSObject?> output)
     {
-        streams.Warning.DataAdding += (_, data) => StoreWarning (data, output);
-        streams.Error  .DataAdding += (_, data) => StoreError   (data, output);
+        streams.Debug      .DataAdding += (_, data) => StoreDebug       (data, output);
+        streams.Verbose    .DataAdding += (_, data) => StoreVerbose     (data, output);
+        streams.Information.DataAdding += (_, data) => StoreInformation (data, output);
+        streams.Warning    .DataAdding += (_, data) => StoreWarning     (data, output);
+        streams.Error      .DataAdding += (_, data) => StoreError       (data, output);
+        streams.Progress   .DataAdding += (_, data) => StoreProgress    (data, output);
+    }
+
+    private static void StoreDebug(DataAddingEventArgs data, List<PSObject?> output)
+    {
+        var written = (DebugRecord) data.ItemAdded;
+        var message = new PSDebug(written.Message);
+        output.Add(new PSObject(message));
+    }
+
+    private static void StoreVerbose(DataAddingEventArgs data, List<PSObject?> output)
+    {
+        var written = (VerboseRecord) data.ItemAdded;
+        var message = new PSVerbose(written.Message);
+        output.Add(new PSObject(message));
+    }
+
+    private static void StoreInformation(DataAddingEventArgs data, List<PSObject?> output)
+    {
+        var written = (InformationRecord) data.ItemAdded;
+        var message = new PSInformation(written.ToString());
+        output.Add(new PSObject(message));
     }
 
     private static void StoreWarning(DataAddingEventArgs data, List<PSObject?> output)
@@ -90,7 +110,18 @@ internal static class ScriptExecutor
         var message = new PSError(written.Exception.Message);
         output.Add(new PSObject(message));
     }
+
+    private static void StoreProgress(DataAddingEventArgs data, List<PSObject?> output)
+    {
+        var written = (ProgressRecord) data.ItemAdded;
+        var message = new PSProgress(written.ToString());
+        output.Add(new PSObject(message));
+    }
 }
 
-internal record PSWarning (string Message);
-internal record PSError   (string Message);
+internal readonly record struct PSDebug       (string Message);
+internal readonly record struct PSVerbose     (string Message);
+internal readonly record struct PSInformation (string Message);
+internal readonly record struct PSWarning     (string Message);
+internal readonly record struct PSError       (string Message);
+internal readonly record struct PSProgress    (string Message);
