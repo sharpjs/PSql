@@ -13,13 +13,61 @@ using static SqlCompareOptions;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
-public class InvokeSqlCommandTests
+public class InvokeSqlCommandIntegrationTests
 {
     [OneTimeSetUp]
     public static void SetUpOnce()
     {
         // Prepopulate
         _ = Prelude;
+    }
+
+    [Test]
+    public void Invoke_Default()
+    {
+        var (output, exception) = Execute(
+        """
+            PSql\Invoke-Sql "PRINT 'a';"
+        """);
+
+        exception.ShouldBeNull();
+
+        output.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBe(new PSInformation("a"));
+    }
+
+    [Test]
+    public void Invoke_Context()
+    {
+        var (output, exception) = Execute(
+        """
+            PSql\Invoke-Sql -Context $Context "PRINT 'a';"
+        """);
+
+        exception.ShouldBeNull();
+
+        output.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBe(new PSInformation("a"));
+    }
+
+    [Test]
+    public void Invoke_Connection()
+    {
+        var (output, exception) = Execute(
+        """
+            $Connection = PSql\Connect-Sql
+            try {
+                PSql\Invoke-Sql -Connection $Connection "PRINT 'a';"
+            }
+            finally {
+                PSql\Disconnect-Sql $Connection
+            }
+        """);
+
+        exception.ShouldBeNull();
+
+        output.ShouldHaveSingleItem().ShouldNotBeNull()
+            .BaseObject.ShouldBe(new PSInformation("a"));
     }
 
     [Test]
