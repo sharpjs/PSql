@@ -100,6 +100,11 @@ public class SqlConnection : IDisposable
     protected bool HasErrors { get; private set; }
 
     /// <summary>
+    ///   Gets whether the connection is open.
+    /// </summary>
+    public bool IsOpen => Connection.State is ConnectionState.Open;
+
+    /// <summary>
     ///   Throws an exception if one or more error messages have been received
     ///   over the connection since the most recent invocation of
     ///   <see cref="ClearErrors"/>.
