@@ -9,7 +9,7 @@ using PSql.Internal;
 
 [assembly: Parallelizable(ParallelScope.All)]
 
-namespace PSql.Tests;
+namespace PSql;
 
 [SetUpFixture]
 public static class TestSuite
