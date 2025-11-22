@@ -20,8 +20,7 @@ public class ValidateNullOrPositiveUInt16Attribute : ValidateArgumentsAttribute
         if (arguments is null)
             return;
 
-        if (arguments is PSObject psObject)
-            arguments = psObject.BaseObject;
+        arguments = arguments.UnwrapPSObject();
 
         var value = LanguagePrimitives.ConvertTo<ushort>(arguments);
 

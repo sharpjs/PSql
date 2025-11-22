@@ -20,4 +20,11 @@ public static class TestSuite
         // Ensure that PSql.Engine.dll and its dependencies load correctly
         new ModuleLifecycleEvents().OnImport();
     }
+
+    [OneTimeTearDown]
+    public static void TearDown()
+    {
+        // Cover removal method
+        new ModuleLifecycleEvents().OnRemove(null! /* not used */);
+    }
 }

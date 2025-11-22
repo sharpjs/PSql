@@ -108,6 +108,12 @@ public class ExpandSqlCmdDirectivesCommandTests
     }
 
     [Test]
+    public void ReplaceVariablesInComments_Get()
+    {
+        new TestCommand().ReplaceVariablesInComments.IsPresent.ShouldBeFalse();
+    }
+
+    [Test]
     public void ProcessRecord_NullSql()
     {
         // PowerShell parameter validation should prevent this case, but the

@@ -128,22 +128,11 @@ public class InvokeSqlCommand : ConnectedCmdlet
         );
     }
 
-    protected override void EndProcessing()
-    {
-        base.EndProcessing();
-        ReportErrors();
-    }
-
+#if DECIDE_ON_CANCELLATION
     protected override void StopProcessing()
     {
-        base.StopProcessing();
-        ReportErrors();
+        // TODO: Figure out how to cancel
+        // Async from sync, perhaps?
     }
-
-    private void ReportErrors()
-    {
-        // TODO: This should be done internally I think
-        //// NULLS: Connection ensured not null by BeginProcessing
-        //Connection!.InnerConnection.ThrowIfHasErrors();
-    }
+#endif
 }

@@ -20,19 +20,19 @@ public class NewSqlContextCommandTests
         );
     }
 
-    public static IEnumerable<Case> StringCases = new[]
-    {
+    public static IEnumerable<Case> StringCases =
+    [
         new Case("$null", null),
         new Case("''",    null),
         new Case("'a'",   "a" )
-    };
+    ];
 
-    public static IEnumerable<Case> SwitchCases = new[]
-    {
-        new Case("",        true),
-        new Case(":$true",  true),
+    public static IEnumerable<Case> SwitchCases =
+    [
+        new Case("",        true ),
+        new Case(":$true",  true ),
         new Case(":$false", false)
-    };
+    ];
 
     #region -ResourceGroupName
 

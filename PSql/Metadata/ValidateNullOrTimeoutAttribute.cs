@@ -24,8 +24,7 @@ public class ValidateNullOrTimeoutAttribute : ValidateArgumentsAttribute
         if (arguments is null)
             return;
 
-        if (arguments is PSObject psObject)
-            arguments = psObject.BaseObject;
+        arguments = arguments.UnwrapPSObject();
 
         var value = LanguagePrimitives.ConvertTo<TimeSpan>(arguments);
         var ticks = value.Ticks;

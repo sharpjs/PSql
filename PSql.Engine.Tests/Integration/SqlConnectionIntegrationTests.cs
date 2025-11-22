@@ -1,6 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
+using System.Collections;
 using System.Data.SqlTypes;
 
 namespace PSql.Integration;
@@ -21,21 +22,17 @@ public class SqlConnectionIntegrationTests
 
         using var result = connection.ExecuteAndProjectTo(
             """
-            SELECT * FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
-            SELECT * FROM (VALUES (N'c', 3), (N'd', 4)) AS T (S, Y);
+            SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
+            SELECT *, 20 FROM (VALUES (N'c', 3), (N'd', 4)) AS T (S, Y);
             """,
             TestObjectBuilder.Instance
         );
 
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", "a"), ("X", 1)]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", "b"), ("X", 2)]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", "c"), ("Y", 3)]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", "d"), ("Y", 4)]);
-        result.MoveNext().ShouldBeFalse();
+        ShouldHaveNext(result, ("S", "a"), ("X", 1), ("Col2", 10));
+        ShouldHaveNext(result, ("S", "b"), ("X", 2), ("Col2", 10));
+        ShouldHaveNext(result, ("S", "c"), ("Y", 3), ("Col2", 20));
+        ShouldHaveNext(result, ("S", "d"), ("Y", 4), ("Col2", 20));
+        ShouldNotHaveNext(result);
     }
 
     [Test]
@@ -60,8 +57,8 @@ public class SqlConnectionIntegrationTests
 
         using var result = connection.ExecuteAndProjectTo(
             """
-            SELECT * FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
-            SELECT * FROM (VALUES
+            SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
+            SELECT *, 20 FROM (VALUES
                 (N'c' COLLATE Latin1_General_100_CI_AI_SC_UTF8, 3),
                 (N'd' COLLATE Latin1_General_100_CI_AI_SC_UTF8, 4)
             ) AS T (S, Y);
@@ -70,15 +67,11 @@ public class SqlConnectionIntegrationTests
             useSqlTypes: true
         );
 
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", Greenlandic("a")), ("X", new SqlInt32(1))]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", Greenlandic("b")), ("X", new SqlInt32(2))]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", Greenlandic("c")), ("Y", new SqlInt32(3))]);
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("S", Greenlandic("d")), ("Y", new SqlInt32(4))]);
-        result.MoveNext().ShouldBeFalse();
+        ShouldHaveNext(result, ("S", Greenlandic("a")), ("X", new SqlInt32(1)), ("Col2", new SqlInt32(10)));
+        ShouldHaveNext(result, ("S", Greenlandic("b")), ("X", new SqlInt32(2)), ("Col2", new SqlInt32(10)));
+        ShouldHaveNext(result, ("S", Greenlandic("c")), ("Y", new SqlInt32(3)), ("Col2", new SqlInt32(20)));
+        ShouldHaveNext(result, ("S", Greenlandic("d")), ("Y", new SqlInt32(4)), ("Col2", new SqlInt32(20)));
+        ShouldNotHaveNext(result);
     }
 
     [Test]
@@ -98,9 +91,25 @@ public class SqlConnectionIntegrationTests
             TestObjectBuilder.Instance
         );
 
-        result.MoveNext().ShouldBeTrue();
-        result.Current.Properties.ShouldBe([("X", 1)]);
+        ShouldHaveNext(result, ("X", 1));
         Should.Throw<DataException>(() => result.MoveNext());
+    }
+
+    private static void ShouldHaveNext(
+        IEnumerator<TestObject>               result,
+        params (string Name, object? Value)[] properties)
+    {
+        result.MoveNext().ShouldBeTrue();
+        result.Current.Properties.ShouldBe(properties);
+        ((IEnumerator) result).Current.ShouldBeSameAs(result.Current);
+    }
+
+    private static void ShouldNotHaveNext(IEnumerator<TestObject> result)
+    {
+        result.MoveNext().ShouldBeFalse();
+        Should.Throw<InvalidOperationException>(() => result.Current);
+        Should.Throw<InvalidOperationException>(() => ((IEnumerator) result).Current);
+        Should.Throw<NotSupportedException    >(() => result.Reset());
     }
 
     private sealed class TestObject

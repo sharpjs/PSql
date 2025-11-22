@@ -26,9 +26,10 @@ public class InvokeSqlCommandIntegrationTests
     public void Invoke_Default()
     {
         var (output, exception) = Execute(
-        """
+            """
             PSql\Invoke-Sql "PRINT 'a';"
-        """);
+            """
+        );
 
         exception.ShouldBeNull();
 
@@ -40,9 +41,10 @@ public class InvokeSqlCommandIntegrationTests
     public void Invoke_Context()
     {
         var (output, exception) = Execute(
-        """
+            """
             PSql\Invoke-Sql -Context $Context "PRINT 'a';"
-        """);
+            """
+        );
 
         exception.ShouldBeNull();
 
@@ -54,7 +56,7 @@ public class InvokeSqlCommandIntegrationTests
     public void Invoke_Connection()
     {
         var (output, exception) = Execute(
-        """
+            """
             $Connection = PSql\Connect-Sql
             try {
                 PSql\Invoke-Sql -Connection $Connection "PRINT 'a';"
@@ -62,12 +64,46 @@ public class InvokeSqlCommandIntegrationTests
             finally {
                 PSql\Disconnect-Sql $Connection
             }
-        """);
+            """
+        );
 
         exception.ShouldBeNull();
 
         output.ShouldHaveSingleItem().ShouldNotBeNull()
             .BaseObject.ShouldBe(new PSInformation("a"));
+    }
+
+    [Test]
+    public void Invoke_NoErrorHandlingWrapper()
+    {
+        // The error handling wrapper raises an error if the transaction count
+        // differs before and after execution.  The -NoErrorHandling switch
+        // suppresses the wrapper, allowing this test to pass.
+
+        var (output, exception) = Execute(
+            """
+            Invoke-Sql "BEGIN TRANSACTION;" -NoErrorHandling
+            """
+        );
+
+        exception.ShouldBeNull();
+
+        output.ShouldBeEmpty();
+    }
+
+    [Test]
+    public void Invoke_Timeout()
+    {
+        var (output, exception) = Execute(
+            """
+            Invoke-Sql "WAITFOR DELAY '00:00:10';" -Timeout 00:00:01
+            """
+        );
+
+        exception.ShouldNotBeNull().GetType()
+            .FullName.ShouldBe("Microsoft.Data.SqlClient.SqlException");
+
+        ((int) ((dynamic) exception).Number).ShouldBe(-2);
     }
 
     [Test]
