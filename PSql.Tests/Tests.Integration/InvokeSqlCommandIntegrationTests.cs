@@ -23,6 +23,7 @@ public class InvokeSqlCommandIntegrationTests
     }
 
     [Test]
+    [SetCulture("en-US")] // because exception messages are localized
     public void Invoke_Default()
     {
         var (output, exception) = Execute(
@@ -31,10 +32,23 @@ public class InvokeSqlCommandIntegrationTests
             """
         );
 
-        exception.ShouldBeNull();
+        if (OperatingSystem.IsWindows())
+        {
+            exception.ShouldBeNull();
 
-        output.ShouldHaveSingleItem().ShouldNotBeNull()
-            .BaseObject.ShouldBe(new PSInformation("a"));
+            output.ShouldHaveSingleItem().ShouldNotBeNull()
+                .BaseObject.ShouldBe(new PSInformation("a"));
+        }
+        else
+        {
+            // Integrated authentication on non-Windows systems uses Kerberos,
+            // which looks nontrivial to configure.  Instead, jsut check for
+            // the expected error: "Cannot authenticate using Kerberos"
+
+            exception                   .ShouldNotBeNull();
+            exception.GetType().FullName.ShouldBe("Microsoft.Data.SqlClient.SqlException");
+            exception.Message           .ShouldContain("Cannot authenticate using Kerberos.");
+        }
     }
 
     [Test]
@@ -57,7 +71,7 @@ public class InvokeSqlCommandIntegrationTests
     {
         var (output, exception) = Execute(
             """
-            $Connection = PSql\Connect-Sql
+            $Connection = PSql\Connect-Sql -Context $Context
             try {
                 PSql\Invoke-Sql -Connection $Connection "PRINT 'a';"
             }
@@ -1148,7 +1162,7 @@ public class InvokeSqlCommandIntegrationTests
         {
             return
                 """
-                $Context = New-SqlContext -Credential $Credential
+                $Context = New-SqlContext
                 function Invoke-Sql { PSql\Invoke-Sql -Context $Context @args }
                 """;
         }
