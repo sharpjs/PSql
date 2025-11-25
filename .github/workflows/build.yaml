@@ -96,8 +96,8 @@ jobs:
 
       - name: Build 1
         run: >
-          dotnet build PSql.Engine --no-restore -c Release
-          -p:TreatWarningsAsErrors=true
+          dotnet build PSql.Engine --no-restore -c Release -p:TreatWarningsAsErrors=true;
+          dotnet build PSql.Engine --no-restore -c Debug
 
       - name: Build 2
         run: >
@@ -107,7 +107,7 @@ jobs:
 
       - name: Test
         run: >
-          dotnet test --no-build -c Release
+          dotnet test --no-restore -c Debug
           --settings Coverlet.runsettings
           --results-directory ${{ runner.temp }}/coverage/raw
         env:
