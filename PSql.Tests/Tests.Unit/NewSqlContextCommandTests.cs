@@ -1,6 +1,8 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
+using PSql.Commands;
+
 namespace PSql.Tests.Unit;
 
 using Case = TestCaseData;
@@ -822,6 +824,20 @@ public class NewSqlContextCommandTests
             New-SqlContext -Frozen | New-SqlContext -Frozen{expression} -ServerName a
         "
         .ShouldOutput(context);
+    }
+
+    #endregion
+    #region Other
+
+    [Test]
+    public void ApplyParameterValue_UnrecognizedParameter()
+    {
+        var before = new SqlContext();
+        var after  = new SqlContext();
+
+        new NewSqlContextCommand().ApplyParameterValue(after, "Unrecognized");
+
+        after.ShouldBe(before, StructuralEqualityComparer.Instance);
     }
 
     #endregion

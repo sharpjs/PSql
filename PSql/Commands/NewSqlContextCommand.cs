@@ -207,7 +207,7 @@ public class NewSqlContextCommand : PSCmdlet
         WriteObject(context);
     }
 
-    private void ApplyParameterValue(SqlContext context, string parameterName)
+    internal void ApplyParameterValue(SqlContext context, string parameterName)
     {
         switch (parameterName)
         {
