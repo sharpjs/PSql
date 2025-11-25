@@ -34,7 +34,7 @@ public class SqlCmdPreprocessor
     /// </param>
     public void SetVariables(IDictionary? entries)
     {
-        if (entries == null)
+        if (entries is null)
             return;
 
         var variables = _preprocessor.Variables;

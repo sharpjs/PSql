@@ -52,6 +52,12 @@ public class SqlCmdPreprocessorTests
         TestSetVariablesWith(entry: new DictionaryEntry("", "value"));
     }
 
+    [Test]
+    public void SetVariables_EntryHasNullValue()
+    {
+        TestSetVariablesWith(entry: new DictionaryEntry("a", null));
+    }
+
     private static void TestSetVariablesWith(object entry)
     {
         var preprocessor = new SqlCmdPreprocessor();
