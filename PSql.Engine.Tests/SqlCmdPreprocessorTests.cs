@@ -58,6 +58,12 @@ public class SqlCmdPreprocessorTests
         TestSetVariablesWith(entry: new DictionaryEntry("a", null));
     }
 
+    [Test]
+    public void SetVariables_EntryToStringIsNull()
+    {
+        TestSetVariablesWith(entry: new DictionaryEntry("a", new ThingWhoseToStringIsNull()));
+    }
+
     private static void TestSetVariablesWith(object entry)
     {
         var preprocessor = new SqlCmdPreprocessor();
@@ -74,5 +80,10 @@ public class SqlCmdPreprocessorTests
         preprocessor.SetVariables(dictionary.Object);
 
         preprocessor.Process("a").ShouldBe(["a"]);
+    }
+
+    private sealed class ThingWhoseToStringIsNull
+    {
+        public override string? ToString() => null;
     }
 }
