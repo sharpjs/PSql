@@ -49,7 +49,7 @@ public class SqlErrorHandlingBuilderTests
         builder.Append("o");
 
         builder.IsEmpty   .ShouldBeFalse();
-        builder.Complete().ShouldNotBeEmpty();
+        builder.Complete().ShouldBe(ExpectedSingleBatch);
     }
 
     [Test]
@@ -62,7 +62,7 @@ public class SqlErrorHandlingBuilderTests
         builder.Append("o");
 
         builder.IsEmpty   .ShouldBeFalse();
-        builder.Complete().ShouldNotBeEmpty();
+        builder.Complete().ShouldBe(ExpectedSingleBatchNoWrap);
     }
 
     [Test]
@@ -219,9 +219,9 @@ public class SqlErrorHandlingBuilderTests
         var builder = new SqlErrorHandlingBuilder();
 
         builder.Append("--# NOWRAP" + Environment.NewLine);
-        builder.Append("foo");
+        builder.Append("'foo'"); // also tests that quotes are NOT escaped
         builder.StartNewBatch();
-        builder.Append("bar");
+        builder.Append("'bar'"); // also tests that quotes ARE escaped
 
         builder.IsEmpty   .ShouldBeFalse();
         builder.Complete().ShouldBe(ExpectedMultipleBatch);
@@ -291,9 +291,8 @@ public class SqlErrorHandlingBuilderTests
 
             SET @__sql__ = N'--# NOWRAP
         foo';
-            --# NOWRAP
+        --# NOWRAP
         foo
-
         END TRY
         BEGIN CATCH
             PRINT N''
@@ -349,10 +348,10 @@ public class SqlErrorHandlingBuilderTests
         BEGIN TRY
 
             SET @__sql__ = N'--# NOWRAP
-        foo';
+        ''foo''';
         --# NOWRAP
-        foo
-            SET @__sql__ = N'bar';
+        'foo'
+            SET @__sql__ = N'''bar''';
             EXEC sp_executesql @__sql__;
 
         END TRY
