@@ -832,12 +832,13 @@ public class NewSqlContextCommandTests
     [Test]
     public void ApplyParameterValue_UnrecognizedParameter()
     {
-        var before = new SqlContext();
-        var after  = new SqlContext();
+        new NewSqlContextCommand().ApplyParameterValue(null!, "Unrecognized");
+    }
 
-        new NewSqlContextCommand().ApplyParameterValue(after, "Unrecognized");
-
-        after.ShouldBe(before, StructuralEqualityComparer.Instance);
+    [Test]
+    public void ApplyParameterValue_NullParameter()
+    {
+        new NewSqlContextCommand().ApplyParameterValue(null!, null!);
     }
 
     #endregion
