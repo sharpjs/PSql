@@ -37,7 +37,7 @@ public class SqlErrorHandlingBuilder
         => _builder.Length <= Prologue.Length;
 
     private bool CurrentBatchIsEmpty
-        => _chunks.Count == 0;
+        => _chunks.Count is 0;
 
     /// <summary>
     ///   Ends the current batch and begins a new batch.
@@ -70,7 +70,7 @@ public class SqlErrorHandlingBuilder
     {
         if (sql is null)
             throw new ArgumentNullException(nameof(sql));
-        if (sql.Length == 0)
+        if (sql.Length is 0)
             return;
 
         Append(sql, 0, sql.Length);
@@ -139,7 +139,7 @@ public class SqlErrorHandlingBuilder
             throw new ArgumentOutOfRangeException(nameof(index));
         if (length < 0 || length > sql.Length - index)
             throw new ArgumentOutOfRangeException(nameof(length));
-        if (length == 0)
+        if (length is 0)
             return;
 
         _chunks.Add((sql, index, length));
