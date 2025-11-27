@@ -1,6 +1,8 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
+using System.Diagnostics;
+
 namespace PSql.Commands;
 
 /// <summary>
@@ -70,5 +72,16 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
 
         Connection      = null;
         _ownsConnection = false;
+    }
+
+#if !DEBUG
+    [ExcludeFromCodeCoverage]
+#endif
+    [Conditional("DEBUG")]
+    [MemberNotNull(nameof(Connection))]
+    protected void AssumeBeginProcessingInvoked()
+    {
+        if (Connection is null)
+            throw new InvalidOperationException("BeginProcessing() has not been invoked.");
     }
 }

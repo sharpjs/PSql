@@ -118,12 +118,13 @@ public class InvokeSqlCommand : ConnectedCmdlet
     {
         const int DefaultTimeoutSeconds = 30;
 
+        AssumeBeginProcessingInvoked();
+
         var timeout = Timeout.HasValue
             ? (int) Timeout.Value.TotalSeconds
             : DefaultTimeoutSeconds;
 
-        // NULLS: _command created in BeginProcessing
-        return Connection!.InnerConnection.ExecuteAndProjectTo(
+        return Connection.InnerConnection.ExecuteAndProjectTo(
             batch, new PSObjectBuilder(), timeout, UseSqlTypes
         );
     }
