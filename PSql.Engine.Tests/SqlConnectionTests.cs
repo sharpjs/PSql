@@ -9,7 +9,7 @@ public class SqlConnectionTests
     // This test class only backfills coverage gaps in other tests.
 
     [Test]
-    public void Foo()
+    public void ExecuteAndProject_NegativeTimeout()
     {
         var builder = Mock.Of<IObjectBuilder<object>>();
 
@@ -17,7 +17,7 @@ public class SqlConnectionTests
 
         Should.Throw<ArgumentOutOfRangeException>(() =>
         {
-            connection.ExecuteAndProjectTo("any", builder, timeout: -1);
+            connection.ExecuteAndProject("any", builder, timeout: -1);
         });
     }
 

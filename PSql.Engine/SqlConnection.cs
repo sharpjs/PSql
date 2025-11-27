@@ -167,10 +167,10 @@ public class SqlConnection : IDisposable
     /// <summary>
     ///   Ensures that the connection is open.
     /// </summary>
-    protected void AutoOpen()
+    protected void AutoOpen(CancellationToken cancellation)
     {
         if (Connection.State == ConnectionState.Closed)
-            Connection.Open();
+            Connection.OpenAsync(cancellation).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -192,6 +192,9 @@ public class SqlConnection : IDisposable
     ///   <see langword="true"/> to project column values using SQL types from
     ///     the <see cref="System.Data.SqlTypes"/> namespace, such as
     ///     <see cref="System.Data.SqlTypes.SqlInt32"/>.
+    /// </param>
+    /// <param name="cancellation">
+    ///   A token to monitor for cancellation requests.
     /// </param>
     /// <returns>
     ///   A sequence of objects created by executing the <paramref name="sql"/>
@@ -221,18 +224,21 @@ public class SqlConnection : IDisposable
     /// <exception cref="ObjectDisposedException">
     ///   Thrown by the underlying ADO.NET connection or command objects.
     /// </exception>
-    public IEnumerator<T> ExecuteAndProjectTo<T>(
+    public IEnumerator<T> ExecuteAndProject<T>(
         string            sql,
         IObjectBuilder<T> builder,
-        int               timeout     = 0,
-        bool              useSqlTypes = false)
+        int               timeout      = 0,
+        bool              useSqlTypes  = false,
+        CancellationToken cancellation = default)
     {
+        // Using async from sync to gain cancellation support
+
         SetUpCommand(sql, timeout);
-        AutoOpen();
+        AutoOpen(cancellation);
 
-        var reader = Command.ExecuteReader();
+        var reader = Command.ExecuteReaderAsync(cancellation).GetAwaiter().GetResult();
 
-        return new ObjectResultSet<T>(this, reader, builder, useSqlTypes);
+        return new ObjectResultSet<T>(this, reader, builder, useSqlTypes, cancellation);
     }
 
     /// <summary>

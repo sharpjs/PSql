@@ -12,7 +12,7 @@ using static SqlCompareOptions;
 public class SqlConnectionIntegrationTests
 {
     [Test]
-    public void ExecuteAndProjectTo_ClrTypes()
+    public void ExecuteAndProject_ClrTypes()
     {
         using var connection = new SqlConnection(
             IntegrationTestsSetup.Database.ConnectionString,
@@ -20,7 +20,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProjectTo(
+        using var result = connection.ExecuteAndProject(
             """
             SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
             SELECT *, 20 FROM (VALUES (N'c', 3), (N'd', 4)) AS T (S, Y);
@@ -37,7 +37,7 @@ public class SqlConnectionIntegrationTests
 
     [Test]
     [SetCulture("kl-GL")] // Greenlandic
-    public void ExecuteAndProjectTo_SqlTypes()
+    public void ExecuteAndProject_SqlTypes()
     {
         // NOTE: It appears that the current .NET culture is what determines
         // the collation of a SqlString.  Even a collation specified explicitly
@@ -55,7 +55,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProjectTo(
+        using var result = connection.ExecuteAndProject(
             """
             SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
             SELECT *, 20 FROM (VALUES
@@ -75,7 +75,7 @@ public class SqlConnectionIntegrationTests
     }
 
     [Test]
-    public void ExecuteAndProjectTo_Exception()
+    public void ExecuteAndProject_Exception()
     {
         using var connection = new SqlConnection(
             IntegrationTestsSetup.Database.ConnectionString,
@@ -83,7 +83,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProjectTo(
+        using var result = connection.ExecuteAndProject(
             """
             SELECT * FROM (VALUES (1/1)) AS T (X);
             SELECT * FROM (VALUES (1/0)) AS T (X);

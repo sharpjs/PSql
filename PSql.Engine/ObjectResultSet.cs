@@ -12,6 +12,7 @@ internal sealed class ObjectResultSet<T> : IEnumerator<T>
     private readonly SqlDataReader     _reader;
     private readonly IObjectBuilder<T> _builder;
     private readonly bool              _useSqlTypes;
+    private readonly CancellationToken _cancellation;
 
     private T?        _current;
     private string[]? _columnNames;
@@ -20,16 +21,18 @@ internal sealed class ObjectResultSet<T> : IEnumerator<T>
         SqlConnection     connection,
         SqlDataReader     reader,
         IObjectBuilder<T> builder,
-        bool              useSqlTypes)
+        bool              useSqlTypes,
+        CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(reader);
         ArgumentNullException.ThrowIfNull(builder);
 
-        _connection  = connection;
-        _reader      = reader;
-        _builder     = builder;
-        _useSqlTypes = useSqlTypes;
+        _connection   = connection;
+        _reader       = reader;
+        _builder      = builder;
+        _useSqlTypes  = useSqlTypes;
+        _cancellation = cancellation;
     }
 
     public T Current
@@ -40,9 +43,11 @@ internal sealed class ObjectResultSet<T> : IEnumerator<T>
 
     public bool MoveNext()
     {
-        while (!_reader.Read())
+        // Using async from sync to gain cancellation support
+
+        while (!_reader.ReadAsync(_cancellation).GetAwaiter().GetResult())
         {
-            if (!_reader.NextResult())
+            if (!_reader.NextResultAsync(_cancellation).GetAwaiter().GetResult())
                 return SetNoCurrent();
 
             _columnNames = null;

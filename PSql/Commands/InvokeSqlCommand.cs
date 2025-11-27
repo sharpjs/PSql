@@ -57,7 +57,8 @@ public class InvokeSqlCommand : ConnectedCmdlet
     [Parameter]
     public TimeSpan? Timeout { get; set; }
 
-    private readonly E.SqlCmdPreprocessor _preprocessor;
+    private readonly E.SqlCmdPreprocessor    _preprocessor;
+    private readonly CancellationTokenSource _cancellation;
 
     private bool ShouldUsePreprocessing
         => !NoPreprocessing;
@@ -68,6 +69,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
     public InvokeSqlCommand()
     {
         _preprocessor = new();
+        _cancellation = new();
     }
 
     protected override void ProcessRecord()
@@ -88,6 +90,11 @@ public class InvokeSqlCommand : ConnectedCmdlet
             Execute(SqlErrorHandling.Apply(scripts));
         else
             Execute(scripts);
+    }
+
+    protected override void StopProcessing()
+    {
+        _cancellation.Cancel();
     }
 
     private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string?> scripts)
@@ -124,16 +131,16 @@ public class InvokeSqlCommand : ConnectedCmdlet
             ? (int) Timeout.Value.TotalSeconds
             : DefaultTimeoutSeconds;
 
-        return Connection.InnerConnection.ExecuteAndProjectTo(
-            batch, new PSObjectBuilder(), timeout, UseSqlTypes
+        return Connection.InnerConnection.ExecuteAndProject(
+            batch, new PSObjectBuilder(), timeout, UseSqlTypes, _cancellation.Token
         );
     }
 
-#if DECIDE_ON_CANCELLATION
-    protected override void StopProcessing()
+    /// <inheritdoc/>
+    public override void Dispose()
     {
-        // TODO: Figure out how to cancel
-        // Async from sync, perhaps?
+        _cancellation.Dispose();
+
+        base.Dispose();
     }
-#endif
 }
