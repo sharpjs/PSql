@@ -1,8 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace PSql;
 
 internal static class PSCredentialExtensions

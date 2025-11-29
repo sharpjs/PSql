@@ -26,7 +26,9 @@ public sealed class SqlConnection : IDisposable
     /// </summary>
     internal E.SqlConnection InnerConnection => _connection;
 
-    /// <inheritdoc cref="E.SqlConnection.Dispose"/>
+    /// <summary>
+    ///   Closes the connection and frees resources owned by it.
+    /// </summary>
     public void Dispose()
     {
         _connection.Dispose();

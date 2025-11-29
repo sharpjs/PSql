@@ -169,7 +169,7 @@ public class SqlConnection : IDisposable
     /// </summary>
     protected void AutoOpen(CancellationToken cancellation)
     {
-        if (Connection.State == ConnectionState.Closed)
+        if (Connection.State is ConnectionState.Closed)
             Connection.OpenAsync(cancellation).GetAwaiter().GetResult();
     }
 

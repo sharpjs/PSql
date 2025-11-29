@@ -12,7 +12,7 @@ namespace PSql;
 ///   A simple, append-only connection string builder that supportes multiple
 ///   SqlClient versions.
 /// </summary>
-public readonly ref struct SqlConnectionStringBuilder
+internal readonly ref struct SqlConnectionStringBuilder
 {
     private readonly StringBuilder _builder;
 
