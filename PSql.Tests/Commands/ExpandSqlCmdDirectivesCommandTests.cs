@@ -1,9 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using PSql.Commands;
-
-namespace PSql;
+namespace PSql.Commands;
 
 [TestFixture]
 public class ExpandSqlCmdDirectivesCommandTests

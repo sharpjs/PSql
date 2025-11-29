@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 using System.Runtime.Loader;
-using PSql.Internal;
 
-namespace PSql.Tests.Unit.Internal;
+namespace PSql.Internal;
 
 [TestFixture]
 public class PrivateAssemblyLoadContextTests

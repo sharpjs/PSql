@@ -1,7 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-namespace PSql.Tests.Integration;
+namespace PSql.Integration;
 
 [TestFixture]
 public class ConnectSqlCommandIntegrationTests

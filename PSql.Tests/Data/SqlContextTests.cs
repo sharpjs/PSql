@@ -6,7 +6,7 @@ using System.Net;
 using System.Reflection;
 using PSql.Commands;
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 using static SqlClientVersion;
 using static EncryptionMode;

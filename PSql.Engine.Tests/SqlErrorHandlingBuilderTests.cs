@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 [TestFixture]
 public class SqlErrorHandlingBuilderTests

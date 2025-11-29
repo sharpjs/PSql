@@ -3,7 +3,7 @@
 
 using System.Management.Automation.Runspaces;
 
-namespace PSql.Tests;
+namespace PSql;
 
 internal sealed class RunspaceScope : IDisposable
 {

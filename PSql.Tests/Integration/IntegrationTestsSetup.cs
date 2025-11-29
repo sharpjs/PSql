@@ -3,7 +3,7 @@
 
 using Subatomix.Testing.SqlServerIntegration;
 
-namespace PSql.Tests.Integration;
+namespace PSql.Integration;
 
 [SetUpFixture]
 public static class IntegrationTestsSetup

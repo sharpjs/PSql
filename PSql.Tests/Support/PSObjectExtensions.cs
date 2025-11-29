@@ -1,7 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-namespace PSql.Tests;
+namespace PSql;
 
 internal static class PSObjectExtensions
 {

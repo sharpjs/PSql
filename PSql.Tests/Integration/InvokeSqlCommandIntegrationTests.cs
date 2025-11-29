@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Subatomix.Testing.SqlServerIntegration;
 using Unindent;
 
-namespace PSql.Tests.Integration;
+namespace PSql.Integration;
 
 using static SqlCompareOptions;
 

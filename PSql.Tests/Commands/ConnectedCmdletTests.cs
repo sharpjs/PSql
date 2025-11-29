@@ -1,10 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using Markdig.Extensions.Footers;
-using PSql.Commands;
-
-namespace PSql.Tests;
+namespace PSql.Commands;
 
 [TestFixture]
 public class ConnectedCmdletTests

@@ -1,7 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 [TestFixture]
 public class SqlErrorHandlingTests

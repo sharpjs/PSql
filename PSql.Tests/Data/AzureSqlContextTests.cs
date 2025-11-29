@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Management.Automation.Runspaces;
 using System.Reflection;
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 using static AzureAuthenticationMode;
 using static SqlClientVersion;

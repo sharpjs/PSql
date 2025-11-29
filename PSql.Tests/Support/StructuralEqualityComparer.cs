@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace PSql.Tests;
+namespace PSql;
 
 using PropertyMap = SortedDictionary<string, PropertyInfo>;
 

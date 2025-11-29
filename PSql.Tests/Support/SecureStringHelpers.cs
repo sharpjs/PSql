@@ -4,7 +4,7 @@
 using System.Net;
 using System.Security;
 
-namespace PSql.Tests;
+namespace PSql;
 
 internal static class SecureStringHelpers
 {

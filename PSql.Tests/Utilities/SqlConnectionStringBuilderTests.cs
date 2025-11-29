@@ -1,10 +1,10 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 [TestFixture]
-public class SqlConnectionBuilderTests
+public class SqlConnectionStringBuilderTests
 {
     // This test class only backfills coverage gaps in other tests.
 

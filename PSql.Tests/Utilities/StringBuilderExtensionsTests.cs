@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace PSql.Tests.Unit;
+namespace PSql;
 
 [TestFixture]
 public class StringBuilderExtensionsTests
