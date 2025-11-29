@@ -1,6 +1,7 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
+using Markdig.Extensions.Footers;
 using PSql.Commands;
 
 namespace PSql.Tests;
@@ -26,7 +27,28 @@ public class ConnectedCmdletTests
         cmdlet.Dispose(); // To test multiple disposal
     }
 
-    private class TestCmdletA : ConnectedCmdlet { }
+    [Test]
+    public void AssumeBeginProcessingInvoked_NotInvoked()
+    {
+        var cmdlet = new TestCmdletA();
+
+#if DEBUG
+        Should.Throw<InvalidOperationException>(
+            () => cmdlet.AssumeBeginProcessingInvoked()
+        );
+#else
+    // No-op in release builds
+    cmdlet.AssumeBeginProcessingInvoked();
+#endif
+    }
+
+    private class TestCmdletA : ConnectedCmdlet
+    {
+        public new void AssumeBeginProcessingInvoked()
+        {
+            base.AssumeBeginProcessingInvoked();
+        }
+    }
 
     private class TestCmdletB : ConnectedCmdlet
     {
