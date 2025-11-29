@@ -55,6 +55,19 @@ internal static class SqlClientVersionExtensions
         MDS 5.0
         - Encrypt: Optional, Mandatory, Strict
         - TDS 8
+
+        MDS 5.1
+        - ServerCertificate
+
+        MDS 5.2
+        - Authentication: AadWorkloadIdentity
+        - SqlBatch
+
+        MDS 6 (not supported by PSql due to lack of .NET <=6 support)
+        - JSON data type
+
+        MDS 6.1
+        - Vector data type
     */
 
     public static bool SupportsAuthenticationMode(
