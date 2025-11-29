@@ -869,6 +869,7 @@
         <maml:name>AuthenticationMode</maml:name>
         <maml:description>
           <maml:para>Method to use to authenticate with Azure SQL Database.  Requires the -Azure switch or an Azure -Source context.</maml:para>
+          <maml:para>For more information about the various modes, see https://learn.microsoft.com/en-ca/sql/connect/ado-net/sql/azure-active-directory-authentication .</maml:para>
         </maml:description>
         <command:parameterValue required="true">PSql.AuthenticationMode</command:parameterValue>
         <dev:type>
@@ -896,7 +897,7 @@
             <dev:value>AadPassword</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory password authentication mode.  -Credential is required and should match the name and password of an Azure AD principal.
+                Entra ID password authentication mode.  -Credential is required and should match the name and password of an Azure AD principal.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -904,7 +905,7 @@
             <dev:value>AadIntegrated</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory integrated authentication mode.  The identity of the process should be an Azure AD principal.  -Credential is not required.
+                Entra ID integrated authentication mode.  The identity of the process should be an Azure AD principal.  -Credential is not required.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -912,7 +913,7 @@
             <dev:value>AadInteractive</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory interactive authentication mode, also known as Universal Authentication with MFA.  Authentication uses an interactive flow and supports multiple factors.  -Credential is not required.
+                Entra ID interactive authentication mode, also known as Universal Authentication with MFA.  Authentication uses an interactive flow and supports multiple factors.  -Credential is not required.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -920,7 +921,7 @@
             <dev:value>AadServicePrincipal</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory service principal authentication mode.  -Credential is required and should match client ID and secret of an Azure AD service principal.
+                Entra ID service principal authentication mode.  -Credential is required and should match client ID and secret of an Azure AD service principal.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -928,7 +929,7 @@
             <dev:value>AadDeviceCodeFlow</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory device code flow authentication mode.  Use this mode to connect to Azure SQL Database from devices that do not provide a web browser, using another device to perform interactive authentication.  -Credential is not required.
+                Entra ID device code flow authentication mode.  Use this mode to connect to Azure SQL Database from devices that do not provide a web browser, using another device to perform interactive authentication.  -Credential is not required.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -936,7 +937,15 @@
             <dev:value>AadManagedIdentity</dev:value>
             <maml:description>
               <maml:para>
-                Azure Active Directory managed identity authentication mode.  For a user-assigned identity, -Credential is required and should match the object ID of the identity; the password is ignored.  For a system-assigned identity, -Credential should be omitted.
+                Entra ID managed identity authentication mode.  For a user-assigned identity, -Credential is required and should match the object ID of the identity; the password is ignored.  For a system-assigned identity, -Credential should be omitted.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadDefault</dev:value>
+            <maml:description>
+              <maml:para>
+                Entra ID default authentication mode.  This mode attempts multiple *non-interactive* authentication methods sequentially.
               </maml:para>
             </maml:description>
           </dev:possibleValue>

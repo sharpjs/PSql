@@ -4,10 +4,13 @@
 namespace PSql;
 
 /// <summary>
-///   Modes for authenticating connections to Azure SQL Database and compatible databases.
+///   Modes for authenticating connections to Azure SQL Database and compatible
+///   databases.
 /// </summary>
 public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
 {
+    // Source: https://learn.microsoft.com/en-ca/sql/connect/ado-net/sql/azure-active-directory-authentication
+
     /// <summary>
     ///   Default authentication mode.
     /// </summary>
@@ -17,7 +20,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     ///   If the property is non-<see langword="null"/>,
     ///     this mode selects SQL authentication using the credential.
     ///   If the property is <see langword="null"/>,
-    ///     this mode selects Azure AD managed identity authentication.
+    ///     this mode selects Entra ID managed identity authentication.
     /// </remarks>
     Default = 0, // NotSpecified
 
@@ -32,7 +35,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     SqlPassword = 1, // SqlPassword,
 
     /// <summary>
-    ///   Azure Active Directory password authentication mode.
+    ///   Entra ID password authentication mode.
     /// </summary>
     /// <remarks>
     ///   The <see cref="SqlContext.Credential"/> property should contain the
@@ -41,7 +44,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadPassword = 2, // ActiveDirectoryPassword,
 
     /// <summary>
-    ///   Azure Active Directory integrated authentication mode.
+    ///   Entra ID integrated authentication mode.
     /// </summary>
     /// <remarks>
     ///   The identity of the process should be an Azure AD principal.
@@ -49,8 +52,8 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadIntegrated = 3, // ActiveDirectoryIntegrated,
 
     /// <summary>
-    ///   Azure Active Directory interactive authentication mode, also known
-    ///   as Universal Authentication with MFA.
+    ///   Entra ID interactive authentication mode, also known as Universal
+    ///   Authentication with MFA.
     /// </summary>
     /// <remarks>
     ///   Authentication uses an interactive flow and supports multiple factors.
@@ -58,7 +61,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadInteractive = 4, // ActiveDirectoryInteractive,
 
     /// <summary>
-    ///   Azure Active Directory service principal authentication mode.
+    ///   Entra ID service principal authentication mode.
     /// </summary>
     /// <remarks>
     ///   The <see cref="SqlContext.Credential"/> property should contain the
@@ -67,7 +70,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadServicePrincipal = 5, // ActiveDirectoryServicePrincipal
 
     /// <summary>
-    ///   Azure Active Directory device code flow authentication mode.
+    ///   Entra ID device code flow authentication mode.
     /// </summary>
     /// <remarks>
     ///   Use this mode to connect to Azure SQL Database from devices that do
@@ -77,7 +80,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadDeviceCodeFlow = 6, // ActiveDirectoryDeviceCodeFlow
 
     /// <summary>
-    ///   Azure Active Directory managed identity authentication mode.
+    ///   Entra ID managed identity authentication mode.
     /// </summary>
     /// <remarks>
     ///   For a user-assigned managed identity,
@@ -90,9 +93,8 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     AadManagedIdentity = 7, // ActiveDirectoryManagedIdentity
 
     /// <summary>
-    ///   Azure Active Directory default authentication mode.  This mode
-    ///   attempts multiple <strong>non-interactive</strong> authentication
-    ///   methods sequentially.
+    ///   Entra ID default authentication mode.  This mode attempts multiple
+    ///   <strong>non-interactive</strong> authentication methods sequentially.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -103,14 +105,14 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     ///       <term>Environment</term>
     ///       <description>
     ///         Credential
-    ///         <a href="https://docs.microsoft.com/en-ca/dotnet/api/azure.identity.environmentcredential?view=azure-dotnet"
+    ///         <a href="https://learn.microsoft.com/en-ca/dotnet/api/azure.identity.environmentcredential"
     ///         >configured in environment variables</a>.
     ///       </description>
     ///     </item>
     ///     <item>
     ///       <term>Managed Identity</term>
     ///       <description>
-    ///         Azure Active Directory managed identity.
+    ///         Entra ID managed identity.
     ///         For a user-assigned managed identity,
     ///           the <see cref="SqlContext.Credential"/> property's username
     ///           should be the object ID of the identity; the password is ignored.

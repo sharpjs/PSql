@@ -88,7 +88,7 @@ $context = New-SqlContext `
 
 When connecting to Azure SQL Database (or compatible product), use the `-Azure`
 switch, which enables some Azure-specific parameters, like resource group name
-and Azure Active Directory authentication modes.
+and Entra ID authentication modes.
 
 ```powershell
 $login = Get-Credential pgibbons
