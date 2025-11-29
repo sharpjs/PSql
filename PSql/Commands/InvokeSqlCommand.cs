@@ -87,7 +87,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
 
         // Execute with optional error handling
         if (ShouldUseErrorHandling)
-            Execute(SqlErrorHandling.Apply(scripts));
+            Execute(E.SqlErrorHandling.Apply(scripts));
         else
             Execute(scripts);
     }
