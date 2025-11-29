@@ -367,6 +367,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_Default(SqlClientVersion version, string expected)
     {
         var context = new SqlContext();
@@ -383,6 +384,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=s;Integrated Security=true;Encrypt=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=s;Integrated Security=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=s;Integrated Security=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=s;Integrated Security=true;Pooling=false")]
     public void GetConnectionString_ExplicitServerName(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ServerName = "s" };
@@ -399,6 +401,7 @@ public class SqlContextTests
     [TestCase(Mds3,   @"Data Source=.\I;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   @"Data Source=.\I;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   @"Data Source=.\I;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, @"Data Source=.\I;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitInstanceName(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { InstanceName = "I" };
@@ -415,6 +418,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.,3341;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.,3341;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.,3341;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.,3341;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitServerPort(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ServerPort = 3341 };
@@ -431,6 +435,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Initial Catalog=d;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Initial Catalog=d;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Initial Catalog=d;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Initial Catalog=d;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitDatabaseName(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { DatabaseName = "d" };
@@ -447,6 +452,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;User ID=u;Password=p;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;User ID=u;Password=p;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;User ID=u;Password=p;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;User ID=u;Password=p;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitCredential(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { Credential = new("u", "p".Secure()) };
@@ -463,6 +469,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitCredential_Omit(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { Credential = new("u", "p".Secure()) };
@@ -479,6 +486,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;User ID=u;Password=p;Persist Security Info=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;User ID=u;Password=p;Persist Security Info=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;User ID=u;Password=p;Persist Security Info=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;User ID=u;Password=p;Persist Security Info=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     public void GetConnectionString_ExplicitCredential_Expose(SqlClientVersion version, string expected)
     {
         var context = new SqlContext
@@ -501,6 +509,7 @@ public class SqlContextTests
     [TestCase(Mds3,   None,       "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   None,       "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   None,       "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, None,       "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Legacy, Unverified, "Data Source=.;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;Pooling=false")]
     [TestCase(Mds1,   Unverified, "Data Source=.;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;Pooling=false")]
     [TestCase(Mds1_1, Unverified, "Data Source=.;Integrated Security=true;Encrypt=true;TrustServerCertificate=true;Pooling=false")]
@@ -509,6 +518,7 @@ public class SqlContextTests
     [TestCase(Mds3,   Unverified, "Data Source=.;Integrated Security=true;Encrypt=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds4,   Unverified, "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Mds5,   Unverified, "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
+    [TestCase(Mds5_2, Unverified, "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Pooling=false")]
     [TestCase(Legacy, Full,       "Data Source=.;Integrated Security=true;Encrypt=true;Pooling=false")]
     [TestCase(Mds1,   Full,       "Data Source=.;Integrated Security=true;Encrypt=true;Pooling=false")]
     [TestCase(Mds1_1, Full,       "Data Source=.;Integrated Security=true;Encrypt=true;Pooling=false")]
@@ -517,6 +527,7 @@ public class SqlContextTests
     [TestCase(Mds3,   Full,       "Data Source=.;Integrated Security=true;Encrypt=true;Pooling=false")]
     [TestCase(Mds4,   Full,       "Data Source=.;Integrated Security=true;Pooling=false")]
     [TestCase(Mds5,   Full,       "Data Source=.;Integrated Security=true;Pooling=false")]
+    [TestCase(Mds5_2, Full,       "Data Source=.;Integrated Security=true;Pooling=false")]
     public void GetConnectionString_ExplicitEncryptionMode(SqlClientVersion version, EncryptionMode mode, string expected)
     {
         var context = new SqlContext { EncryptionMode = mode };
@@ -533,6 +544,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Connect Timeout=3;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Connect Timeout=3;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Connect Timeout=3;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Connect Timeout=3;Pooling=false")]
     public void GetConnectionString_ExplicitConnectTimeout(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ConnectTimeout = 3.Seconds() };
@@ -549,6 +561,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Workstation ID=c;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Workstation ID=c;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Workstation ID=c;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Workstation ID=c;Pooling=false")]
     public void GetConnectionString_ExplicitClientName(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ClientName = "c" };
@@ -565,6 +578,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Application Name=c;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Name=c;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Name=c;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Name=c;Pooling=false")]
     public void GetConnectionString_ExplicitApplicationName(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ApplicationName = "c" };
@@ -581,6 +595,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Application Intent=ReadOnly;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Intent=ReadOnly;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Intent=ReadOnly;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Application Intent=ReadOnly;Pooling=false")]
     public void GetConnectionString_ExplicitApplicationIntent(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { ApplicationIntent = ApplicationIntent.ReadOnly };
@@ -597,6 +612,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true;Multiple Active Result Sets=true;Pooling=false")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Multiple Active Result Sets=true;Pooling=false")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Multiple Active Result Sets=true;Pooling=false")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true;Multiple Active Result Sets=true;Pooling=false")]
     public void GetConnectionString_ExplicitMultipleActiveResultSets(SqlClientVersion version, string expected)
     {
         var context = new SqlContext { EnableMultipleActiveResultSets = true };
@@ -613,6 +629,7 @@ public class SqlContextTests
     [TestCase(Mds3,   "Data Source=.;Integrated Security=true;Trust Server Certificate=true")]
     [TestCase(Mds4,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true")]
     [TestCase(Mds5,   "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true")]
+    [TestCase(Mds5_2, "Data Source=.;Integrated Security=true;Encrypt=false;Trust Server Certificate=true")]
     public void GetConnectionString_ExplicitConnectionPooling(SqlClientVersion version, string expected)
     {
         var context = new SqlContext() { EnableConnectionPooling = true };

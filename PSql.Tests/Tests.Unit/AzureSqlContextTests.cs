@@ -386,7 +386,7 @@ public class AzureSqlContextTests
             new { FullyQualifiedDomainName = "foo.example.com" }
         );
 
-        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+        context.GetConnectionString(databaseName: null, Latest).ShouldBe(
             @"Data Source=foo.example.com;Initial Catalog=bar;" +
             @"Authentication=""Active Directory Integrated"";Encrypt=true;Pooling=false"
         );
@@ -406,7 +406,7 @@ public class AzureSqlContextTests
             new { FullyQualifiedDomainName = "foo.example.com" }
         );
 
-        context.GetConnectionString(databaseName: "quux", Mds5).ShouldBe(
+        context.GetConnectionString(databaseName: "quux", Latest).ShouldBe(
             @"Data Source=foo.example.com;Initial Catalog=quux;" +
             @"Authentication=""Active Directory Integrated"";Encrypt=true;Pooling=false"
         );
@@ -432,7 +432,7 @@ public class AzureSqlContextTests
             new { FullyQualifiedDomainName = "foo.example.com" }
         );
 
-        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+        context.GetConnectionString(databaseName: null, Latest).ShouldBe(
             $@"Data Source=foo.example.com;Initial Catalog=master;{
                fragment}Encrypt=true;Pooling=false"
         );
@@ -483,7 +483,7 @@ public class AzureSqlContextTests
         );
 
         Should.Throw<NotSupportedException>(
-            () => context.GetConnectionString(databaseName: null, Mds5)
+            () => context.GetConnectionString(databaseName: null, Latest)
         );
     }
 
@@ -511,7 +511,7 @@ public class AzureSqlContextTests
             new { FullyQualifiedDomainName = "foo.example.com" }
         );
 
-        context.GetConnectionString(databaseName: null, Mds5).ShouldBe(
+        context.GetConnectionString(databaseName: null, Latest).ShouldBe(
             $@"Data Source=foo.example.com;Initial Catalog=master;{
                fragment}Encrypt=true;Pooling=false"
         );
@@ -531,7 +531,7 @@ public class AzureSqlContextTests
             new { FullyQualifiedDomainName = "foo.example.com" }
         );
 
-        context.GetConnectionString(databaseName: null, Mds5, omitCredential: true).ShouldBe(
+        context.GetConnectionString(databaseName: null, Latest, omitCredential: true).ShouldBe(
             @"Data Source=foo.example.com;Initial Catalog=master;" +
             @"Encrypt=true;Pooling=false"
         );
@@ -554,7 +554,7 @@ public class AzureSqlContextTests
 
         // NOTE: Ignored because ExposeCredentialInConnectionString takes precedence
         //                                                    vvvvvvvvvvvvvvvvvvvv
-        context.GetConnectionString(databaseName: null, Mds5, omitCredential: true).ShouldBe(
+        context.GetConnectionString(databaseName: null, Latest, omitCredential: true).ShouldBe(
             @"Data Source=foo.example.com;Initial Catalog=master;" +
             @"User ID=user;Password=pass;Persist Security Info=true;Encrypt=true;Pooling=false"
         );

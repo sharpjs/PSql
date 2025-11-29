@@ -44,12 +44,17 @@ public enum SqlClientVersion
     Mds4,
 
     /// <summary>
-    ///   Microsoft.Data.SqlClient 5.x
+    ///   Microsoft.Data.SqlClient 5.0.x and 5.1.x
     /// </summary>
     Mds5,
 
     /// <summary>
+    ///   Microsoft.Data.SqlClient 5.2.x
+    /// </summary>
+    Mds5_2,
+
+    /// <summary>
     ///   The latest version supported by the current PSql module.
     /// </summary>
-    Latest = Mds5
+    Latest = Mds5_2
 }
