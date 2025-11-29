@@ -10,21 +10,22 @@ using static AzureAuthenticationMode;
 public class SqlClientVersionExtensionsTests
 {
     [Test]
-    //                                     2.1 1.1
-    //        MODE                    5 4 3 : 2 : 1 L
-    [TestCase(Default,             0b_1_1_1_1_1_1_1_0)]
-    [TestCase(SqlPassword,         0b_1_1_1_1_1_1_1_0)]
-    [TestCase(AadPassword,         0b_1_1_1_1_1_1_1_0)]
-    [TestCase(AadIntegrated,       0b_1_1_1_1_1_1_1_0)]
-    [TestCase(AadInteractive,      0b_1_1_1_1_1_1_1_0)]
-    [TestCase(AadServicePrincipal, 0b_1_1_1_1_1_0_0_0)]
-    [TestCase(AadDeviceCodeFlow,   0b_1_1_1_1_0_0_0_0)]
-    [TestCase(AadManagedIdentity,  0b_1_1_1_1_0_0_0_0)]
-    [TestCase(AadDefault,          0b_1_1_1_0_0_0_0_0)]
-    [TestCase(-1,                  0b_0_0_0_0_0_0_0_0)]
+    //                         MAJOR: 5 5 4 3 2 2 1 1
+    //        MODE             MINOR: 2 0 0 0 1 0 1 0 Legacy
+    [TestCase(Default,             0b_1_1_1_1_1_1_1_1_0)]
+    [TestCase(SqlPassword,         0b_1_1_1_1_1_1_1_1_0)]
+    [TestCase(AadPassword,         0b_1_1_1_1_1_1_1_1_0)]
+    [TestCase(AadIntegrated,       0b_1_1_1_1_1_1_1_1_0)]
+    [TestCase(AadInteractive,      0b_1_1_1_1_1_1_1_1_0)]
+    [TestCase(AadServicePrincipal, 0b_1_1_1_1_1_1_0_0_0)]
+    [TestCase(AadDeviceCodeFlow,   0b_1_1_1_1_1_0_0_0_0)]
+    [TestCase(AadManagedIdentity,  0b_1_1_1_1_1_0_0_0_0)]
+    [TestCase(AadDefault,          0b_1_1_1_1_0_0_0_0_0)]
+    [TestCase(AadWorkloadIdentity, 0b_1_0_0_0_0_0_0_0_0)]
+    [TestCase(-1,                  0b_0_0_0_0_0_0_0_0_0)]
     public void SupportsAuthenticationMode(AzureAuthenticationMode mode, long bitmap)                                                           
     {
-        for (var version = Legacy; version < Mds5; version++)
+        for (var version = Legacy; version < Latest; version++)
         {
             var expected = (bitmap & 1) != 0;
 

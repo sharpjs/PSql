@@ -85,7 +85,7 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     /// <remarks>
     ///   For a user-assigned managed identity,
     ///     the <see cref="SqlContext.Credential"/> property's username
-    ///     should be the object ID of the identity; the password is ignored.
+    ///     should be the client ID of the identity; the password is ignored.
     ///   For a system-assigned managed identity,
     ///     the <see cref="SqlContext.Credential"/> property
     ///     should be <see langword="null"/>.
@@ -148,4 +148,18 @@ public enum AzureAuthenticationMode // ~> M.D.S.SqlAuthenticationMethod
     ///   </list>
     /// </remarks>
     AadDefault = 9, // ActiveDirectoryDefault
+
+    /// <summary>
+    ///   Entra ID workload identity authentication mode.
+    /// </summary>
+    /// <remarks>
+    ///   This mode is similar to managed identity authentication, except that
+    ///   default values are taken from environment variables.  If the
+    ///   <see cref="SqlContext.Credential"/> property is not
+    ///   <see langword="null"/>, the credential's username overrides any
+    ///   client ID found in the environment, and the credential's password is
+    ///   ignored.
+    /// </remarks>
+    /// <see href="https://learn.microsoft.com/en-ca/sql/connect/ado-net/sql/azure-active-directory-authentication#using-workload-identity-authentication"/>
+    AadWorkloadIdentity = 10, // ActiveDirectoryWorkloadIdentity
 }

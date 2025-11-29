@@ -937,7 +937,7 @@
             <dev:value>AadManagedIdentity</dev:value>
             <maml:description>
               <maml:para>
-                Entra ID managed identity authentication mode.  For a user-assigned identity, -Credential is required and should match the object ID of the identity; the password is ignored.  For a system-assigned identity, -Credential should be omitted.
+                Entra ID managed identity authentication mode.  For a user-assigned identity, -Credential is required and should match the client ID of the identity; the password is ignored.  For a system-assigned identity, -Credential should be omitted.
               </maml:para>
             </maml:description>
           </dev:possibleValue>
@@ -946,6 +946,14 @@
             <maml:description>
               <maml:para>
                 Entra ID default authentication mode.  This mode attempts multiple *non-interactive* authentication methods sequentially.
+              </maml:para>
+            </maml:description>
+          </dev:possibleValue>
+          <dev:possibleValue>
+            <dev:value>AadWorkloadIdentity</dev:value>
+            <maml:description>
+              <maml:para>
+                Entra ID workload identity authentication mode.  This mode is similar to managed identity authentication, except that default values are taken from environment variables.  If a -Credential is provided, its username overrides any client ID found in the environment, and its password is ignored.
               </maml:para>
             </maml:description>
           </dev:possibleValue>

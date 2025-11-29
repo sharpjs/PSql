@@ -23,6 +23,7 @@ public class AzureSqlContextTests
         Auth_AadDeviceCodeFlow   = @"Authentication=""Active Directory Device Code Flow"";",
         Auth_AadManagedIdentity  = @"Authentication=""Active Directory Managed Identity"";",
         Auth_AadDefault          = @"Authentication=""Active Directory Default"";",
+        Auth_AadWorkloadIdentity = @"Authentication=""Active Directory Workload Identity"";",
         UserName                 = "User ID=user;",
         Password                 = "Password=pass;";
 
@@ -413,12 +414,13 @@ public class AzureSqlContextTests
     }
 
     [Test]
-    [TestCase(Default,            Auth_AadIntegrated)]
-    [TestCase(AadIntegrated,      Auth_AadIntegrated)]
-    [TestCase(AadInteractive,     Auth_AadInteractive)]
-    [TestCase(AadDeviceCodeFlow,  Auth_AadDeviceCodeFlow)]
-    [TestCase(AadManagedIdentity, Auth_AadManagedIdentity)] // credential is optional
-    [TestCase(AadDefault,         Auth_AadDefault)]         // credential is optional
+    [TestCase(Default,             Auth_AadIntegrated)]
+    [TestCase(AadIntegrated,       Auth_AadIntegrated)]
+    [TestCase(AadInteractive,      Auth_AadInteractive)]
+    [TestCase(AadDeviceCodeFlow,   Auth_AadDeviceCodeFlow)]
+    [TestCase(AadManagedIdentity,  Auth_AadManagedIdentity)]  // credential is optional
+    [TestCase(AadDefault,          Auth_AadDefault)]          // credential is optional
+    [TestCase(AadWorkloadIdentity, Auth_AadWorkloadIdentity)] // credential is optional
     public void GetConnectionString_NoCredential(AzureAuthenticationMode mode, string fragment)
     {
         var context = new AzureSqlContext
@@ -447,6 +449,7 @@ public class AzureSqlContextTests
     [TestCase(AadDeviceCodeFlow  )]
     [TestCase(AadManagedIdentity )] // credential is optional
     [TestCase(AadDefault         )] // credential is optional
+    [TestCase(AadWorkloadIdentity)] // credential is optional
     public void GetConnectionString_NoCredential_Unsupported(AzureAuthenticationMode mode)
     {
         var context = new AzureSqlContext
@@ -488,15 +491,16 @@ public class AzureSqlContextTests
     }
 
     [Test]
-    [TestCase(Default,                                         UserName + Password)]
-    [TestCase(SqlPassword,                                     UserName + Password)]
-    [TestCase(AadPassword,          Auth_AadPassword         + UserName + Password)]
-    [TestCase(AadIntegrated,        Auth_AadIntegrated                            )]
-    [TestCase(AadInteractive,       Auth_AadInteractive                           )]
-    [TestCase(AadServicePrincipal,  Auth_AadServicePrincipal + UserName + Password)]
-    [TestCase(AadDeviceCodeFlow,    Auth_AadDeviceCodeFlow                        )]
-    [TestCase(AadManagedIdentity,   Auth_AadManagedIdentity  + UserName           )]
-    [TestCase(AadDefault,           Auth_AadDefault          + UserName           )]
+    [TestCase(Default,                                        UserName + Password)]
+    [TestCase(SqlPassword,                                    UserName + Password)]
+    [TestCase(AadPassword,         Auth_AadPassword         + UserName + Password)]
+    [TestCase(AadIntegrated,       Auth_AadIntegrated                            )]
+    [TestCase(AadInteractive,      Auth_AadInteractive                           )]
+    [TestCase(AadServicePrincipal, Auth_AadServicePrincipal + UserName + Password)]
+    [TestCase(AadDeviceCodeFlow,   Auth_AadDeviceCodeFlow                        )]
+    [TestCase(AadManagedIdentity,  Auth_AadManagedIdentity  + UserName           )]
+    [TestCase(AadDefault,          Auth_AadDefault          + UserName           )]
+    [TestCase(AadWorkloadIdentity, Auth_AadWorkloadIdentity + UserName           )]
     public void GetConnectionString_ExplicitCredential(AzureAuthenticationMode mode, string fragment)
     {
         var context = new AzureSqlContext

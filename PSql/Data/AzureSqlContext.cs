@@ -233,6 +233,7 @@ public class AzureSqlContext : SqlContext
             // Optional, password ignored
             case AadManagedIdentity:
             case AadDefault:
+            case AadWorkloadIdentity:
                 if (!Credential.IsNullOrEmpty())
                     builder.AppendUserName(Credential.UserName);
                 break;

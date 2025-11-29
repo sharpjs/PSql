@@ -19,6 +19,7 @@ internal static class AzureAuthenticationModeExtensions
             AadDeviceCodeFlow   => "Active Directory Device Code Flow",
             AadManagedIdentity  => "Active Directory Managed Identity",
             AadDefault          => "Active Directory Default",
+            AadWorkloadIdentity => "Active Directory Workload Identity",
             _                   => null,
         };
     }

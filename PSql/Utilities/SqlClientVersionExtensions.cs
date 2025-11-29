@@ -83,6 +83,7 @@ internal static class SqlClientVersionExtensions
             AadDeviceCodeFlow   => version >= Mds2_1,
             AadManagedIdentity  => version >= Mds2_1,
             AadDefault          => version >= Mds3,
+            AadWorkloadIdentity => version >= Mds5_2,
             _                   => false,
         };
 
