@@ -27,12 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub"         Version="8.0.0" />
     <GlobalPackageReference Include="SauceControl.InheritDoc"             Version="2.0.2" />
     <GlobalPackageReference Include="Subatomix.Build.Versioning.Semantic" Version="1.1.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub"         Version="8.0.0" />
   </ItemGroup>
 
 </Project>
