@@ -19,7 +19,7 @@
     <PackageVersion Include="Microsoft.Data.SqlClient"                   Version="[5.2.3, 6.0.0)" />
     <PackageVersion Include="Microsoft.PowerShell.SDK"                   Version="[7.2.24, 7.3.0)" />
     <PackageVersion Include="Prequel"                                    Version="1.1.0" />
-    <PackageVersion Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.2.0-pre0" />
+    <PackageVersion Include="Subatomix.Build.Packaging.PowerShellModule" Version="1.2.0" />
     <PackageVersion Include="Subatomix.Testing"                          Version="4.0.0" />
     <PackageVersion Include="Subatomix.Testing.SqlServerIntegration"     Version="4.0.0" />
     <PackageVersion Include="System.Management.Automation"               Version="[7.2.0, 7.3.0)" />
