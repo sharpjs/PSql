@@ -32,7 +32,7 @@ public class InvokeSqlCommandIntegrationTests
             """
         );
 
-        if (OperatingSystem.IsWindows())
+        if (TestSqlServer.Credential is null)
         {
             exception.ShouldBeNull();
 
@@ -41,13 +41,13 @@ public class InvokeSqlCommandIntegrationTests
         }
         else
         {
-            // Integrated authentication on non-Windows systems uses Kerberos,
-            // which looks nontrivial to configure.  Instead, jsut check for
-            // the expected error: "Cannot authenticate using Kerberos"
-
             exception                   .ShouldNotBeNull();
             exception.GetType().FullName.ShouldBe("Microsoft.Data.SqlClient.SqlException");
-            exception.Message           .ShouldContain("Cannot authenticate using Kerberos.");
+
+            exception.Message.ShouldMatch(
+                //  Windows                Non-Windows
+                @"^(Login failed for user |Cannot authenticate using Kerberos\.)"
+            );
         }
     }
 
