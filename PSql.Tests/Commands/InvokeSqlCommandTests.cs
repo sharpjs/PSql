@@ -16,23 +16,8 @@ public class InvokeSqlCommandTests
         new TestCommand().ProcessRecord();
     }
 
-    [Test]
-    public void StopProcessing()
-    {
-        var command = new TestCommand { Sql = ["--"] };
-
-        command.BeginProcessing();
-        command.StopProcessing();
-
-        Should.Throw<OperationCanceledException>(
-            () => command.ProcessRecord()
-        );
-    }
-
     private class TestCommand : InvokeSqlCommand
     {
-        public new void BeginProcessing() => base.BeginProcessing();
-        public new void ProcessRecord()   => base.ProcessRecord();
-        public new void StopProcessing()  => base.StopProcessing();
+        public new void ProcessRecord() => base.ProcessRecord();
     }
 }

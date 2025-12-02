@@ -36,6 +36,10 @@
         "Disconnect-Sql"
         "Expand-SqlCmdDirectives"
         "Invoke-Sql"
+        if ($env:PSQL_TESTING -eq "1") {
+            'Test-AsyncPSCmdlet'
+            'Test-CmdletExtensions'
+        }
     )
 
     # Discoverability and URLs
