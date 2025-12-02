@@ -59,13 +59,13 @@ public class ConnectedCmdletTests
             BeginProcessing();
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool managed)
         {
             // This here to set Connection to null
             Connection?.Dispose();
             Connection = null;
 
-            base.Dispose();
+            base.Dispose(managed);
         }
     }
 }

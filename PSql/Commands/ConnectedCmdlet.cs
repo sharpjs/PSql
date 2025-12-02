@@ -8,7 +8,7 @@ namespace PSql.Commands;
 /// <summary>
 ///   Base class for PSql cmdlets that use an open database connection.
 /// </summary>
-public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
+public abstract class ConnectedCmdlet : AsyncPSCmdlet, IDisposable
 {
     protected const string
         ConnectionName = nameof(Connection),
@@ -45,6 +45,8 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
+        base.BeginProcessing();
+
         // NOTE: If any of the parameters above are made to take their values
         // from the pipeline, then this implicit connection setup must move out
         // of BeginProcessing() and into something that runs once for each call
@@ -63,15 +65,18 @@ public abstract class ConnectedCmdlet : PSqlCmdlet, IDisposable
     }
 
     /// <inheritdoc/>
-    public virtual void Dispose()
+    protected override void Dispose(bool managed)
     {
-        // No unmanaged resources to dispose; use abbreviated Dispose pattern
+        if (managed)
+        {
+            if (_ownsConnection)
+                Connection?.Dispose();
 
-        if (_ownsConnection)
-            Connection?.Dispose();
+            Connection      = null;
+            _ownsConnection = false;
+        }
 
-        Connection      = null;
-        _ownsConnection = false;
+        base.Dispose(managed);
     }
 
 #if !DEBUG
