@@ -120,7 +120,7 @@ public class InvokeSqlCommand : ConnectedCmdlet
         AssumeBeginProcessingInvoked();
 
         await using var enumerator = await Connection.InnerConnection.ExecuteAndProjectAsync(
-            batch, new PSObjectBuilder(), TimeoutSeconds, UseSqlTypes, CancellationToken
+            batch, PSObjectBuilder.Instance, TimeoutSeconds, UseSqlTypes, CancellationToken
         );
 
         while (await enumerator.MoveNextAsync())

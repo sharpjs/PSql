@@ -3,8 +3,12 @@
 
 namespace PSql;
 
-internal class PSObjectBuilder : E.IObjectBuilder<PSObject>
+internal sealed class PSObjectBuilder : E.IObjectBuilder<PSObject>
 {
+    public static PSObjectBuilder Instance { get; } = new();
+
+    private PSObjectBuilder() { }
+
     public PSObject NewObject()
     {
         return new PSObject();
