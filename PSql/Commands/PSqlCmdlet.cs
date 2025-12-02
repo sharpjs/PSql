@@ -15,21 +15,8 @@ public class PSqlCmdlet : PSCmdlet, ICmdlet
         ConsoleColor? foregroundColor = null,
         ConsoleColor? backgroundColor = null)
     {
-        // Technique learned from PSv5+ Write-Host implementation, which works
-        // by sending specially-marked messages to the information stream.
-        //
-        // https://github.com/PowerShell/PowerShell/blob/v7.5.4/src/Microsoft.PowerShell.Commands.Utility/commands/utility/WriteConsoleCmdlet.cs
-
-        var data = new HostInformationMessage
-        {
-            Message         = text ?? "",
-            NoNewLine       = !newLine,
-            ForegroundColor = foregroundColor,
-            BackgroundColor = backgroundColor,
-        };
-
-        WriteInformation(data, HostTag);
+        CmdletExtensions.WriteHost(
+            this, text, newLine, foregroundColor, backgroundColor
+        );
     }
-
-    private static readonly string[] HostTag = ["PSHOST"];
 }
