@@ -167,16 +167,19 @@ public class SqlConnection : IDisposable
     /// <summary>
     ///   Ensures that the connection is open.
     /// </summary>
-    protected void AutoOpen(CancellationToken cancellation)
+    protected async Task AutoOpenAsync(CancellationToken cancellation)
     {
         if (Connection.State is ConnectionState.Closed)
-            Connection.OpenAsync(cancellation).GetAwaiter().GetResult();
+            await Connection.OpenAsync(cancellation);
     }
 
     /// <summary>
-    ///   Executes the specified SQL batch and projects its result rows to
-    ///   objects using the specified builder.
+    ///   Executes the specified SQL batch asynchronously and projects its
+    ///   result rows to objects using the specified builder.
     /// </summary>
+    /// <typeparam name="T">
+    ///   The type of object produced by <paramref name="builder"/>.
+    /// </typeparam>
     /// <param name="sql">
     ///   The SQL batch to execute.
     /// </param>
@@ -197,10 +200,11 @@ public class SqlConnection : IDisposable
     ///   A token to monitor for cancellation requests.
     /// </param>
     /// <returns>
-    ///   A sequence of objects created by executing the <paramref name="sql"/>
+    ///   A task that represents the asynchronous operation, yielding a
+    ///   sequence of objects created by executing the <paramref name="sql"/>
     ///   batch and projecting each result row to an object using the
     ///   <paramref name="builder"/>.  If the command produces no result rows,
-    ///   this method returns an empty sequence.
+    ///   the task yields an empty sequence.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   <paramref name="sql"/> or
@@ -224,19 +228,17 @@ public class SqlConnection : IDisposable
     /// <exception cref="ObjectDisposedException">
     ///   Thrown by the underlying ADO.NET connection or command objects.
     /// </exception>
-    public IEnumerator<T> ExecuteAndProject<T>(
+    public async Task<IAsyncEnumerator<T>> ExecuteAndProjectAsync<T>(
         string            sql,
         IObjectBuilder<T> builder,
         int               timeout      = 0,
         bool              useSqlTypes  = false,
         CancellationToken cancellation = default)
     {
-        // Using async from sync to gain cancellation support
-
         SetUpCommand(sql, timeout);
-        AutoOpen(cancellation);
+        await AutoOpenAsync(cancellation);
 
-        var reader = Command.ExecuteReaderAsync(cancellation).GetAwaiter().GetResult();
+        var reader = await Command.ExecuteReaderAsync(cancellation);
 
         return new ObjectResultSet<T>(this, reader, builder, useSqlTypes, cancellation);
     }

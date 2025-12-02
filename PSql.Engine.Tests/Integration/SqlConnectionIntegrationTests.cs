@@ -1,7 +1,6 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Collections;
 using System.Data.SqlTypes;
 
 namespace PSql.Integration;
@@ -12,7 +11,7 @@ using static SqlCompareOptions;
 public class SqlConnectionIntegrationTests
 {
     [Test]
-    public void ExecuteAndProject_ClrTypes()
+    public async Task ExecuteAndProjectAsync_ClrTypes()
     {
         using var connection = new SqlConnection(
             IntegrationTestsSetup.Database.ConnectionString,
@@ -20,7 +19,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProject(
+        await using var result = await connection.ExecuteAndProjectAsync(
             """
             SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
             SELECT *, 20 FROM (VALUES (N'c', 3), (N'd', 4)) AS T (S, Y);
@@ -28,16 +27,16 @@ public class SqlConnectionIntegrationTests
             TestObjectBuilder.Instance
         );
 
-        ShouldHaveNext(result, ("S", "a"), ("X", 1), ("Col2", 10));
-        ShouldHaveNext(result, ("S", "b"), ("X", 2), ("Col2", 10));
-        ShouldHaveNext(result, ("S", "c"), ("Y", 3), ("Col2", 20));
-        ShouldHaveNext(result, ("S", "d"), ("Y", 4), ("Col2", 20));
-        ShouldNotHaveNext(result);
+        await ShouldHaveNext(result, ("S", "a"), ("X", 1), ("Col2", 10));
+        await ShouldHaveNext(result, ("S", "b"), ("X", 2), ("Col2", 10));
+        await ShouldHaveNext(result, ("S", "c"), ("Y", 3), ("Col2", 20));
+        await ShouldHaveNext(result, ("S", "d"), ("Y", 4), ("Col2", 20));
+        await ShouldNotHaveNext(result);
     }
 
     [Test]
     [SetCulture("kl-GL")] // Greenlandic
-    public void ExecuteAndProject_SqlTypes()
+    public async Task ExecuteAndProjectAsync_SqlTypesAsync()
     {
         // NOTE: It appears that the current .NET culture is what determines
         // the collation of a SqlString.  Even a collation specified explicitly
@@ -55,7 +54,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProject(
+        await using var result = await connection.ExecuteAndProjectAsync(
             """
             SELECT *, 10 FROM (VALUES (N'a', 1), (N'b', 2)) AS T (S, X);
             SELECT *, 20 FROM (VALUES
@@ -67,15 +66,15 @@ public class SqlConnectionIntegrationTests
             useSqlTypes: true
         );
 
-        ShouldHaveNext(result, ("S", Greenlandic("a")), ("X", new SqlInt32(1)), ("Col2", new SqlInt32(10)));
-        ShouldHaveNext(result, ("S", Greenlandic("b")), ("X", new SqlInt32(2)), ("Col2", new SqlInt32(10)));
-        ShouldHaveNext(result, ("S", Greenlandic("c")), ("Y", new SqlInt32(3)), ("Col2", new SqlInt32(20)));
-        ShouldHaveNext(result, ("S", Greenlandic("d")), ("Y", new SqlInt32(4)), ("Col2", new SqlInt32(20)));
-        ShouldNotHaveNext(result);
+        await ShouldHaveNext(result, ("S", Greenlandic("a")), ("X", new SqlInt32(1)), ("Col2", new SqlInt32(10)));
+        await ShouldHaveNext(result, ("S", Greenlandic("b")), ("X", new SqlInt32(2)), ("Col2", new SqlInt32(10)));
+        await ShouldHaveNext(result, ("S", Greenlandic("c")), ("Y", new SqlInt32(3)), ("Col2", new SqlInt32(20)));
+        await ShouldHaveNext(result, ("S", Greenlandic("d")), ("Y", new SqlInt32(4)), ("Col2", new SqlInt32(20)));
+        await ShouldNotHaveNext(result);
     }
 
     [Test]
-    public void ExecuteAndProject_Exception()
+    public async Task ExecuteAndProjectAsync_ExceptionAsync()
     {
         using var connection = new SqlConnection(
             IntegrationTestsSetup.Database.ConnectionString,
@@ -83,7 +82,7 @@ public class SqlConnectionIntegrationTests
             TestSqlLogger.Instance
         );
 
-        using var result = connection.ExecuteAndProject(
+        await using var result = await connection.ExecuteAndProjectAsync(
             """
             SELECT * FROM (VALUES (1/1)) AS T (X);
             SELECT * FROM (VALUES (1/0)) AS T (X);
@@ -91,25 +90,24 @@ public class SqlConnectionIntegrationTests
             TestObjectBuilder.Instance
         );
 
-        ShouldHaveNext(result, ("X", 1));
-        Should.Throw<DataException>(() => result.MoveNext());
+        await ShouldHaveNext(result, ("X", 1));
+        await Should.ThrowAsync<DataException>(async () => await result.MoveNextAsync());
     }
 
-    private static void ShouldHaveNext(
-        IEnumerator<TestObject>               result,
+    private static async ValueTask ShouldHaveNext(
+        IAsyncEnumerator<TestObject>          result,
         params (string Name, object? Value)[] properties)
     {
-        result.MoveNext().ShouldBeTrue();
+        (await result.MoveNextAsync()).ShouldBeTrue();
+
         result.Current.Properties.ShouldBe(properties);
-        ((IEnumerator) result).Current.ShouldBeSameAs(result.Current);
     }
 
-    private static void ShouldNotHaveNext(IEnumerator<TestObject> result)
+    private static async ValueTask ShouldNotHaveNext(IAsyncEnumerator<TestObject> result)
     {
-        result.MoveNext().ShouldBeFalse();
+        (await result.MoveNextAsync()).ShouldBeFalse();
+
         Should.Throw<InvalidOperationException>(() => result.Current);
-        Should.Throw<InvalidOperationException>(() => ((IEnumerator) result).Current);
-        Should.Throw<NotSupportedException    >(() => result.Reset());
     }
 
     private sealed class TestObject

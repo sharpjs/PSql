@@ -1,12 +1,11 @@
 // Copyright Subatomix Research Inc.
 // SPDX-License-Identifier: MIT
 
-using System.Collections;
 using System.Globalization;
 
 namespace PSql;
 
-internal sealed class ObjectResultSet<T> : IEnumerator<T>
+internal sealed class ObjectResultSet<T> : IAsyncEnumerator<T>
 {
     private readonly SqlConnection     _connection;
     private readonly SqlDataReader     _reader;
@@ -38,16 +37,13 @@ internal sealed class ObjectResultSet<T> : IEnumerator<T>
     public T Current
         => _current ?? throw OnNoCurrentItem();
 
-    object? IEnumerator.Current
-        => Current;
-
-    public bool MoveNext()
+    public async ValueTask<bool> MoveNextAsync()
     {
         // Using async from sync to gain cancellation support
 
-        while (!_reader.ReadAsync(_cancellation).GetAwaiter().GetResult())
+        while (!await _reader.ReadAsync(_cancellation))
         {
-            if (!_reader.NextResultAsync(_cancellation).GetAwaiter().GetResult())
+            if (!await _reader.NextResultAsync(_cancellation))
                 return SetNoCurrent();
 
             _columnNames = null;
@@ -112,12 +108,9 @@ internal sealed class ObjectResultSet<T> : IEnumerator<T>
             : value;
     }
 
-    void IEnumerator.Reset()
-        => throw new NotSupportedException();
-
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        _reader.Dispose();
+        return _reader.DisposeAsync();
     }
 
     private static Exception OnNoCurrentItem()

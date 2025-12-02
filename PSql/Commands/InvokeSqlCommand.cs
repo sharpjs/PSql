@@ -14,6 +14,8 @@ namespace PSql.Commands;
 [OutputType(typeof(PSObject[]))]
 public class InvokeSqlCommand : ConnectedCmdlet
 {
+    private const int DefaultTimeoutSeconds = 30;
+
     /// <summary>
     ///   <b>-Sql:</b>
     ///   SQL scripts(s) to run.
@@ -57,8 +59,10 @@ public class InvokeSqlCommand : ConnectedCmdlet
     [Parameter]
     public TimeSpan? Timeout { get; set; }
 
-    private readonly E.SqlCmdPreprocessor    _preprocessor;
-    private readonly CancellationTokenSource _cancellation;
+    private int TimeoutSeconds
+        => Timeout.HasValue ? (int) Timeout.Value.TotalSeconds : DefaultTimeoutSeconds;
+
+    private readonly E.SqlCmdPreprocessor _preprocessor;
 
     private bool ShouldUsePreprocessing
         => !NoPreprocessing;
@@ -69,7 +73,6 @@ public class InvokeSqlCommand : ConnectedCmdlet
     public InvokeSqlCommand()
     {
         _preprocessor = new();
-        _cancellation = new();
     }
 
     protected override void ProcessRecord()
@@ -86,15 +89,12 @@ public class InvokeSqlCommand : ConnectedCmdlet
             scripts = ExcludeNullOrEmpty(Preprocess(scripts));
 
         // Execute with optional error handling
-        if (ShouldUseErrorHandling)
-            Execute(E.SqlErrorHandling.Apply(scripts));
-        else
-            Execute(scripts);
-    }
+        Run(ShouldUseErrorHandling
+            ? () => ExecuteAsync(E.SqlErrorHandling.Apply(scripts))
+            : () => ExecuteAsync(scripts)
+        );
 
-    protected override void StopProcessing()
-    {
-        _cancellation.Cancel();
+        WaitForAsyncActions();
     }
 
     private static IEnumerable<string> ExcludeNullOrEmpty(IEnumerable<string?> scripts)
@@ -109,38 +109,21 @@ public class InvokeSqlCommand : ConnectedCmdlet
         return scripts.SelectMany(_preprocessor.Process);
     }
 
-    private void Execute(IEnumerable<string> batches)
+    private async Task ExecuteAsync(IEnumerable<string> batches)
     {
         foreach (var batch in batches)
-            Execute(batch);
+            await ExecuteAsync(batch);
     }
 
-    private void Execute(string batch)
+    private async Task ExecuteAsync(string batch)
     {
-        foreach (var obj in ExecuteAndProjectToObjects(batch))
-            WriteObject(obj);
-    }
-
-    private IEnumerator<object> ExecuteAndProjectToObjects(string batch)
-    {
-        const int DefaultTimeoutSeconds = 30;
-
         AssumeBeginProcessingInvoked();
 
-        var timeout = Timeout.HasValue
-            ? (int) Timeout.Value.TotalSeconds
-            : DefaultTimeoutSeconds;
-
-        return Connection.InnerConnection.ExecuteAndProject(
-            batch, new PSObjectBuilder(), timeout, UseSqlTypes, _cancellation.Token
+        await using var enumerator = await Connection.InnerConnection.ExecuteAndProjectAsync(
+            batch, new PSObjectBuilder(), TimeoutSeconds, UseSqlTypes, CancellationToken
         );
-    }
 
-    /// <inheritdoc/>
-    public override void Dispose()
-    {
-        _cancellation.Dispose();
-
-        base.Dispose();
+        while (await enumerator.MoveNextAsync())
+            WriteObject(enumerator.Current);
     }
 }
