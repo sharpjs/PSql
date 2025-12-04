@@ -4,7 +4,7 @@ This file documents all notable changes.
 Most lines should begin with one of these words:
 *Add*, *Fix*, *Update*, *Change*, *Deprecate*, *Remove*.
 
-## [Unreleased](https://github.com/sharpjs/PSql/compare/release/2.1.0..HEAD)
+## [3.0.0](https://github.com/sharpjs/PSql/compare/release/2.1.0..3.0.0)
 - Change license to MIT.
 - Change target to PowerShell 7.2 / .NET 6.
 - Change how the module loads dependencies.  Now, the module loads dependencies
